@@ -35,4 +35,7 @@ private:
 
 	UPROPERTY()
 	TArray<FString> CollisionPropTags;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MapLoad", meta = (AllowPrivateAccess = "true"))
+	class UDataTable* PropTable = nullptr;
 };

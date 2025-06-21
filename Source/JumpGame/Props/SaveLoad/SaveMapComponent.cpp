@@ -1,6 +1,7 @@
 #include "SaveMapComponent.h"
 
 #include "JsonObjectConverter.h"
+#include "JumpGame/MapEditor/CategorySystem/PropStruct.h"
 #include "JumpGame/MapEditor/Components/GridComponent.h"
 #include "JumpGame/Props/Components/PropDataComponent.h"
 #include "JumpGame/Props/PrimitiveProp/PrimitiveProp.h"
@@ -59,6 +60,13 @@ void USaveMapComponent::GetAllPropsInfo(TArray<FSaveData>& OutSaveDataArray)
 		FSaveData SaveData;
 
 		SaveData.Id = PrimitiveProp->GetPropDataComponent()->GetPropID();
+		
+		FPropStruct* PropInfo = PropTable->FindRow<FPropStruct>(SaveData.Id, TEXT("LoadMap"), true);
+		if (!PropInfo || PropInfo->bIsHidden)
+		{
+			continue;
+		}
+		
 		SaveData.Position = PrimitiveProp->GetActorLocation();
 		SaveData.Rotation = PrimitiveProp->GetActorRotation();
 		SaveData.Size = PrimitiveProp->GetGridComp()->GetSize();

@@ -1,0 +1,4 @@
+{
+  "HttpsRequestImageURL": "http://192.168.10.96:8000",
+  "HttpsRequestImagePath": "/detect_season_vision/"
+}

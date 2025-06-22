@@ -17,23 +17,17 @@ void AClientRoomGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FFastLogger::LogFile(TEXT("ClientRoomGameMode"), 
-		TEXT("BeginPlay called."));
 
 	PlayerControllerClass = ALobbyPlayerController::StaticClass();
 
 	// 게임 인스턴스 가져오기
 	GI = Cast<UJumpGameInstance>(GetWorld()->GetGameInstance());
 	
-	FFastLogger::LogFile(TEXT("ClientRoomGameMode"), 
-		TEXT("Middle called."));
 	// TODO: GI 초기화
 	GI->GetPlayerInfo().Empty();
 
 	if (GI->bIsGameStart)
 	{
-		FFastLogger::LogFile(TEXT("ClientRoomGameMode"), 
-			TEXT("Early called."));
 		return;
 	}
 	
@@ -44,8 +38,6 @@ void AClientRoomGameMode::BeginPlay()
 		IntroCinematic->MediaPlayer->OnEndReached.AddDynamic(this, &AClientRoomGameMode::OnVideoEnd);
 	}
 	
-	FFastLogger::LogFile(TEXT("ClientRoomGameMode"), 
-		TEXT("End called."));
 }
 
 void AClientRoomGameMode::OnVideoEnd()

@@ -97,7 +97,7 @@ void AMapGameState::OnAllClientAdded()
 	{
 		MulticastRPC_UpdateLoadingUI(1.0f);
 		// 클라이언트에게 알리자 (2초후)
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMapGameState::MulticastRPC_AllClientAdded, 30.f,
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMapGameState::MulticastRPC_AllClientAdded, 2.f,
 		                                       false);
 	}
 }

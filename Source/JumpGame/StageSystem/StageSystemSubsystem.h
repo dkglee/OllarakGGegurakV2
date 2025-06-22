@@ -1,0 +1,45 @@
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Subsystems/GameInstanceSubsystem.h"
+#include "StageTableRow.h"
+#include "FieldTableRow.h"
+#include "StageSystemSubsystem.generated.h"
+
+#define DEFAULT_STAGE_PREFIX TEXT("Maps/Stages/") 
+
+
+UCLASS()
+class JUMPGAME_API UStageSystemSubsystem : public UGameInstanceSubsystem
+{
+	GENERATED_BODY()
+
+public:
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Deinitialize() override;
+	
+	// 조회용 API
+	const FStageTableRow* GetStage(const FName& StageID) const;
+	const FFieldTableRow* GetField(const FName& FieldID) const;
+	const TArray<FName>& GetFieldsInStage(const FName& StageID) const;
+
+	FString ConvertFiledIDToPath(const FName& FieldID) const;
+
+private:
+	// 스테이지 데이터 테이블
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stage System", meta = (AllowPrivateAccess = "true"))
+	class UDataTable* StageDataTable;
+	// 필드 데이터 테이블
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stage System", meta = (AllowPrivateAccess = "true"))
+	class UDataTable* FieldDataTable;
+	// 스테이지 캐시
+	TMap<FName, FStageTableRow*> StageCache;
+	// 필드 캐시
+	TMap<FName, FFieldTableRow*> FieldCache;
+	// Stage to Field 매핑
+	TMap<FName, TArray<FName>> StageToFields;
+
+	const FString DefaultPrefix = DEFAULT_STAGE_PREFIX;
+	
+	void BuildCaches();
+};

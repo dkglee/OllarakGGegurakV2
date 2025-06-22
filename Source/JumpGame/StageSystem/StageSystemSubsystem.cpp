@@ -20,6 +20,10 @@ void UStageSystemSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	}
 	
 	BuildCaches();
+
+	// TEST용
+	ChosenStageID = TEXT("Stage_01");
+	ChosenFieldID = TEXT("Field_01_01");
 }
 
 void UStageSystemSubsystem::Deinitialize()

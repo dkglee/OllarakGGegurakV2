@@ -25,6 +25,13 @@ public:
 
 	FString ConvertFiledIDToPath(const FName& FieldID) const;
 
+#pragma region GETTERSETTER
+	void SetChosenStage(const FName& StageID) { ChosenStageID = StageID; }
+	FName GetChosenStage() const { return ChosenStageID; }
+	void SetChosenField(const FName& FieldID) { ChosenFieldID = FieldID; }
+	FName GetChosenField() const { return ChosenFieldID; }
+#pragma endregion
+
 private:
 	// 스테이지 데이터 테이블
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stage System", meta = (AllowPrivateAccess = "true"))
@@ -40,6 +47,9 @@ private:
 	TMap<FName, TArray<FName>> StageToFields;
 
 	const FString DefaultPrefix = DEFAULT_STAGE_PREFIX;
+
+	FName ChosenStageID;
+	FName ChosenFieldID;
 	
 	void BuildCaches();
 };

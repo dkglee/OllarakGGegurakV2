@@ -135,7 +135,20 @@ AFrog::AFrog()
 		SettingAction = Frog_Setting.Object;
 	}
 
-
+	ConstructorHelpers::FObjectFinder<UInputAction> Frog_ScrollClick
+	(TEXT("/Game/Characters/Input/IA_SetArmLengthDefault.IA_SetArmLengthDefault"));
+	if (Frog_ScrollClick.Succeeded())
+	{
+		ScrollClickAction = Frog_ScrollClick.Object;
+	}
+	
+	ConstructorHelpers::FObjectFinder<UInputAction> Frog_Scroll
+	(TEXT("/Game/Characters/Input/IA_AdjustSpringArm.IA_AdjustSpringArm"));
+	if (Frog_Scroll.Succeeded())
+	{
+		ScrollAction = Frog_Scroll.Object;
+	}
+	
 	ConstructorHelpers::FObjectFinder<USoundBase> JumpSoundObject
 		(TEXT("/Game/Sounds/Ques/Jump_Cue.Jump_Cue"));
 	if (JumpSoundObject.Succeeded())
@@ -412,6 +425,7 @@ void AFrog::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		GetWorldTimerManager().ClearTimer(DoubleTapTimer);
 		GetWorldTimerManager().ClearTimer(JumpBackHandle);
 		GetWorldTimerManager().ClearTimer(ReturnCollisionTimer);
+		GetWorldTimerManager().ClearTimer(ZoomTimer);
 	}
 
 	Super::EndPlay(EndPlayReason);
@@ -559,6 +573,9 @@ void AFrog::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		EnhancedInputComponent->BindAction(EmotionAction, ETriggerEvent::Completed, this, &AFrog::OnReleasedCKey);
 
 		EnhancedInputComponent->BindAction(SettingAction, ETriggerEvent::Started, this, &AFrog::OnPressESCKey);
+		
+		EnhancedInputComponent->BindAction(ScrollAction, ETriggerEvent::Triggered, this, &AFrog::AdjustSpringArmLength);
+		EnhancedInputComponent->BindAction(ScrollClickAction, ETriggerEvent::Started, this, &AFrog::SetArmLengthDefault);
 	}
 }
 
@@ -920,6 +937,57 @@ void AFrog::PropActive()
 void AFrog::PropCheat()
 {
 	//
+}
+
+void AFrog::AdjustSpringArmLength(const struct FInputActionValue& Value)
+{
+	float MovementFloat{Value.Get<float>()};
+
+	if (MovementFloat > 0.5f)
+	{
+		GoalArmLength -= ZoomSize;
+	}
+	else
+	{
+		GoalArmLength += ZoomSize;
+	}
+	
+	GoalArmLength = FMath::Clamp(GoalArmLength, MinArmLength, MaxArmLength);
+	
+	if (!bIsZoom)
+	{
+		bIsZoom = true;
+		GetWorldTimerManager().SetTimer(ZoomTimer, this, &AFrog::StartZoom, 0.01f, true);
+	}
+}
+
+void AFrog::SetArmLengthDefault()
+{
+	GoalArmLength = 400.f;
+	
+	if (!bIsZoom)
+	{
+		bIsZoom = true;
+		GetWorldTimerManager().SetTimer(ZoomTimer, this, &AFrog::StartZoom, 0.01f, true);
+	}
+}
+
+void AFrog::StartZoom()
+{
+	float NewLength{FMath::Lerp(CameraBoom->TargetArmLength, GoalArmLength, 0.1f)};
+	CameraBoom->TargetArmLength = NewLength;
+	
+	if (FMath::IsNearlyEqual(NewLength, GoalArmLength, 0.05f))
+	{
+		CameraBoom->TargetArmLength = GoalArmLength;
+		StopZoom();
+	}
+}
+
+void AFrog::StopZoom()
+{
+	bIsZoom = false;
+	GetWorldTimerManager().ClearTimer(ZoomTimer);
 }
 
 void AFrog::ServerRPC_Launch_Implementation(const FVector& LaunchVelocity)

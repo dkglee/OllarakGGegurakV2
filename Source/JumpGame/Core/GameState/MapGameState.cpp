@@ -5,6 +5,7 @@
 
 #include "GameFramework/PlayerState.h"
 #include "JumpGame/Core/GameInstance/JumpGameInstance.h"
+#include "JumpGame/Core/PlayerController/InGamePlayerController.h"
 #include "JumpGame/Networks/Connection/ConnectionVerifyComponent.h"
 #include "JumpGame/Props/LogicProp/RisingWaterProp.h"
 #include "JumpGame/UI/GameProgressBarUI.h"
@@ -14,7 +15,8 @@
 #include "Kismet/GameplayStatics.h"
 
 AMapGameState::AMapGameState()
-{}
+{
+}
 
 void AMapGameState::BeginPlay()
 {
@@ -51,13 +53,17 @@ void AMapGameState::BeginPlay()
 		}
 	}
 
-	RisingWaterProp = Cast<ARisingWaterProp>(UGameplayStatics::GetActorOfClass(GetWorld(), ARisingWaterProp::StaticClass()));
+	RisingWaterProp = Cast<ARisingWaterProp>(
+		UGameplayStatics::GetActorOfClass(GetWorld(), ARisingWaterProp::StaticClass()));
 	//RisingWaterProp->StopRising(100);
 
 	FInputModeUIOnly InputMode;
 	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
 	PC->SetInputMode(InputMode);
 	PC->bShowMouseCursor = false;
+
+	// 별 관련
+	StarCount = 0;
 }
 
 void AMapGameState::Tick(float DeltaTime)
@@ -97,7 +103,7 @@ void AMapGameState::OnAllClientAdded()
 	{
 		MulticastRPC_UpdateLoadingUI(1.0f);
 		// 클라이언트에게 알리자 (2초후)
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMapGameState::MulticastRPC_AllClientAdded, 30.f,
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMapGameState::MulticastRPC_AllClientAdded, 2.f,
 		                                       false);
 	}
 }
@@ -123,18 +129,19 @@ void AMapGameState::OnClientAdded(const FString& NetID)
 		// 0.5초 있다가 UI에 적용, 너무 바로 되면 이상할까봐
 		TWeakObjectPtr<AMapGameState> WeakThis{this};
 		FTimerDelegate LoadingDelegate{
-			FTimerDelegate::CreateLambda([WeakThis, Progress]() {
+			FTimerDelegate::CreateLambda([WeakThis, Progress]()
+			{
 				if (WeakThis.IsValid())
 				{
 					AMapGameState* StrongThis = WeakThis.Get();
-					
+
 					StrongThis->MulticastRPC_UpdateLoadingUI(Progress);
 
 					StrongThis->GetWorld()->GetTimerManager().ClearTimer(StrongThis->LoadingTimerHandle);
 				}
 			})
 		};
-		
+
 		GetWorld()->GetTimerManager().SetTimer(LoadingTimerHandle, LoadingDelegate, 0.5f, false);
 	}
 }
@@ -147,6 +154,32 @@ void AMapGameState::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		GetWorld()->GetTimerManager().ClearTimer(LoadingTimerHandle);
 	}
 	Super::EndPlay(EndPlayReason);
+}
+
+void AMapGameState::AddStar()
+{
+	StarCount++;
+	
+	AInGamePlayerController* PC{(Cast<AInGamePlayerController>(UGameplayStatics::GetPlayerController(this, 0)))};
+	if (PC)
+	{
+		PC->UpdateStarCount(StarCount);
+	}
+
+	if (StarCount >= MaxStarCount)
+	{
+		EndStage(true);
+	}
+}
+
+void AMapGameState::EndStage(bool bIsClear)
+{
+	//for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	AInGamePlayerController* PC{(Cast<AInGamePlayerController>(UGameplayStatics::GetPlayerController(this, 0)))};
+	if (PC)
+	{
+		PC->ShowResultUI();
+	}
 }
 
 void AMapGameState::MulticastRPC_RemoveProgressBarUI_Implementation()

@@ -2,18 +2,45 @@
 
 
 #include "InGamePlayerController.h"
-
+#include "JumpGame/UI/InGame/InGameUI.h"
+#include "JumpGame/UI/InGame/StageResultUI.h"
 #include "Components/WidgetComponent.h"
 #include "JumpGame/Characters/Frog.h"
+
+AInGamePlayerController::AInGamePlayerController()
+{
+	ConstructorHelpers::FClassFinder<UInGameUI> InGameUIClassFinder
+		(TEXT("/Game/UI/Game/WBP_InGame.WBP_InGame_C"));
+	if (InGameUIClassFinder.Succeeded())
+	{
+		InGameUIClass = InGameUIClassFinder.Class;
+	}
+
+	ConstructorHelpers::FClassFinder<UStageResultUI> StageResultUIClassFinder
+		(TEXT("/Game/UI/Game/WBP_StageResult.WBP_StageResult_C"));
+	if (StageResultUIClassFinder.Succeeded())
+	{
+		ResultUIClass = StageResultUIClassFinder.Class;
+	}
+}
 
 void AInGamePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	StartInitialize();
 
 	SetInputMode(FInputModeGameOnly());
 	SetShowMouseCursor(false);
+
+	// 인게임 UI 생성
+	InGameUI = CreateWidget<UInGameUI>(this, InGameUIClass);
+	if (InGameUI)
+	{
+		InGameUI->AddToViewport();
+	}
+
+	ResultUI = CreateWidget<UStageResultUI>(this, ResultUIClass);
 }
 
 void AInGamePlayerController::OnRep_PlayerState()
@@ -26,7 +53,7 @@ void AInGamePlayerController::OnRep_PlayerState()
 void AInGamePlayerController::ReceivedPlayer()
 {
 	Super::ReceivedPlayer();
-	
+
 	StartInitialize();
 }
 
@@ -40,7 +67,26 @@ void AInGamePlayerController::StartInitialize()
 
 	SetInputMode(FInputModeGameOnly());
 	SetShowMouseCursor(false);
-	
-	Frog->InitJumpGaugeUIComponent();
 
+	Frog->InitJumpGaugeUIComponent();
+}
+
+void AInGamePlayerController::ShowResultUI()
+{
+	if (InGameUI)
+	{
+		InGameUI->RemoveFromParent();
+	}
+	if (ResultUI)
+	{
+		ResultUI->AddToViewport();
+	}
+}
+
+void AInGamePlayerController::UpdateStarCount(int32 Count)
+{
+	if (InGameUI)
+	{
+		InGameUI->UpdateStarCount(Count);
+	}
 }

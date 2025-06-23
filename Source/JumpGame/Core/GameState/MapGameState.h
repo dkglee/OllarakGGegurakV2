@@ -74,4 +74,15 @@ public:
 	TSubclassOf<class UInGameSettingUI> InGameSettingUIClass{nullptr};
 	UPROPERTY(EditAnywhere)
 	class UInGameSettingUI* InGameSettingUI{nullptr};
+
+public:
+	// 별 개수
+	int32 StarCount{};
+	// 최대 별 개수
+	int32 MaxStarCount{3};
+
+	// 별 획득
+	void AddStar();
+	// 게임 종료 처리
+	void EndStage(bool bIsClear);
 };

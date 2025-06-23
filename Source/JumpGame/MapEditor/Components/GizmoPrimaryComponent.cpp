@@ -27,4 +27,6 @@ UGizmoPrimaryComponent::UGizmoPrimaryComponent()
 	Super::SetStaticMesh(GizmoMesh);
 	Super::SetMaterial(0, GizmoMaterial);
 	SetRelativeScale3D({0.1f, 0.1f, 0.1f});
+
+	PrimaryComponentTick.bCanEverTick = false;
 }

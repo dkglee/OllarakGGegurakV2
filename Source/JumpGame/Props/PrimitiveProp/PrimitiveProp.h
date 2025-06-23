@@ -144,4 +144,7 @@ protected:
 	bool bCanClick = true;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CollisionEnable", meta = (AllowPrivateAccess = "true"))
 	bool bEnableCollision = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GizmoOffset", meta = (AllowPrivateAccess = "true"))
+	FVector GizmoOffset = FVector(50.0f, 50.0f, 50.0f); // Gizmo의 Offset 크기
 };

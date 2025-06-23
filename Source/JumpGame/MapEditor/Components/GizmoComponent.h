@@ -30,6 +30,7 @@ public:
 	void ChangeColorByNewAxis(const FVector& NewAxis);
 protected:
 	virtual void BeginPlay() override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 	UPROPERTY()
 	class UStaticMesh* GizmoMesh;
@@ -45,4 +46,10 @@ protected:
 
 	UPROPERTY()
 	bool bSelected = false;
+
+	UPROPERTY(EditAnywhere, Category="Gizmo|Screen")
+	float DesiredScreenWidthPx = 25.0f;        // 목표 가로 픽셀 수
+
+	FVector BaselineScale = FVector::OneVector; // = {0.5,0.25,0.5}
+	float MeshWidthUnit1 = 100.f;              // 스케일 1.0 때 X폭(cm)
 };

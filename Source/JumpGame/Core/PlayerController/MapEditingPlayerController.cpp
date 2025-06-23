@@ -15,7 +15,7 @@ AMapEditingPlayerController::AMapEditingPlayerController()
 	
 	bShowMouseCursor = true;
 
-	HitResultTraceDistance = 10000.f;
+	HitResultTraceDistance = 100'000'000.f;
 }
 
 void AMapEditingPlayerController::BeginPlay()

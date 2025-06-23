@@ -15,8 +15,20 @@ class JUMPGAME_API UOutToMainUI : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	UFUNCTION()
 	virtual void NativeOnInitialized() override;
-	
+	UFUNCTION()
+	virtual void NativeConstruct() override;
+	UFUNCTION()
+	void OnClickOutToMain();
+	UFUNCTION()
+	void OnClickReturnToGame();
+	UFUNCTION()
+	void CloseUI();
+
+public:
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UTextBlock* LeftStarText;
  	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UButton* OutToMainButton;
  	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))

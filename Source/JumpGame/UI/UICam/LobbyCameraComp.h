@@ -34,6 +34,8 @@ public:
 	class ALobbyMainCamera* MainCamera;
 	UPROPERTY(editanywhere, BlueprintReadWrite)
 	class ALobbySubCamera* SubCamera;
+	UPROPERTY(editanywhere, BlueprintReadWrite)
+	class ALobbyStageCamera* StageCamera;
 	
 	UFUNCTION()
 	void SetViewTarget();

@@ -4,6 +4,7 @@
 #include "LobbyCameraComp.h"
 
 #include "LobbyMainCamera.h"
+#include "LobbyStageCamera.h"
 #include "LobbySubCamera.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/CanvasPanel.h"
@@ -30,6 +31,7 @@ void ULobbyCameraComp::BeginPlay()
 	
 	MainCamera = Cast<ALobbyMainCamera>(UGameplayStatics::GetActorOfClass(GetWorld(), ALobbyMainCamera::StaticClass()));
 	SubCamera = Cast<ALobbySubCamera>(UGameplayStatics::GetActorOfClass(GetWorld(), ALobbySubCamera::StaticClass()));
+	StageCamera = Cast<ALobbyStageCamera>(UGameplayStatics::GetActorOfClass(GetWorld(), ALobbyStageCamera::StaticClass()));
 
 	PC = GetWorld()->GetFirstPlayerController();
 	if (PC)

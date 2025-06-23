@@ -166,6 +166,11 @@ void UGridComponent::Rotate(const FVector& Direction)
 	UpdatedActor->SetActorRotation(NewQuat);
 }
 
+FVector UGridComponent::GetSize()
+{
+	return FVector(Size.X, Size.Y, Size.Z);
+}
+
 void UGridComponent::SwapSize(const FVector& Direction)
 {
 	// Roll 회전

@@ -24,5 +24,5 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 public:
-	void CopyMaterial();
+	void CopyMeshAndMaterial();
 };

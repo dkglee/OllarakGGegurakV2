@@ -3,6 +3,8 @@
 
 #include "ChameleonProp.h"
 
+#include "JumpGame/MapEditor/Components/GridComponent.h"
+
 
 // Sets default values
 AChameleonProp::AChameleonProp()
@@ -16,7 +18,7 @@ void AChameleonProp::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CopyMaterial();
+	CopyMeshAndMaterial();
 }
 
 // Called every frame
@@ -25,8 +27,45 @@ void AChameleonProp::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AChameleonProp::CopyMaterial()
+void AChameleonProp::CopyMeshAndMaterial()
 {
-	
+	if (MeshComp)
+	{
+		FVector Start{GetActorLocation()};
+		FVector End{Start - FVector(0, 0, 55)};
+
+		FHitResult HitResult;
+		FCollisionQueryParams Params;
+		Params.AddIgnoredActor(this);
+
+		if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params))
+		{
+			ABaseProp* BaseProp{Cast<ABaseProp>(HitResult.GetActor())};
+
+			// SetSize 1, 1, 1 인 녀석만 일단
+			if (BaseProp && BaseProp->MeshComp && BaseProp->GetGridComp()->GetSize() == FVector(1, 1, 1))
+			{
+				// Mesh 복사
+				UStaticMesh* BottomMesh{BaseProp->MeshComp->GetStaticMesh()};
+				if (BottomMesh)
+				{
+					MeshComp->SetStaticMesh(BottomMesh);
+					// Scale 복사
+					MeshComp->SetRelativeScale3D(BaseProp->MeshComp->GetRelativeScale3D());
+				}
+
+				// 머티리얼 복사
+				int32 NumMaterials{BaseProp->MeshComp->GetNumMaterials()};
+				for (int32 i{}; i < NumMaterials; ++i)
+				{
+					UMaterialInterface* Mat{BaseProp->MeshComp->GetMaterial(i)};
+					if (Mat)
+					{
+						MeshComp->SetMaterial(i, Mat);
+					}
+				}
+			}
+		}
+	}
 }
 

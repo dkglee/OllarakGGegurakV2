@@ -87,10 +87,9 @@ void AInGamePlayerController::ShowOutToMainUI()
 	{
 		InGameUI->RemoveFromParent();
 	}
-		FLog::Log("1");
+
 	if (OutToMainUI)
 	{
-		FLog::Log("2");
 		OutToMainUI->AddToViewport();
 	}
 }

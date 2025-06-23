@@ -8,6 +8,7 @@
 #include "JumpGame/Core/PlayerController/InGamePlayerController.h"
 #include "JumpGame/Props/SaveLoad/LoadMapComponent.h"
 #include "JumpGame/Props/SaveLoad/SaveMapComponent.h"
+#include "JumpGame/StageSystem/StageSystemSubsystem.h"
 
 AInGameMode::AInGameMode()
 {
@@ -23,11 +24,22 @@ void AInGameMode::BeginPlay()
 	{
 		return;
 	}
-	FString FileName = JumpGameInstance->GetMapFilePath();
-	if (FileName.IsEmpty())
+	// FString FileName = JumpGameInstance->GetMapFilePath();
+	// if (FileName.IsEmpty())
+	// {
+	// 	return;
+	// }
+	
+	// Stage System Subsystem을 가져와서 선택된 필드 ID를 가져옵니다. 
+	UStageSystemSubsystem* StageSystem = JumpGameInstance->GetSubsystem<UStageSystemSubsystem>();
+	if (!StageSystem)
 	{
+		FFastLogger::LogConsole(TEXT("StageSystemSubsystem not found!"));
 		return;
 	}
+	FName FieldID = StageSystem->GetChosenField();
+	FString FileName = StageSystem->ConvertFiledIDToPath(FieldID);
+	
 	LoadMapComponent->LoadMapWithString(FileName);
 }
 

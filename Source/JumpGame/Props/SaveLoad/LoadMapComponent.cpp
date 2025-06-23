@@ -113,7 +113,6 @@ void ULoadMapComponent::LoadMapWithString(const FString& FileName)
 {
 	FString JsonString;
 
-	FFastLogger::LogFile(TEXT("LoadMapComponent"), TEXT("LoadFile : %s"), *FileName);
 	if (!LoadFileToJsonString(FileName, JsonString))
 	{
 		return ;

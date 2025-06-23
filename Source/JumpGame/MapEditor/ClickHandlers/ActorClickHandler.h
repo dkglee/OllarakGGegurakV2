@@ -12,6 +12,6 @@ class JUMPGAME_API UActorClickHandler : public UClickHandlerInterface
 public:
 	UActorClickHandler();
 	virtual int32 GetPriority() const override { return 50; }
-	virtual bool HandleClick(FClickResponse& ClickResponse, class AMapEditingPlayerController* PlayerController, bool bRotateGizmoMode) override;
+	virtual bool HandleClick(FClickResponse& ClickResponse, class AMapEditingPlayerController* PlayerController, FClickContext& ClickContext) override;
 	virtual ~UActorClickHandler() override;
 };

@@ -17,13 +17,13 @@ UGizmoClickHandler::~UGizmoClickHandler()
 {
 }
 
-bool UGizmoClickHandler::HandleClick(FClickResponse& ClickResponse, AMapEditingPlayerController* PlayerController, bool bRotateGizmoMode)
+bool UGizmoClickHandler::HandleClick(FClickResponse& ClickResponse, AMapEditingPlayerController* PlayerController, FClickContext& ClickContext)
 {
 	ClickResponse.Result = EClickHandlingResult::GizmoEditing;
 
 	FFastLogger::LogScreen(FColor::Red, TEXT("Gizmo Click Handler : Rotate Gizmo Mode is enabled"));
 	// 만약 RotateGizmo 모드가 활성화 되어 있다면 이동 Gizmo를 클릭할 수 없음
-	if (bRotateGizmoMode)
+	if (ClickContext.Has(FClickContext::RotateGizmoMode))
 	{
 		return false;
 	}

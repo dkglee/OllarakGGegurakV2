@@ -18,7 +18,7 @@ UActorClickHandler::~UActorClickHandler()
 {
 }
 
-bool UActorClickHandler::HandleClick(FClickResponse& ClickResponse, class AMapEditingPlayerController* PlayerController, bool bRotateGizmoMode)
+bool UActorClickHandler::HandleClick(FClickResponse& ClickResponse, class AMapEditingPlayerController* PlayerController, FClickContext& ClickContext)
 {
 	ClickResponse.Result = EClickHandlingResult::ActorEditing;
 
@@ -58,7 +58,7 @@ bool UActorClickHandler::HandleClick(FClickResponse& ClickResponse, class AMapEd
 		}
 		if (Actor && Actor->IsClickable())
 		{
-			Actor->SetSelected(bRotateGizmoMode);
+			Actor->SetSelected(ClickContext.Has(FClickContext::RotateGizmoMode));
 			ClickResponse.TargetProp = Actor;
 		}
 		

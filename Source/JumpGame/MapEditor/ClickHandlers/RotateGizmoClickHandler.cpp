@@ -12,11 +12,11 @@ URotateGizmoClickHandler::URotateGizmoClickHandler()
 }
 
 bool URotateGizmoClickHandler::HandleClick(FClickResponse& ClickResponse,
-	class AMapEditingPlayerController* PlayerController, bool bRotateGizmoMode)
+	class AMapEditingPlayerController* PlayerController, FClickContext& ClickContext)
 {
 	ClickResponse.Result = EClickHandlingResult::RotateGizmoEditing;
 	
-	if (!bRotateGizmoMode)
+	if (!ClickContext.Has(FClickContext::RotateGizmoMode))
 	{
 		return false;
 	}

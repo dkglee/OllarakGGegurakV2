@@ -2,6 +2,7 @@
 
 #include "ActorClickHandler.h"
 #include "BackgroundClickHandler.h"
+#include "ClickContext.h"
 #include "GizmoClickHandler.h"
 #include "PropSlotClickHandler.h"
 #include "RotateGizmoClickHandler.h"
@@ -32,11 +33,16 @@ void UClickHandlerManager::RegisterHandler(UClickHandlerInterface* Handler)
 bool UClickHandlerManager::HandleClick(AMapEditingPlayerController* PlayerController)
 {
 	AActor* TempActor = ControlledClickResponse.TargetProp;
+
+	FClickContext ClickContext;
+	ClickContext.Flags = bRotateGizmoMode ? FClickContext::RotateGizmoMode : 0;
+	ClickContext.Flags |= bCtrlMultiSelect ? FClickContext::CtrlMultiSelect : 0;
+	ClickContext.Flags |= bShiftMultiSelect ? FClickContext::ShiftMultiSelect : 0;
 	
 	bool bHandled = false;
 	for (const auto& Handler : Handlers)
 	{
-		if (Handler->HandleClick(ControlledClickResponse, PlayerController, bRotateGizmoMode))
+		if (Handler->HandleClick(ControlledClickResponse, PlayerController, ClickContext))
 		{
 			bHandled = true;
 			break ;

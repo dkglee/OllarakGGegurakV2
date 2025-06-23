@@ -17,7 +17,7 @@ UPropSlotClickHandler::~UPropSlotClickHandler()
 }
 
 bool UPropSlotClickHandler::HandleClick(FClickResponse& ClickResponse,
-	class AMapEditingPlayerController* PlayerController, bool bRotateGizmoMode)
+	class AMapEditingPlayerController* PlayerController, FClickContext& ClickContext)
 {
 	if (ClickResponse.Result != EClickHandlingResult::UIEditing)
 	{
@@ -47,7 +47,7 @@ bool UPropSlotClickHandler::HandleClick(FClickResponse& ClickResponse,
 		EditingPawn->GetRotateHandlerManager()->ResetAxis();
 	}
 	ClickResponse.TargetProp = ClickResponse.ClickedPropByWidget;
-	ClickResponse.TargetProp->SetSelected(bRotateGizmoMode);
+	ClickResponse.TargetProp->SetSelected(ClickContext.Has(FClickContext::RotateGizmoMode));
 	
 	return true;
 }

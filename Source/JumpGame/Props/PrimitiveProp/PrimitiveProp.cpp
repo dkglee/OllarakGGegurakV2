@@ -203,8 +203,8 @@ void APrimitiveProp::SetSelected(bool bRotateGizmoMode)
 {
 	bSelected = true;
 
-	// Outer Collision을 꺼줌
-	GridOuterCollision->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
+	// Outer Collision Preset 변경
+	GridOuterCollision->SetCollisionProfileName(TEXT("GridSelectedPrefet"));
 
 	if (bRotateGizmoMode)
 	{
@@ -234,8 +234,8 @@ void APrimitiveProp::SetUnSelected()
 {
 	bSelected = false;
 
-	// Outer Collision을 켜줌
-	GridOuterCollision->SetCollisionEnabled(ECollisionEnabled::Type::QueryAndPhysics);
+	// Outer Collision Preset 변경
+	GridOuterCollision->SetCollisionProfileName(TEXT("GridOuterPrefet"));
 
 	HideGizmos();
 
@@ -252,18 +252,6 @@ void APrimitiveProp::SetUnSelected()
 		RotateGizmo->SetComponentTickEnabled(false);
 	}
 	GizmoPrimary->SetComponentTickEnabled(false);
-}
-
-void APrimitiveProp::SetPrimitivePropCollision(bool bCond)
-{
-	if (bCond)
-	{
-		GridOuterCollision->SetCollisionEnabled(ECollisionEnabled::Type::QueryAndPhysics);
-	}
-	else
-	{
-		GridOuterCollision->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
-	}
 }
 
 void APrimitiveProp::SetGizmosCollision(bool bCond)

@@ -36,18 +36,22 @@ bool UPropSlotClickHandler::HandleClick(FClickResponse& ClickResponse,
 	}
 
 	// 기존의 액터가 선택되어 있다면 UnSelected 처리
-	if (APrimitiveProp* ControlledActor = ClickResponse.TargetProp)
+	for (APrimitiveProp* SelectedProp : ClickResponse.SelectedProps)
 	{
-		ControlledActor->SetUnSelected();
-		ClickResponse.TargetProp = nullptr;
+		if (SelectedProp)
+		{
+			SelectedProp->SetUnSelected();
+		}
 	}
+	ClickResponse.SelectedProps.Empty();
 
 	if (EditingPawn)
 	{
 		EditingPawn->GetRotateHandlerManager()->ResetAxis();
 	}
-	ClickResponse.TargetProp = ClickResponse.ClickedPropByWidget;
-	ClickResponse.TargetProp->SetSelected(ClickContext.Has(FClickContext::RotateGizmoMode));
+
+	ClickResponse.SelectedProps.Add(ClickResponse.ClickedPropByWidget);
+	ClickResponse.SelectedProps.Last()->SetSelected(ClickContext.Has(FClickContext::RotateGizmoMode));
 	
 	return true;
 }

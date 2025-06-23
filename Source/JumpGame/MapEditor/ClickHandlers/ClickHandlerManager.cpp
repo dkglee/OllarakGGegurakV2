@@ -32,7 +32,7 @@ void UClickHandlerManager::RegisterHandler(UClickHandlerInterface* Handler)
 
 bool UClickHandlerManager::HandleClick(AMapEditingPlayerController* PlayerController)
 {
-	AActor* TempActor = ControlledClickResponse.TargetProp;
+	AActor* TempActor = ControlledClickResponse.SelectedProps.Last();
 
 	FClickContext ClickContext;
 	ClickContext.Flags = bRotateGizmoMode ? FClickContext::RotateGizmoMode : 0;
@@ -49,7 +49,7 @@ bool UClickHandlerManager::HandleClick(AMapEditingPlayerController* PlayerContro
 		}
 	}
 	
-	if (TempActor != ControlledClickResponse.TargetProp)
+	if (TempActor != ControlledClickResponse.SelectedProps.Last())
 	{
 		OnControlledPropChanged.Broadcast();
 	}

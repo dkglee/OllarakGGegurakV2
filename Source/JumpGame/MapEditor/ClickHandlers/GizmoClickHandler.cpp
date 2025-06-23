@@ -29,13 +29,12 @@ bool UGizmoClickHandler::HandleClick(FClickResponse& ClickResponse, AMapEditingP
 	}
 	
 	// true가 될 경우 해당 액터의 기즈모가 클릭이 된거임!
-	if (PlayerController->OnClickOperation(ClickResponse.TargetProp, ClickResponse))
+	if (PlayerController->OnClickOperation(ClickResponse.SelectedProps.Last(), ClickResponse))
 	{
 		ClickResponse.DebugMessage = TEXT("Gizmo Click");
 
 		FHitResult HitResult = ClickResponse.HitResult;
 
-		ClickResponse.TargetProp = Cast<APrimitiveProp>(HitResult.GetActor());
 		// 기존의 Gizmo가 선택되어 있다면 UnSelected 처리
 		if (UGizmoComponent* ControlledGizmo = ClickResponse.TargetGizmo)
 		{

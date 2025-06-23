@@ -64,18 +64,25 @@ void UPressedHandlerManager::InitializeSettings(FClickResponse& ControlledInfo,
 {
 	FVector MouseWorldPosition;
 	FVector MouseDirection;
+
+	GizmoPressedInfo.OriginalActorLocations.Empty();
+	
 	PlayerController->DeprojectMousePositionToWorld(MouseWorldPosition, MouseDirection);
 
 	GizmoPressedInfo.InitialMouseRayOrigin = MouseWorldPosition;
 	GizmoPressedInfo.InitialMouseRayDirection = MouseDirection;
-	if (!ControlledInfo.TargetProp)
+	if (ControlledInfo.SelectedProps.Num() == 0)
 	{
 		return;
 	}
-	UGridComponent* Grid = ControlledInfo.TargetProp->GetGridComp();
-	// GizmoPressedInfo.OriginalActorLocation = ControlledInfo.TargetProp->GetActorLocation() - (Grid->GetSize() * Grid->GetSnapSize() * 0.5f);
-	// 교차점으로 중심을 옮김
-	GizmoPressedInfo.OriginalActorLocation = ControlledInfo.TargetProp->GetActorLocation();
+	
+	for (APrimitiveProp* SelectedProp : ControlledInfo.SelectedProps)
+	{
+		if (SelectedProp && SelectedProp->IsValidLowLevel())
+		{
+			GizmoPressedInfo.OriginalActorLocations.Add(SelectedProp, SelectedProp->GetActorLocation());
+		}
+	}
 }
 
 void UPressedHandlerManager::ResetPositions()

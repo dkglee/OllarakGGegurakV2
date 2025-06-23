@@ -32,7 +32,7 @@ void UClickHandlerManager::RegisterHandler(UClickHandlerInterface* Handler)
 
 bool UClickHandlerManager::HandleClick(AMapEditingPlayerController* PlayerController)
 {
-	AActor* TempActor = ControlledClickResponse.SelectedProps.Last();
+	AActor* TempActor = FCommonUtil::SafeLast(ControlledClickResponse.SelectedProps);
 
 	FClickContext ClickContext;
 	ClickContext.Flags = bRotateGizmoMode ? FClickContext::RotateGizmoMode : 0;
@@ -49,7 +49,7 @@ bool UClickHandlerManager::HandleClick(AMapEditingPlayerController* PlayerContro
 		}
 	}
 	
-	if (TempActor != ControlledClickResponse.SelectedProps.Last())
+	if (TempActor != FCommonUtil::SafeLast(ControlledClickResponse.SelectedProps))
 	{
 		OnControlledPropChanged.Broadcast();
 	}
@@ -64,9 +64,12 @@ void UClickHandlerManager::ResetControl()
 	{
 		ControlledGizmo->SetUnSelected();
 	}
-	if (APrimitiveProp* ControlledProp = ControlledClickResponse.TargetProp)
+	for (APrimitiveProp* SelectedProp : ControlledClickResponse.SelectedProps)
 	{
-		ControlledProp->SetUnSelected();
+		if (SelectedProp)
+		{
+			SelectedProp->SetUnSelected();
+		}
 	}
 	ControlledClickResponse = FClickResponse();
 	OnControlledPropChanged.Broadcast();
@@ -108,7 +111,8 @@ void UClickHandlerManager::OnWidgetDragLeave()
 {
 	bMouseEnterUI = false;
 	
-	ControlledClickResponse.TargetProp->SetActorHiddenInGame(false);
+	AActor* Actor = FCommonUtil::SafeLast(ControlledClickResponse.SelectedProps);
+	if (Actor) Actor->SetActorHiddenInGame(false);
 }
 
 void UClickHandlerManager::OnWidgetDragEnter()
@@ -126,7 +130,8 @@ void UClickHandlerManager::OnWidgetDragEnter()
 		HandleClick(PlayerController);
 	}
 
-	ControlledClickResponse.TargetProp->SetActorHiddenInGame(true);
+	AActor* Actor = FCommonUtil::SafeLast(ControlledClickResponse.SelectedProps);
+	if (Actor) Actor->SetActorHiddenInGame(false);
 }
 
 void UClickHandlerManager::OnPropDragCancelled()
@@ -136,7 +141,8 @@ void UClickHandlerManager::OnPropDragCancelled()
 	
 	if (bMouseEnterUI)
 	{
-		ControlledClickResponse.TargetProp->Destroy();
+		APrimitiveProp* LastSelected = FCommonUtil::SafeLast(ControlledClickResponse.SelectedProps);
+		if (LastSelected) LastSelected->Destroy();
 		ControlledClickResponse = FClickResponse();
 	}
 

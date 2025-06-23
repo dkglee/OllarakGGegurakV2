@@ -39,7 +39,13 @@ bool FGizmoPressedHandler::HandlePressed(FClickResponse& PressedResponse,
 		return false;
 	}
 
-	TWeakObjectPtr<UGridComponent> GridComponent = PressedResponse.TargetProp->GetGridComp();
+	APrimitiveProp* LastSelected = FCommonUtil::SafeLast(PressedResponse.SelectedProps);
+	if (!LastSelected)
+	{
+		return false;
+	}
+	
+	TWeakObjectPtr<UGridComponent> GridComponent = LastSelected->GetGridComp();
 	UGridComponent* Grid = GridComponent.Get();
 	if (!Grid)
 	{
@@ -58,9 +64,8 @@ bool FGizmoPressedHandler::HandlePressed(FClickResponse& PressedResponse,
 	FVector RayOrigin = HitResult.Location;
 	FVector RayDirection = HitResult.Normal;
 
-	// FVector GizmoOrigin = PressedResponse.TargetProp->GetActorLocation() - (Grid->GetSize() * Grid->GetSnapSize() * 0.5f);
 	// 교차점으로 중심을 옮김
-	FVector GizmoOrigin = PressedResponse.TargetProp->GetActorLocation();
+	FVector GizmoOrigin = PressedResponse.SelectedProps.Last()->GetActorLocation();
 	FVector GizmoDirection = Gizmo->GetDirection();
 	
 	// 1. 최초 클릭 시점의 레이와 기즈모 선분 사이 최근접점
@@ -87,10 +92,27 @@ bool FGizmoPressedHandler::HandlePressed(FClickResponse& PressedResponse,
 	float DeltaT = CurrentLineT - InitialLineT;
 	FVector DeltaMove = GizmoDirection * DeltaT;
 	
-	// 4. Actor 이동
-	FVector NewLocation = GizmoPressedInfo.OriginalActorLocation + DeltaMove;
+	// 4. Actor 이동 (다중 이동)
+	for (APrimitiveProp* SelectedProp : PressedResponse.SelectedProps)
+	{
+		if (!SelectedProp || !SelectedProp->IsValidLowLevel())
+		{
+			continue;
+		}
+		if (!GizmoPressedInfo.OriginalActorLocations.Contains(SelectedProp))
+		{
+			continue;
+		}
+		FVector OriginalLocation = GizmoPressedInfo.OriginalActorLocations.FindRef(SelectedProp);
+		FVector NewLocation = OriginalLocation + DeltaMove;
+
+		UGridComponent* PropGrid = SelectedProp->GetGridComp();
+		PropGrid->MoveByGizmo(NewLocation);
+	}
+	
+	// FVector NewLocation = GizmoPressedInfo.OriginalActorLocation + DeltaMove;
 
 	// GridComponent 이동 수행
-	Grid->MoveByGizmo(NewLocation);
+	// Grid->MoveByGizmo(NewLocation);
 	return true;
 }

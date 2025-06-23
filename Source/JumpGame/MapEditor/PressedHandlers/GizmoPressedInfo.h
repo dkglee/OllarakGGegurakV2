@@ -14,14 +14,14 @@ public:
 	
 	UPROPERTY(Blueprintable)
 	FVector InitialMouseRayDirection = FVector::ZeroVector;
-	
+
 	UPROPERTY(Blueprintable)
-	FVector OriginalActorLocation = FVector::ZeroVector;
+	TMap<class APrimitiveProp*, FVector> OriginalActorLocations;
 	
-	FGizmoPressedInfo(const FVector& InInitialMouseRayOrigin = FVector::ZeroVector, const FVector& InInitialMouseRayDirection = FVector::ZeroVector, const FVector& InOriginalActorLocation = FVector::ZeroVector)
+	FGizmoPressedInfo(const FVector& InInitialMouseRayOrigin = FVector::ZeroVector, const FVector& InInitialMouseRayDirection = FVector::ZeroVector, const TMap<class APrimitiveProp*, FVector>& InOriginalActorLocations = TMap<class APrimitiveProp*, FVector>())
 		: InitialMouseRayOrigin(InInitialMouseRayOrigin)
 		, InitialMouseRayDirection(InInitialMouseRayDirection)
-		, OriginalActorLocation(InOriginalActorLocation)
+		, OriginalActorLocations(InOriginalActorLocations)
 	{
 	}
 };

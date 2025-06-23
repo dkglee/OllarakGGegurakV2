@@ -24,7 +24,8 @@ bool UActorClickHandler::HandleClick(FClickResponse& ClickResponse, class AMapEd
 
 	FFastLogger::LogScreen(FColor::Red, TEXT("Actor Clicked"));
 	// true가 될 경우 액터가 선택됨
-	if (PlayerController->OnClickOperation(ClickResponse.SelectedProps.Last(), ClickResponse))
+	APrimitiveProp* LastSelected = FCommonUtil::SafeLast(ClickResponse.SelectedProps);
+	if (PlayerController->OnClickOperation(LastSelected, ClickResponse))
 	{
 		ClickResponse.DebugMessage = TEXT("Actor Click");
 
@@ -37,7 +38,7 @@ bool UActorClickHandler::HandleClick(FClickResponse& ClickResponse, class AMapEd
 			ClickResponse.TargetGizmo = nullptr;
 		}
 
-		APrimitiveProp* Temp = ClickResponse.SelectedProps.Last();
+		APrimitiveProp* Temp = FCommonUtil::SafeLast(ClickResponse.SelectedProps);
 		// 기존의 액터가 선택되어 있다면 UnSelected 처리
 		for (APrimitiveProp* SelectedProp : ClickResponse.SelectedProps)
 		{

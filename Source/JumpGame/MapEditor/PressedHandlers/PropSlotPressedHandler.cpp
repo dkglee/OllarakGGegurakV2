@@ -23,24 +23,24 @@ bool FPropSlotPressedHandler::HandlePressed(FClickResponse& PressedResponse,
 	{
 		return false;
 	}
-	if (!PressedResponse.TargetProp)
+	if (!FCommonUtil::SafeLast(PressedResponse.SelectedProps))
 	{
 		return false;
 	}
 	
-	PressedResponse.TargetProp->SetGizmosCollision(false);
+	PressedResponse.SelectedProps.Last()->SetGizmosCollision(false);
 	
 	FHitResult HitResult;
 	bool bResult = PlayerController->OnPressedOperation(PressedType, HitResult);
 	
-	PressedResponse.TargetProp->SetGizmosCollision(true);
+	PressedResponse.SelectedProps.Last()->SetGizmosCollision(true);
 	
 	if (!bResult)
 	{
 		return false;
 	}
 	
-	TWeakObjectPtr<UGridComponent> GridComponent = PressedResponse.TargetProp->GetGridComp();
+	TWeakObjectPtr<UGridComponent> GridComponent = PressedResponse.SelectedProps.Last()->GetGridComp();
 	UGridComponent* Grid = GridComponent.Get();
 	if (!Grid)
 	{

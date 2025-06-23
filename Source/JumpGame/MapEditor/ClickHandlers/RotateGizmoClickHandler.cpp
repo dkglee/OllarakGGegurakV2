@@ -21,7 +21,8 @@ bool URotateGizmoClickHandler::HandleClick(FClickResponse& ClickResponse,
 		return false;
 	}
 
-	if (PlayerController->OnClickOperation(ClickResponse.SelectedProps.Last(), ClickResponse))
+	APrimitiveProp* LastSelected = FCommonUtil::SafeLast(ClickResponse.SelectedProps);
+	if (PlayerController->OnClickOperation(LastSelected, ClickResponse))
 	{
 		FHitResult HitResult = ClickResponse.HitResult;
 

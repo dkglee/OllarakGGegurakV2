@@ -16,8 +16,11 @@ void UDeleteHandlerManager::BeginPlay()
 
 void UDeleteHandlerManager::HandleDelete(FClickResponse& ClickResponse)
 {
-	if (ClickResponse.TargetProp)
+	for (APrimitiveProp* SelectedProp : ClickResponse.SelectedProps)
 	{
-		ClickResponse.TargetProp->Destroy();
+		if (SelectedProp)
+		{
+			SelectedProp->Destroy();
+		}
 	}
 }

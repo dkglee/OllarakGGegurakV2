@@ -327,15 +327,15 @@ void AMapEditingPawn::HandleScroll(const FInputActionValue& InputActionValue)
 void AMapEditingPawn::HandleTeleport(const FInputActionValue& InputActionValue)
 {
 	FClickResponse HandlingInfo = ClickHandlerManager->GetControlledClickResponse();
-	if (!HandlingInfo.TargetProp || !HandlingInfo.TargetProp->IsValidLowLevel())
+	if (!FCommonUtil::SafeLast(HandlingInfo.SelectedProps) || !FCommonUtil::SafeLast(HandlingInfo.SelectedProps)->IsValidLowLevel())
 	{
 		return;
 	}
 	// Target Location을 가져옴
-	FVector TargetLocation = HandlingInfo.TargetProp->GetActorLocation() - FVector(0.f, 0.f, 50.f);
+	FVector TargetLocation = FCommonUtil::SafeLast(HandlingInfo.SelectedProps)->GetActorLocation() - FVector(0.f, 0.f, 50.f);
 	// Target Location에서 현재 카메라가 보고 있는 방향의 뒤로 Size + @ 만큼 이동
 	FVector Direction = Controller->GetControlRotation().Vector();
-	FVector Size = HandlingInfo.TargetProp->GetGridComp()->GetSize() * HandlingInfo.TargetProp->GetGridComp()->GetSnapSize();
+	FVector Size = FCommonUtil::SafeLast(HandlingInfo.SelectedProps)->GetGridComp()->GetSize() * FCommonUtil::SafeLast(HandlingInfo.SelectedProps)->GetGridComp()->GetSnapSize();
 	float MaxOffset = Size.GetMax() + 200.f;
 	FVector NewLocation = TargetLocation - Direction * MaxOffset;
 
@@ -368,9 +368,9 @@ void AMapEditingPawn::HandleChangeMoveGizmoMode(const FInputActionValue& InputAc
 	ClickHandlerManager->SetbRotateGizmoMode(bRotateGizmoMode);
 
 	FClickResponse ControlledInfo = ClickHandlerManager->GetControlledClickResponse();
-	if (ControlledInfo.TargetProp && ControlledInfo.TargetProp->IsValidLowLevel())
+	if (FCommonUtil::SafeLast(ControlledInfo.SelectedProps) && FCommonUtil::SafeLast(ControlledInfo.SelectedProps)->IsValidLowLevel())
 	{
-		ControlledInfo.TargetProp->ShowMoveGizmo();
+		FCommonUtil::SafeLast(ControlledInfo.SelectedProps)->ShowMoveGizmo();
 	}
 	
 	if (!(ControlledInfo.TargetGizmo && ControlledInfo.TargetGizmo->IsValidLowLevel()))
@@ -392,9 +392,9 @@ void AMapEditingPawn::HandleChangeRotateGizmoMode(const FInputActionValue& Input
 
 	// 현재 클릭되고 있는 Gizmo가 있는지 확인
 	FClickResponse ControlledInfo = ClickHandlerManager->GetControlledClickResponse();
-	if (ControlledInfo.TargetProp && ControlledInfo.TargetProp->IsValidLowLevel())
+	if (FCommonUtil::SafeLast(ControlledInfo.SelectedProps) && FCommonUtil::SafeLast(ControlledInfo.SelectedProps)->IsValidLowLevel())
 	{
-		ControlledInfo.TargetProp->ShowRotateGizmo();
+		FCommonUtil::SafeLast(ControlledInfo.SelectedProps)->ShowRotateGizmo();
 	}
 	
 	if (!(ControlledInfo.TargetGizmo && ControlledInfo.TargetGizmo->IsValidLowLevel()))

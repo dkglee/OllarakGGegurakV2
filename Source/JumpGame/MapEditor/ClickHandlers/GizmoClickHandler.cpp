@@ -29,7 +29,8 @@ bool UGizmoClickHandler::HandleClick(FClickResponse& ClickResponse, AMapEditingP
 	}
 	
 	// true가 될 경우 해당 액터의 기즈모가 클릭이 된거임!
-	if (PlayerController->OnClickOperation(ClickResponse.SelectedProps.Last(), ClickResponse))
+	APrimitiveProp* LastSelected = FCommonUtil::SafeLast(ClickResponse.SelectedProps);
+	if (PlayerController->OnClickOperation(LastSelected, ClickResponse))
 	{
 		ClickResponse.DebugMessage = TEXT("Gizmo Click");
 

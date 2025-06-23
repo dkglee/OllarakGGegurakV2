@@ -101,7 +101,7 @@ bool AMapEditingPlayerController::GetMyHitResultAtScreenPosition(const FVector2D
 	if (UGameplayStatics::DeprojectScreenToWorld(this, ScreenPosition, WorldOrigin, WorldDirection) == true)
 	{
 		// TraceChannel하고 ObjectType의 차이를 확인해야함
-		return GetWorld()->LineTraceSingleByObjectType(OutHitResult, WorldOrigin, WorldOrigin + WorldDirection * HitResultTraceDistance, TraceChannel, CollisionQueryParams);
+		return GetWorld()->LineTraceSingleByChannel(OutHitResult, WorldOrigin, WorldOrigin + WorldDirection * HitResultTraceDistance, TraceChannel, CollisionQueryParams);
 	}
 
 	return false;

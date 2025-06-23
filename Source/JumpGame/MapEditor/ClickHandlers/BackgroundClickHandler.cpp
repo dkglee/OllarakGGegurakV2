@@ -20,9 +20,11 @@ bool UBackgroundClickHandler::HandleClick(FClickResponse& ClickResponse,
 	class AMapEditingPlayerController* PlayerController, FClickContext& ClickContext)
 {
 	ClickResponse.Result = EClickHandlingResult::BackgroundEditing;
-	
+
+	FFastLogger::LogScreen(FColor::Red, TEXT("Background Clicked"));
 	// true가 될 경우 액터가 선택됨
-	if (PlayerController->OnClickOperation(ClickResponse.SelectedProps.Last(), ClickResponse))
+	APrimitiveProp* LastSelected = FCommonUtil::SafeLast(ClickResponse.SelectedProps);
+	if (PlayerController->OnClickOperation(LastSelected, ClickResponse))
 	{
 		ClickResponse.DebugMessage = TEXT("Background Click");
 
@@ -44,13 +46,6 @@ bool UBackgroundClickHandler::HandleClick(FClickResponse& ClickResponse,
 		}
 		ClickResponse.SelectedProps.Empty();
 
-		// Legacy code for handling a single controlled actor
-		// if (APrimitiveProp* ControlledActor = ClickResponse.TargetProp)
-		// {
-		// 	ControlledActor->SetUnSelected();
-		// 	ClickResponse.TargetProp = nullptr;
-		// }
-		
 		return true;
 	}
 	return false;

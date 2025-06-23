@@ -16,10 +16,6 @@ struct FClickResponse
 	UPROPERTY(BlueprintReadOnly)
 	TArray<class APrimitiveProp*> SelectedProps;
 
-	// // 어떤 Actor가 클릭되었는지
-	// UPROPERTY(BlueprintReadOnly)
-	// class APrimitiveProp* TargetProp = nullptr;
-
 	// 어떤 Gizmo가 클릭되었는지
 	UPROPERTY(BlueprintReadOnly)
 	class UGizmoComponent* TargetGizmo = nullptr;
@@ -39,17 +35,6 @@ struct FClickResponse
 	// 디버그 메시지
 	UPROPERTY(BlueprintReadOnly)
 	FString DebugMessage = TEXT("");
-
-
-	// FClickResponse(const EClickHandlingResult InResult = EClickHandlingResult::None, class APrimitiveProp* InTargetProp = nullptr,
-	// 	class UGizmoComponent* InTargetGizmo = nullptr, const FHitResult& InHitResult = FHitResult(),
-	// 	const FVector& InMouseWorldPosition = FVector::ZeroVector, class APrimitiveProp* InClickedPropByWidget = nullptr,
-	// 	const FString& InDebug = TEXT(""))
-	// 		: Result(InResult), TargetProp(InTargetProp), TargetGizmo(InTargetGizmo),
-	// 		HitResult(InHitResult), MouseWorldPosition(InMouseWorldPosition),
-	// 		ClickedPropByWidget(InClickedPropByWidget), DebugMessage(InDebug)
-	// {
-	// }
 
 	FClickResponse(const EClickHandlingResult InResult = EClickHandlingResult::None, const TArray<class APrimitiveProp*>& InSelectedProps = TArray<class APrimitiveProp*>(),
 		class UGizmoComponent* InTargetGizmo = nullptr, const FHitResult& InHitResult = FHitResult(),

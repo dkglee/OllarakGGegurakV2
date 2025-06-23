@@ -84,5 +84,5 @@ public:
 	// 별 획득
 	void AddStar();
 	// 게임 종료 처리
-	void EndStage();
+	void EndStage(bool bIsClear);
 };

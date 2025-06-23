@@ -168,11 +168,11 @@ void AMapGameState::AddStar()
 
 	if (StarCount >= MaxStarCount)
 	{
-		EndStage();
+		EndStage(true);
 	}
 }
 
-void AMapGameState::EndStage()
+void AMapGameState::EndStage(bool bIsClear)
 {
 	//for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	AInGamePlayerController* PC{(Cast<AInGamePlayerController>(UGameplayStatics::GetPlayerController(this, 0)))};

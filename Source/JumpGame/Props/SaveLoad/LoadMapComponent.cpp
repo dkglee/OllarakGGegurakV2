@@ -113,7 +113,6 @@ void ULoadMapComponent::LoadMapWithString(const FString& FileName)
 {
 	FString JsonString;
 
-	FFastLogger::LogFile(TEXT("LoadMapComponent"), TEXT("LoadFile : %s"), *FileName);
 	if (!LoadFileToJsonString(FileName, JsonString))
 	{
 		return ;
@@ -177,7 +176,7 @@ void ULoadMapComponent::BuildMapFromSaveData()
 	for (const FSaveData& SaveData : SaveDataArray.SaveDataArray)
 	{
 		FPropStruct* PropInfo = PropTable->FindRow<FPropStruct>(SaveData.Id, TEXT("LoadMap"), true);
-		if (!PropInfo)
+		if (!PropInfo || PropInfo->bIsHidden)
 		{
 			continue ;
 		}
@@ -195,7 +194,7 @@ void ULoadMapComponent::BuildMapFromSaveDataV2()
 	{
 		const FSaveData& SaveData = SaveDataArray.SaveDataArray[i];
 		FPropStruct* PropInfo = PropTable->FindRow<FPropStruct>(SaveData.Id, TEXT("LoadMap"), true);
-		if (!PropInfo)
+		if (!PropInfo || PropInfo->bIsHidden)
 		{
 			continue ;
 		}

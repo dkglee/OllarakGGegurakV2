@@ -138,7 +138,7 @@ void APrimitiveProp::SetSize(const FVector& InSize)
 	// 총 6개의 Gizmo와 6개의 방향이 존재함
 	for (int32 i = 0; i < GizmoArray.Num(); i++)
 	{
-		SetGizmoLocation(GizmoArray[i], GizmoDirectionArray[i], BoxExtent);
+		SetGizmoLocation(GizmoArray[i], GizmoDirectionArray[i], GizmoOffset);
 		SetGizmoRotation(GizmoArray[i], GizmoDirectionArray[i]);
 		// TODO: 기즈모 색상 어떻게 하지 어떤 축으로 도는지 모르겠음
 		// GizmoArray[i]->ChangeColorByNewAxis(GizmoDirectionArray[i]);
@@ -147,8 +147,8 @@ void APrimitiveProp::SetSize(const FVector& InSize)
 	// 항상 정면 앞에 RotateWidgetComponent이 위치해야 함
 	// RotateWidgetComponent->SetWorldLocation()
 	RotateGizmo->SetRelativeLocation(FVector(0, 0, 0));
-	FVector RotateGizmoLocation = FVector::UpVector * (GridComp->GetSize() * GridComp->GetSnapSize()) + FVector(0, 0, 35.0f);
-	RotateGizmo->SetWorldLocation(RotateGizmoLocation + GetActorLocation());
+	// FVector RotateGizmoLocation = FVector::UpVector * (GridComp->GetSize() * GridComp->GetSnapSize()) + FVector(0, 0, 35.0f);
+	// RotateGizmo->SetWorldLocation(RotateGizmoLocation + GetActorLocation());
 }
 
 void APrimitiveProp::SetNewSizeByRotation(const FVector& InSize)
@@ -217,6 +217,17 @@ void APrimitiveProp::SetSelected(bool bRotateGizmoMode)
 
 	this->SetCollision(false);
 	MaterialChangeOnCollision();
+
+	// Gizmo들의 틱 활성화
+	for (auto& Gizmo : GizmoArray)
+	{
+		Gizmo->SetComponentTickEnabled(true);
+	}
+	if (RotateGizmo)
+	{
+		RotateGizmo->SetComponentTickEnabled(true);
+	}
+	GizmoPrimary->SetComponentTickEnabled(true);
 }
 
 void APrimitiveProp::SetUnSelected()
@@ -230,6 +241,17 @@ void APrimitiveProp::SetUnSelected()
 
 	this->SetCollision(true);
 	MaterialChangeOnCollision();
+
+	// Gizmo들의 틱 비활성화
+	for (auto& Gizmo : GizmoArray)
+	{
+		Gizmo->SetComponentTickEnabled(false);
+	}
+	if (RotateGizmo)
+	{
+		RotateGizmo->SetComponentTickEnabled(false);
+	}
+	GizmoPrimary->SetComponentTickEnabled(false);
 }
 
 void APrimitiveProp::SetPrimitivePropCollision(bool bCond)
@@ -274,8 +296,8 @@ void APrimitiveProp::RotateAllGizmos()
 
 	// 항상 액터의 위에 RotateGizmo가 위치해야 함
 	RotateGizmo->SetRelativeLocation(FVector(0, 0, 0));
-	FVector RotateGizmoLocation = FVector::UpVector * (GridComp->GetSize() * GridComp->GetSnapSize()) + FVector(0, 0, 35.0f);
-	RotateGizmo->SetWorldLocation(RotateGizmoLocation + GetActorLocation());
+	// FVector RotateGizmoLocation = FVector::UpVector * (GridComp->GetSize() * GridComp->GetSnapSize()) + FVector(0, 0, 35.0f);
+	// RotateGizmo->SetWorldLocation(RotateGizmoLocation + GetActorLocation());
 	
 	// TODO: 기즈모 색상 어떻게 하지 어떤 축으로 도는지 모르겠음
 	// for (auto& Gizmo : GizmoArray)

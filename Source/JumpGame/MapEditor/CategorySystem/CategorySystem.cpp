@@ -144,6 +144,9 @@ const TArray<UPropWrap*>& UCategorySystem::GetPropsByMajor(EMajorCategoryType Ma
 	{
 		for (UPropWrap* Prop : KV.Value.PropList)
 		{
+			if (!Prop) continue;
+			if (Prop->Data.bIsHidden) continue;
+			
 			if (!Seen.Contains(Prop))
 			{
 				Seen.Add(Prop);
@@ -164,7 +167,25 @@ const TArray<UPropWrap*>& UCategorySystem::GetPropsBySub(EMajorCategoryType Majo
 	}
 
 	FPropIndexList* FoundSub = Found->SubCategoryMap.Find(Sub);
-	return FoundSub ? FoundSub->PropList : EmptyArray;
+
+	static TArray<UPropWrap*> FoundLists;
+	FoundLists.Reset();
+	FoundLists.Reserve(128);
+
+	if (!FoundSub)
+	{
+		return EmptyArray;
+	}
+
+	for (auto& Prop : FoundSub->PropList)
+	{
+		if (!Prop) continue;
+		if (Prop->Data.bIsHidden) continue;
+
+		FoundLists.Add(Prop);
+	}
+	
+	return FoundLists;
 }
 
 const TArray<class UPropWrap*>& UCategorySystem::GetPropsBySubs(const TArray<ESubCategoryType>& Subs)
@@ -192,6 +213,9 @@ const TArray<class UPropWrap*>& UCategorySystem::GetPropsBySubs(const TArray<ESu
 	// 중복된 PropWrap을 제거
 	for (auto& Prop : FoundLists)
 	{
+		if (!Prop) continue;
+		if (Prop->Data.bIsHidden) continue;
+		
 		if (!Seen.Contains(Prop))
 		{
 			Seen.Add(Prop);
@@ -206,7 +230,7 @@ const UPropWrap* UCategorySystem::GetPropsByID(FName ID)
 {
 	UPropWrap** Found = PropList.FindByPredicate([ID](const UPropWrap* It)
 	{
-		return It && It->Data.PropID == ID;
+		return It && It->Data.PropID == ID && !It->Data.bIsHidden;
 	});
 	return Found && *Found ? *Found : nullptr;
 }
@@ -219,6 +243,9 @@ const TArray<class UPropWrap*>& UCategorySystem::GetPropsByName(FName Name)
 	
 	for (auto& Prop : PropList)
 	{
+		if (!Prop) continue;
+		if (Prop->Data.bIsHidden) continue;
+		
 		if (Prop && Prop->Data.PropName.ToString().Contains(Name.ToString(), ESearchCase::IgnoreCase))
 		{
 			FoundLists.Add(Prop);

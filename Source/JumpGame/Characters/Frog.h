@@ -90,6 +90,11 @@ public:
 	void DebugMode();
 	void PropActive();
 	void PropCheat();
+	UFUNCTION()
+	void AdjustSpringArmLength(const struct FInputActionValue& Value);
+	UFUNCTION()
+	void SetArmLengthDefault();
+
 
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_ExecuteWaterSurfaceJump(const FVector& LaunchVelocity);
@@ -235,6 +240,10 @@ public:
 	class UInputAction* DebugModeAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	class UInputAction* SettingAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	class UInputAction* ScrollAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	class UInputAction* ScrollClickAction;
 	
 	// 일반 변수
 public:
@@ -458,5 +467,21 @@ public:
 	FTimerHandle JumpBackHandle;
 	FTimerHandle ReturnCollisionTimer;
 
+	// TargetArmLength
+	UPROPERTY()
+	float GoalArmLength{400.f};
+	UPROPERTY()
+	float MaxArmLength{1000.f};
+	UPROPERTY()
+	float MinArmLength{150.f};
+	UPROPERTY()
+	float ZoomSize{70.f};
+	UPROPERTY()
+	bool bIsZoom{false};
+	UPROPERTY()
+	FTimerHandle ZoomTimer;
+	
+	void StartZoom();
+	void StopZoom();
 };
 

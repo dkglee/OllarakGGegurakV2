@@ -1,9 +1,9 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "StageResultUI.h"
+#include "OutToMainUI.h"
 
-void UStageResultUI::NativeOnInitialized()
+void UOutToMainUI::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 }

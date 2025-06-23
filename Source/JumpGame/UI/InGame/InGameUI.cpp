@@ -9,3 +9,8 @@ void UInGameUI::UpdateStarCount(int32 Count)
 {
 	FLog::Log("Star", Count);
 }
+
+void UInGameUI::NativeOnInitialized()
+{
+	Super::NativeOnInitialized();
+}

@@ -50,11 +50,11 @@ void ALobbyPlayerController::BeginPlay()
 
 	if (IsLocalPlayerController())
 	{
-		BottomNaviBarUI = CreateWidget<UBottomNaviBarUI>(GetWorld(), BottomNaviBarUIClass);
-		if (BottomNaviBarUI)
-		{
-			BottomNaviBarUI->AddToViewport(5);
-		}
+		// BottomNaviBarUI = CreateWidget<UBottomNaviBarUI>(GetWorld(), BottomNaviBarUIClass);
+		// if (BottomNaviBarUI)
+		// {
+		// 	BottomNaviBarUI->AddToViewport(5);
+		// }
 	
 		UCursorManager::SetCursor(this, ECursorName::LeafCursor);
 		

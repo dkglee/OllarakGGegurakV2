@@ -14,7 +14,7 @@ class JUMPGAME_API UPressedHandlerInterface : public UObject
 public:
 	UPressedHandlerInterface() {};
 	virtual int32 GetPriority() const { return -1; };
-	virtual bool HandlePressed(FClickResponse& PressedResponse, class AMapEditingPlayerController* PlayerController, const FGizmoPressedInfo& GizmoPressedInfo) { return false; };
+	virtual bool HandlePressed(FClickResponse& PressedResponse, class AMapEditingPlayerController* PlayerController, FGizmoPressedInfo& GizmoPressedInfo) { return false; };
 	virtual ~UPressedHandlerInterface() override {};
 	virtual void Init(class AMapEditingPawn* InEditingPawn) { ;
 		// 초기화 함수, 필요시 오버라이드

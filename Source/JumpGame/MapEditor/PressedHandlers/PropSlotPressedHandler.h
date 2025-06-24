@@ -11,8 +11,8 @@ class JUMPGAME_API UPropSlotPressedHandler : public UPressedHandlerInterface
 	GENERATED_BODY()
 public:
 	UPropSlotPressedHandler();
-	virtual int32 GetPriority() const override { return 150; };
-	virtual bool HandlePressed(FClickResponse& PressedResponse, class AMapEditingPlayerController* PlayerController, const FGizmoPressedInfo& GizmoPressedInfo) override;
+	virtual int32 GetPriority() const override { return 2000000; };
+	virtual bool HandlePressed(FClickResponse& PressedResponse, class AMapEditingPlayerController* PlayerController, FGizmoPressedInfo& GizmoPressedInfo) override;
 	virtual ~UPropSlotPressedHandler() override;
 
 private:

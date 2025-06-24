@@ -8,6 +8,7 @@
 #include "JumpGame/MapEditor/ClickHandlers/GizmoClickHandler.h"
 #include "JumpGame/MapEditor/Components/GizmoPrimaryComponent.h"
 #include "JumpGame/MapEditor/Components/GridComponent.h"
+#include "JumpGame/MapEditor/Components/RotateGizmoComponent.h"
 #include "JumpGame/Props/PrimitiveProp/PrimitiveProp.h"
 
 
@@ -20,7 +21,7 @@ UGizmoPressedHandler::~UGizmoPressedHandler()
 }
 
 bool UGizmoPressedHandler::HandlePressed(FClickResponse& PressedResponse,
-	class AMapEditingPlayerController* PlayerController, const FGizmoPressedInfo& GizmoPressedInfo)
+	class AMapEditingPlayerController* PlayerController, FGizmoPressedInfo& GizmoPressedInfo)
 {
 	if (PressedResponse.Result != EClickHandlingResult::GizmoEditing)
 	{
@@ -28,7 +29,8 @@ bool UGizmoPressedHandler::HandlePressed(FClickResponse& PressedResponse,
 	}
 
 	// 예외 처리: 잘못된 Gizmo 타입
-	if (PressedResponse.TargetGizmo->IsA(UGizmoPrimaryComponent::StaticClass()))
+	if (PressedResponse.TargetGizmo->IsA(UGizmoPrimaryComponent::StaticClass()) ||
+		PressedResponse.TargetGizmo->IsA(URotateGizmoComponent::StaticClass()))
 	{
 		return false;
 	}

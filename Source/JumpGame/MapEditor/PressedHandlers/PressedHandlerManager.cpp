@@ -1,5 +1,6 @@
 ﻿#include "PressedHandlerManager.h"
 
+#include "CopyPressedHandler.h"
 #include "GizmoPressedHandler.h"
 #include "GizmoPrimaryPressedHandler.h"
 #include "PropSlotPressedHandler.h"
@@ -22,10 +23,12 @@ void UPressedHandlerManager::BeginPlay()
 	Super::BeginPlay();
 
 	UPressedHandlerInterface* PropSlotPressedHandler = NewObject<UPropSlotPressedHandler>(this);
+	UPressedHandlerInterface* CopyPressedHandler = NewObject<UCopyPressedHandler>(this);
 	UPressedHandlerInterface* GizmoPrimaryPressedHandler = NewObject<UGizmoPrimaryPressedHandler>(this);
 	UPressedHandlerInterface* GizmoPressedHandler = NewObject<UGizmoPressedHandler>(this);
 	
 	RegisterHandler(PropSlotPressedHandler);
+	RegisterHandler(CopyPressedHandler);
 	RegisterHandler(GizmoPrimaryPressedHandler);
 	RegisterHandler(GizmoPressedHandler);
 }
@@ -54,6 +57,8 @@ void UPressedHandlerManager::RegisterHandler(UPressedHandlerInterface* Handler)
 bool UPressedHandlerManager::HandlePressed(FClickResponse& ControlledInfo,
 	class AMapEditingPlayerController* PlayerController)
 {
+	GizmoPressedInfo.Flags |= bCopyMode ? FGizmoPressedInfo::CopyMode : 0;
+	
 	for (const auto& Handler : Handlers)
 	{
 		if (Handler->HandlePressed(ControlledInfo, PlayerController, GizmoPressedInfo))

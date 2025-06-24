@@ -12,7 +12,7 @@ class JUMPGAME_API UGizmoPressedHandler : public UPressedHandlerInterface
 public:
 	UGizmoPressedHandler();
 	virtual int32 GetPriority() const override { return 50; };
-	virtual bool HandlePressed(FClickResponse& PressedResponse, class AMapEditingPlayerController* PlayerController, const FGizmoPressedInfo& GizmoPressedInfo) override;
+	virtual bool HandlePressed(FClickResponse& PressedResponse, class AMapEditingPlayerController* PlayerController, FGizmoPressedInfo& GizmoPressedInfo) override;
 	virtual ~UGizmoPressedHandler() override;
 
 private:

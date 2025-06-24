@@ -55,6 +55,9 @@ public:
 
 	void ShowRotateGizmo();;
 	void ShowMoveGizmo();
+
+	void ActivateGizmos(bool bRotateGizmoMode);
+	void DeactivateGizmos();
 	
 protected:
 	UFUNCTION()

@@ -319,6 +319,45 @@ void APrimitiveProp::ShowMoveGizmo()
 	}
 }
 
+void APrimitiveProp::ActivateGizmos(bool bRotateGizmoMode)
+{
+	if (bRotateGizmoMode)
+	{
+		ShowRotateGizmo();
+	}
+	else
+	{
+		ShowMoveGizmo();
+	}
+
+	// Gizmo들의 틱 활성화
+	for (auto& Gizmo : GizmoArray)
+	{
+		Gizmo->SetComponentTickEnabled(true);
+	}
+	if (RotateGizmo)
+	{
+		RotateGizmo->SetComponentTickEnabled(true);
+	}
+	GizmoPrimary->SetComponentTickEnabled(true);
+}
+
+void APrimitiveProp::DeactivateGizmos()
+{
+	HideGizmos();
+
+	// Gizmo들의 틱 비활성화
+	for (auto& Gizmo : GizmoArray)
+	{
+		Gizmo->SetComponentTickEnabled(false);
+	}
+	if (RotateGizmo)
+	{
+		RotateGizmo->SetComponentTickEnabled(false);
+	}
+	GizmoPrimary->SetComponentTickEnabled(false);
+}
+
 void APrimitiveProp::HideGizmos()
 {
 	RotateGizmo->SetVisibility(false);

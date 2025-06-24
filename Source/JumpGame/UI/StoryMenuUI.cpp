@@ -86,7 +86,7 @@ void UStoryMenuUI::NativeOnInitialized()
 void UStoryMenuUI::OnClickBtn_Back()
 {
 	// 로비로 돌아가자
-	CameraComp->SetViewTarget();
+	CameraComp->SetViewTarget(ECameraState::Main);
 	OnClickBackToLobby.Broadcast();
 	RemoveFromParent();
 }

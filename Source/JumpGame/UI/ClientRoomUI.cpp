@@ -36,7 +36,7 @@ void UClientRoomUI::NativeOnInitialized()
 
 	// WidgetSwitcher (0)
 	// 메인 화면 버튼 클릭
-	Btn_GoFind->OnClicked.AddDynamic(this, &UClientRoomUI::OnClickGoFindRoom);
+	Btn_GoFind->OnClicked.AddDynamic(this, &UClientRoomUI::OnClickGoStartStageGame);
 	Btn_GoCreateMap->OnClicked.AddDynamic(this, &UClientRoomUI::OnClickGoCreateMap);
 	Btn_GoStoryMenu->OnClicked.AddDynamic(this, &UClientRoomUI::OnClickGoStoryMenu);
 	Btn_GoSettings->OnClicked.AddDynamic(this, &UClientRoomUI::OnClickGoSettings);
@@ -94,11 +94,18 @@ void UClientRoomUI::SetVisibleMain()
 void UClientRoomUI::OnClickGoFindRoom()
 {
 	WidgetSwitcher->SetActiveWidgetIndex(1);
-	CameraComp->SetViewTarget();
+	//CameraComp->SetViewTarget();
 	CanvasMain->SetVisibility(ESlateVisibility::Hidden);
 	
 	// 세션 검색 화면 넘어갈때 자동으로 한번은 세션을 검색해주자
 	OnClickFind();
+}
+
+void UClientRoomUI::OnClickGoStartStageGame()
+{
+	// 스테이지로 이동하자
+	CameraComp->SetViewTarget(ECameraState::Stage);
+	CanvasMain->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UClientRoomUI::OnClickGoCreateMap()
@@ -108,7 +115,7 @@ void UClientRoomUI::OnClickGoCreateMap()
 
 void UClientRoomUI::OnClickGoStoryMenu()
 {
-	CameraComp->SetViewTarget();
+	CameraComp->SetViewTarget(ECameraState::Sub);
 	CanvasMain->SetVisibility(ESlateVisibility::Hidden);
 	if (StoryMenuUI)
 	{
@@ -123,7 +130,7 @@ void UClientRoomUI::OnClickGoSettings()
 
 void UClientRoomUI::OnClickGoCredit()
 {
-	CameraComp->SetViewTarget();
+	CameraComp->SetViewTarget(ECameraState::Sub);
 	CanvasMain->SetVisibility(ESlateVisibility::Hidden);
 	if (CreditUI)
 	{
@@ -218,7 +225,7 @@ void UClientRoomUI::OnFindComplete(const FRoomData& Data)
 void UClientRoomUI::OnClickBackFromFind()
 {
 	WidgetSwitcher->SetActiveWidgetIndex(0);
-	CameraComp->SetViewTarget();
+	CameraComp->SetViewTarget(ECameraState::Main);
 	CanvasMain->SetVisibility(ESlateVisibility::Visible);
 }
 

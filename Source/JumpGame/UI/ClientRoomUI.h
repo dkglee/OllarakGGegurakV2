@@ -56,7 +56,9 @@ public:
 	
 	// 눌렀을때 호출되는 함수
 	UFUNCTION()
-	void OnClickGoFindRoom();
+	void OnClickGoFindRoom(); // 스팀 멀티
+	UFUNCTION()
+	void OnClickGoStartStageGame(); // 스테이지
 	UFUNCTION()
 	void OnClickGoCreateMap();
 	UFUNCTION()

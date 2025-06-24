@@ -1,15 +1,19 @@
 #pragma once
 
+#include "CoreMinimal.h"
 #include "EPressedHandlingResult.h"
 #include "PressedHandlerInterface.h"
+#include "GizmoPressedHandler.generated.h"
 
-class JUMPGAME_API FGizmoPressedHandler : public IPressedHandler
+UCLASS()
+class JUMPGAME_API UGizmoPressedHandler : public UPressedHandlerInterface
 {
+	GENERATED_BODY()
 public:
-	FGizmoPressedHandler();
+	UGizmoPressedHandler();
 	virtual int32 GetPriority() const override { return 50; };
 	virtual bool HandlePressed(FClickResponse& PressedResponse, class AMapEditingPlayerController* PlayerController, const FGizmoPressedInfo& GizmoPressedInfo) override;
-	virtual ~FGizmoPressedHandler() override;
+	virtual ~UGizmoPressedHandler() override;
 
 private:
 	EPressedHandlingResult PressedType = EPressedHandlingResult::GizmoPressed;

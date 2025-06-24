@@ -8,15 +8,15 @@
 #include "JumpGame/Props/PrimitiveProp/PrimitiveProp.h"
 
 
-FPropSlotPressedHandler::FPropSlotPressedHandler()
+UPropSlotPressedHandler::UPropSlotPressedHandler()
 {
 }
 
-FPropSlotPressedHandler::~FPropSlotPressedHandler()
+UPropSlotPressedHandler::~UPropSlotPressedHandler()
 {
 }
 
-bool FPropSlotPressedHandler::HandlePressed(FClickResponse& PressedResponse,
+bool UPropSlotPressedHandler::HandlePressed(FClickResponse& PressedResponse,
 	class AMapEditingPlayerController* PlayerController, const FGizmoPressedInfo& /*GizmoPressedInfo*/)
 {
 	if (PressedResponse.Result != EClickHandlingResult::UIEditing)

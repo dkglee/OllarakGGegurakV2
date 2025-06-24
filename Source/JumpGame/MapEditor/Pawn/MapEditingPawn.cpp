@@ -118,6 +118,12 @@ AMapEditingPawn::AMapEditingPawn()
 	{
 		IA_MultiSelect = IA_MULTISELECT.Object;
 	}
+	static ConstructorHelpers::FObjectFinder<UInputAction> IA_COPY_MODE
+	(TEXT("/Game/MapEditor/Input/Actions/IA_CopyMode.IA_CopyMode"));
+	if (IA_COPY_MODE.Succeeded())
+	{
+		IA_CopyMode = IA_COPY_MODE.Object;
+	}
 
 	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionComponentMapEditing"));
 	CollisionComponent->InitSphereRadius(35.0f);
@@ -197,6 +203,9 @@ void AMapEditingPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 		PlayerInput->BindAction(IA_MultiSelect, ETriggerEvent::Started, this, &AMapEditingPawn::HandleStartedMultiSelect);
 		PlayerInput->BindAction(IA_MultiSelect, ETriggerEvent::Completed, this, &AMapEditingPawn::HandleCompletedMultiSelect);
+
+		PlayerInput->BindAction(IA_CopyMode, ETriggerEvent::Started, this, &AMapEditingPawn::HandleStartedCopyMode);
+		PlayerInput->BindAction(IA_CopyMode, ETriggerEvent::Completed, this, &AMapEditingPawn::HandleCompletedCopyMode);
 	}
 }
 
@@ -424,6 +433,16 @@ void AMapEditingPawn::HandleStartedMultiSelect(const FInputActionValue& InputAct
 void AMapEditingPawn::HandleCompletedMultiSelect(const FInputActionValue& InputActionValue)
 {
 	ClickHandlerManager->SetbCtrlMultiSelect(false);
+}
+
+void AMapEditingPawn::HandleStartedCopyMode(const FInputActionValue& InputActionValue)
+{
+	PressedHandlerManager->SetbCopyMode(true);
+}
+
+void AMapEditingPawn::HandleCompletedCopyMode(const FInputActionValue& InputActionValue)
+{
+	PressedHandlerManager->SetbCopyMode(false);
 }
 
 void AMapEditingPawn::MoveForward(float Val)

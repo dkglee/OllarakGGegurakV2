@@ -11,15 +11,15 @@
 #include "JumpGame/Props/PrimitiveProp/PrimitiveProp.h"
 
 
-FGizmoPressedHandler::FGizmoPressedHandler()
+UGizmoPressedHandler::UGizmoPressedHandler()
 {
 }
 
-FGizmoPressedHandler::~FGizmoPressedHandler()
+UGizmoPressedHandler::~UGizmoPressedHandler()
 {
 }
 
-bool FGizmoPressedHandler::HandlePressed(FClickResponse& PressedResponse,
+bool UGizmoPressedHandler::HandlePressed(FClickResponse& PressedResponse,
 	class AMapEditingPlayerController* PlayerController, const FGizmoPressedInfo& GizmoPressedInfo)
 {
 	if (PressedResponse.Result != EClickHandlingResult::GizmoEditing)

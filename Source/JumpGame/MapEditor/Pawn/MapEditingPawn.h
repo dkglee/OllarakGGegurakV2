@@ -67,8 +67,11 @@ private:
 	void HandleStartedMultiSelect(const FInputActionValue& InputActionValue);
 	UFUNCTION()
 	void HandleCompletedMultiSelect(const FInputActionValue& InputActionValue);
+	UFUNCTION()
+	void HandleStartedCopyMode(const FInputActionValue& InputActionValue);
+	UFUNCTION()
+	void HandleCompletedCopyMode(const FInputActionValue& InputActionValue);
 	
-
 	UFUNCTION()
 	void MoveForward(float Val);
 	UFUNCTION()
@@ -120,6 +123,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* IA_MultiSelect = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	class UInputAction* IA_CopyMode = nullptr;
 	
 	UPROPERTY()
 	bool bCanMove = false;

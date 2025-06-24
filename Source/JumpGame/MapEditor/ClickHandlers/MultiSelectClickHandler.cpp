@@ -14,7 +14,6 @@ bool UMultiSelectClickHandler::HandleClick(FClickResponse& ClickResponse, AMapEd
 	// Ctrl 키가 눌려져 있지 않다면 false를 반환
 	if (!ClickContext.Has(FClickContext::CtrlMultiSelect))
 	{
-		FFastLogger::LogScreen(FColor::Red, TEXT("Ctrl key is not pressed, cannot multi-select."));
 		return false;
 	}
 

@@ -5,7 +5,6 @@
 #include "PropSlotPressedHandler.h"
 #include "JumpGame/Core/PlayerController/MapEditingPlayerController.h"
 #include "JumpGame/MapEditor/ClickHandlers/ClickHandlerManager.h"
-#include "JumpGame/MapEditor/Components/GridComponent.h"
 #include "JumpGame/MapEditor/DragDropOperation/WidgetMapEditDragDropOperation.h"
 #include "JumpGame/MapEditor/Pawn/MapEditingPawn.h"
 #include "JumpGame/Props/PrimitiveProp/PrimitiveProp.h"
@@ -22,9 +21,13 @@ void UPressedHandlerManager::BeginPlay()
 {
 	Super::BeginPlay();
 
-	RegisterHandler(MakeShared<FPropSlotPressedHandler>());
-	RegisterHandler(MakeShared<FGizmoPrimaryPressedHandler>());
-	RegisterHandler(MakeShared<FGizmoPressedHandler>());
+	UPressedHandlerInterface* PropSlotPressedHandler = NewObject<UPropSlotPressedHandler>(this);
+	UPressedHandlerInterface* GizmoPrimaryPressedHandler = NewObject<UGizmoPrimaryPressedHandler>(this);
+	UPressedHandlerInterface* GizmoPressedHandler = NewObject<UGizmoPressedHandler>(this);
+	
+	RegisterHandler(PropSlotPressedHandler);
+	RegisterHandler(GizmoPrimaryPressedHandler);
+	RegisterHandler(GizmoPressedHandler);
 }
 
 void UPressedHandlerManager::InitializeComponent()
@@ -37,13 +40,15 @@ void UPressedHandlerManager::InitializeComponent()
 	ClickHandlerManager = MapEditingPawn->GetClickHandlerManager();
 }
 
-void UPressedHandlerManager::RegisterHandler(TSharedPtr<IPressedHandler> Handler)
+void UPressedHandlerManager::RegisterHandler(UPressedHandlerInterface* Handler)
 {
 	Handlers.Add(Handler);
-	Handlers.Sort([](const TSharedPtr<IPressedHandler>& A, const TSharedPtr<IPressedHandler>& B)
+
+	Algo::Sort(Handlers, [](const UPressedHandlerInterface* A, const UPressedHandlerInterface* B)
 	{
-		return A->GetPriority() > B->GetPriority();
+		return A->GetPriority() > B->GetPriority();   // 우선순위가 높은 것이 앞으로
 	});
+	Handler->Init(Cast<AMapEditingPawn>(GetOwner()));
 }
 
 bool UPressedHandlerManager::HandlePressed(FClickResponse& ControlledInfo,

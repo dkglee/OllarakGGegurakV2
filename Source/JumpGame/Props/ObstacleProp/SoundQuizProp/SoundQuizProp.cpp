@@ -228,7 +228,6 @@ void ASoundQuizProp::SendSoundQuizMessage()
 	{
 		// FString FilePath = TEXT("C:/FinalProject/Game/Saved/SoundQuizResponseFile.wav");
 		FString FilePath = FPaths::ProjectDir() + TEXT("Saved/AudioRecordings/") + TEXT("SoundQuizResponseFile.wav");
-		FFastLogger::LogFile(TEXT("SocketLog.txt"), TEXT("Sound FilePath : %s"), *FilePath);
 		LoadWavFileBinary(FilePath, CachedBinaryWav);
 		// 없으면 로그 출력
 		if (CachedBinaryWav.Num() == 0)

@@ -25,4 +25,11 @@ public:
 
 public:
 	void CopyMeshAndMaterial();
+	void RecoverMeshAndMaterial();
+
+public:
+	UPROPERTY()
+	UStaticMesh* OriginalMesh{nullptr};
+	UPROPERTY()
+	UMaterialInterface* OriginalMaterial{nullptr};
 };

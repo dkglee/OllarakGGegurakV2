@@ -18,7 +18,11 @@ void AChameleonProp::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CopyMeshAndMaterial();
+	if (MeshComp)
+	{
+		OriginalMesh = MeshComp->GetStaticMesh();
+		OriginalMaterial = MeshComp->GetMaterial(0);
+	}
 }
 
 // Called every frame
@@ -66,6 +70,15 @@ void AChameleonProp::CopyMeshAndMaterial()
 				}
 			}
 		}
+	}
+}
+
+void AChameleonProp::RecoverMeshAndMaterial()
+{
+	if (MeshComp && OriginalMesh)
+	{
+		MeshComp->SetStaticMesh(OriginalMesh);
+		MeshComp->SetMaterial(0, OriginalMaterial);
 	}
 }
 

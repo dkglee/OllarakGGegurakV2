@@ -73,8 +73,6 @@ void ULoadMapComponent::OnLoadFileComplete(const FString& FileName, bool bSucces
 	
 	FString JsonString;
 
-	FFastLogger::LogScreen(FColor::Red, TEXT("LoadMapComponent::OnLoadFileComplete : %s"), *FileName);
-	
 	if (!LoadFileToJsonString(FileName, JsonString))
 	{
 		return ;
@@ -96,7 +94,6 @@ void ULoadMapComponent::OnLoadFileComplete(const FString& FileName, bool bSucces
 
 void ULoadMapComponent::LoadMap()
 {
-	FFastLogger::LogScreen(FColor::Red, TEXT("LoadMapComponent::LoadMap"));
 	FileBrowserUI->SetVisibility(ESlateVisibility::Visible);
 	FileBrowserUI->OnFileSelectedDelegate.BindUObject(this, &ULoadMapComponent::OnLoadFileComplete);
 
@@ -281,8 +278,6 @@ void ULoadMapComponent::OpenFileDialog(const FString& DialogTitle, const FString
 void ULoadMapComponent::PrintData(const FString& File)
 {
 	//Parse the data into a string array
-	FFastLogger::LogScreen(FColor::Red, TEXT("File: %s"), *File);
-	
 	TArray<FString> LoadedText;
 	FFileHelper::LoadFileToStringArray(LoadedText, *File);
 	//Print the contents

@@ -112,6 +112,12 @@ AMapEditingPawn::AMapEditingPawn()
 	{
 		IA_RotateGizmoMode = IA_ROTATE_GIZMO_MODE.Object;
 	}
+	static ConstructorHelpers::FObjectFinder<UInputAction> IA_MULTISELECT
+	(TEXT("/Game/MapEditor/Input/Actions/IA_MultiSelect.IA_MultiSelect"));
+	if (IA_MULTISELECT.Succeeded())
+	{
+		IA_MultiSelect = IA_MULTISELECT.Object;
+	}
 
 	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionComponentMapEditing"));
 	CollisionComponent->InitSphereRadius(35.0f);
@@ -188,6 +194,9 @@ void AMapEditingPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 		PlayerInput->BindAction(IA_MoveGizmoMode, ETriggerEvent::Started, this, &AMapEditingPawn::HandleChangeMoveGizmoMode);
 		PlayerInput->BindAction(IA_RotateGizmoMode, ETriggerEvent::Started, this, &AMapEditingPawn::HandleChangeRotateGizmoMode);
+
+		PlayerInput->BindAction(IA_MultiSelect, ETriggerEvent::Started, this, &AMapEditingPawn::HandleStartedMultiSelect);
+		PlayerInput->BindAction(IA_MultiSelect, ETriggerEvent::Completed, this, &AMapEditingPawn::HandleCompletedMultiSelect);
 	}
 }
 
@@ -405,6 +414,16 @@ void AMapEditingPawn::HandleChangeRotateGizmoMode(const FInputActionValue& Input
 	ControlledInfo.TargetGizmo->SetUnSelected();
 	ControlledInfo.TargetGizmo = nullptr;
 	ClickHandlerManager->SetControlledClickResponse(ControlledInfo);
+}
+
+void AMapEditingPawn::HandleStartedMultiSelect(const FInputActionValue& InputActionValue)
+{
+	ClickHandlerManager->SetbCtrlMultiSelect(true);
+}
+
+void AMapEditingPawn::HandleCompletedMultiSelect(const FInputActionValue& InputActionValue)
+{
+	ClickHandlerManager->SetbCtrlMultiSelect(false);
 }
 
 void AMapEditingPawn::MoveForward(float Val)

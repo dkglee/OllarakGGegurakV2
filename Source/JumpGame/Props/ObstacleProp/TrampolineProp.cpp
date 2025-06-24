@@ -40,10 +40,6 @@ void ATrampolineProp::Tick(float DeltaTime)
 
 void ATrampolineProp::CalculateForce(AFrog* Character)
 {
-	FFastLogger::LogScreen(FColor::Red, TEXT("Trampoline"));
-	//FVector CharacterDir = Character->GetVelocity().GetSafeNormal();
-	//FVector Direction = CharacterDir + FVector::UpVector;
-	
 	FVector Direction{CollisionComp->GetUpVector()};
 	
 	float Force;
@@ -58,8 +54,6 @@ void ATrampolineProp::CalculateForce(AFrog* Character)
 	
 	Force *= 1.2;
 
-	FFastLogger::LogScreen(FColor::Emerald, TEXT("Force: %.1f"), Force);
-	
 	if (bDebug)
 	{
 		FLog::Log("Z Speed", Character->PrevVelocityZLength);

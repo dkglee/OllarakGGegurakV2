@@ -55,7 +55,6 @@ void USoundQuizUI::OnAudioEnvelopeValue(const class UAudioComponent* AudioCompon
 	// EnvelopeValue값이 0 ~ 0.04정도로 확인됨
 	float ScaledValue = EnvelopeValue * 20.0f;
 	CurrentEnvelopeValue = FMath::Clamp(ScaledValue, 0.0f, 1.0f);
-	// FFastLogger::LogScreen(FColor::Red, TEXT("EnvelopeValue: %f"), EnvelopeValue);
 }
 
 void USoundQuizUI::SetVoiceProgress()

@@ -21,7 +21,6 @@ bool UBackgroundClickHandler::HandleClick(FClickResponse& ClickResponse,
 {
 	ClickResponse.Result = EClickHandlingResult::BackgroundEditing;
 
-	FFastLogger::LogScreen(FColor::Red, TEXT("Background Clicked"));
 	// true가 될 경우 액터가 선택됨
 	APrimitiveProp* LastSelected = FCommonUtil::SafeLast(ClickResponse.SelectedProps);
 	if (PlayerController->OnClickOperation(LastSelected, ClickResponse))

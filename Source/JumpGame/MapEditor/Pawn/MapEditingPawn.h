@@ -63,6 +63,11 @@ private:
 	void HandleChangeMoveGizmoMode(const FInputActionValue& InputActionValue);
 	UFUNCTION()
 	void HandleChangeRotateGizmoMode(const FInputActionValue& InputActionValue);
+	UFUNCTION()
+	void HandleStartedMultiSelect(const FInputActionValue& InputActionValue);
+	UFUNCTION()
+	void HandleCompletedMultiSelect(const FInputActionValue& InputActionValue);
+	
 
 	UFUNCTION()
 	void MoveForward(float Val);
@@ -113,6 +118,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* IA_RotateGizmoMode = nullptr;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	class UInputAction* IA_MultiSelect = nullptr;
+	
 	UPROPERTY()
 	bool bCanMove = false;
 

@@ -35,17 +35,12 @@ void AMapEditorState::BeginPlay()
 	MapEditingHUD = CreateWidget<UMapEditingHUD>(GetWorld(), MapEditingHUDClass);
 	if (MapEditingHUD)
 	{
-		FFastLogger::LogScreen(FColor:: Red, TEXT("MapEditingHUD Created"));
 		MapEditingHUD->AddToViewport();
 
 		AMapEditingPawn* MapEditingPawn = Cast<AMapEditingPawn>(GetWorld()->GetFirstPlayerController()->GetPawn());
 		if (MapEditingPawn)
 		{
 			InitWidget(MapEditingPawn->GetClickHandlerManager(), MapEditingPawn->GetDragDropOperation());
-		}
-		else
-		{
-			FFastLogger::LogScreen(FColor::Red, TEXT("MapEditingPawn is null"));
 		}
 	}
 }

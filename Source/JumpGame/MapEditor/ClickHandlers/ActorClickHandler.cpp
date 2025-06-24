@@ -22,7 +22,6 @@ bool UActorClickHandler::HandleClick(FClickResponse& ClickResponse, class AMapEd
 {
 	ClickResponse.Result = EClickHandlingResult::ActorEditing;
 
-	FFastLogger::LogScreen(FColor::Red, TEXT("Actor Clicked"));
 	// true가 될 경우 액터가 선택됨
 	APrimitiveProp* LastSelected = FCommonUtil::SafeLast(ClickResponse.SelectedProps);
 	if (PlayerController->OnClickOperation(LastSelected, ClickResponse))

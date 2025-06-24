@@ -42,6 +42,7 @@ private:
 	using FClickOpFunc = bool (AMapEditingPlayerController::*)(class APrimitiveProp*, FClickResponse&);
 	// Click Operation
 	TMap<EClickHandlingResult, FClickOpFunc> ClickOperations = {
+		{ EClickHandlingResult::MultiSelectEditing, &AMapEditingPlayerController::OnActorClickOperation },
 		{ EClickHandlingResult::RotateGizmoEditing, &AMapEditingPlayerController::OnGizmoClickOperation },
 		{ EClickHandlingResult::GizmoEditing, &AMapEditingPlayerController::OnGizmoClickOperation },
 		{ EClickHandlingResult::ActorEditing, &AMapEditingPlayerController::OnActorClickOperation },

@@ -4,6 +4,7 @@
 #include "BackgroundClickHandler.h"
 #include "ClickContext.h"
 #include "GizmoClickHandler.h"
+#include "MultiSelectClickHandler.h"
 #include "PropSlotClickHandler.h"
 #include "RotateGizmoClickHandler.h"
 #include "JumpGame/Core/PlayerController/MapEditingPlayerController.h"
@@ -80,12 +81,14 @@ void UClickHandlerManager::BeginPlay()
 	Super::BeginPlay();
 
 	UClickHandlerInterface* PropSlotClickHandler = NewObject<UPropSlotClickHandler>();
+	UClickHandlerInterface* MultiSelectClickHandler = NewObject<UMultiSelectClickHandler>();
 	UClickHandlerInterface* RotateGizmoClickHandler = NewObject<URotateGizmoClickHandler>();
 	UClickHandlerInterface* GizmoClickHandler = NewObject<UGizmoClickHandler>();
 	UClickHandlerInterface* ActorClickHandler = NewObject<UActorClickHandler>();
 	UClickHandlerInterface* BackgroundClickHandler = NewObject<UBackgroundClickHandler>();
 
 	RegisterHandler(PropSlotClickHandler);
+	RegisterHandler(MultiSelectClickHandler);
 	RegisterHandler(RotateGizmoClickHandler);
 	RegisterHandler(GizmoClickHandler);
 	RegisterHandler(ActorClickHandler);

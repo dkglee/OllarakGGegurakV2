@@ -473,7 +473,6 @@ void UCategoryUI::SetGridToDefault()
 
 void UCategoryUI::OnImageSearchButtonResponse(const FString& ImgPath, bool bSuccess)
 {
-	FFastLogger::LogScreen(FColor::Red, TEXT("OnImageSearchButtonResponse : %s"), *ImgPath);
 	if (!bSuccess)
 	{
 		SetTextToDefault();

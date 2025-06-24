@@ -48,11 +48,9 @@ void UFileBrowserUI::LoadDirectoryContents(const FString& DirectoryPath)
 	FString ShownString = EllipsisLastFolders(NewDirectoryPath);
 	
 	CurrentDirectoryText->SetText(FText::FromString(ShownString));
-	// FFastLogger::LogScreen(FColor::Red, TEXT("LoadDirectoryContents : %s"), *NewDirectoryPath);
 	
 	if (!PlatformFile.DirectoryExists(*NewDirectoryPath))
 	{
-		FFastLogger::LogScreen(FColor::Red, TEXT("Directory does not exist"));
 		return;
 	}
 

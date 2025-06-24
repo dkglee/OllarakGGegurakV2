@@ -245,7 +245,6 @@ void ARollingBallProp::MulticastRPC_PlayEffect_Implementation(FVector Location)
 
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitEffectComp->Template, Location, FRotator::ZeroRotator, FVector(0.25, 0.25, 0.25), true);
 	
-	// FFastLogger::LogScreen(FColor::Red, TEXT("Play Effect"));
 	// HitEffectComp->SetWorldLocation(Location);
 	// HitEffectComp->ActivateSystem();
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), HitSound, Location);

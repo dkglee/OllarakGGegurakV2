@@ -200,7 +200,6 @@ void AMapGameState::MulticastRPC_UpdateAllPlayerZPos_Implementation(
 void AMapGameState::MulticastRPC_AllClientAdded_Implementation()
 {
 	// 브로드캐스트 하자
-	FFastLogger::LogScreen(FColor::Blue, TEXT("모든 클라이언트 들어옴 알림!!"));
 	OnAllClientAddedDelegate.Broadcast();
 
 	// 로딩 UI 제거

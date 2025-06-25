@@ -18,8 +18,6 @@ public:
 	virtual void NativeOnInitialized() override;
 	
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UTextBlock* LeftStarText;
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UButton* OutToMainButton;
 	UPROPERTY(BlueprintReadOnly, Transient, meta = (BindWidgetAnim))
 	class UWidgetAnimation* ClearAnimation;

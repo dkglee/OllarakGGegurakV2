@@ -25,6 +25,13 @@ public:
 
 	FString ConvertFiledIDToPath(const FName& FieldID) const;
 
+	// 게임 저장
+	void SaveFieldResult(FName FieldID, int32 StarCount, float ClearTime);
+
+	// Save/Load 함수
+	void SaveProgressToDisk();
+	void LoadProgressFromDisk();
+
 #pragma region GETTERSETTER
 	void SetChosenStage(const FName& StageID) { ChosenStageID = StageID; }
 	FName GetChosenStage() const { return ChosenStageID; }

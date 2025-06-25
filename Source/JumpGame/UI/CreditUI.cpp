@@ -23,7 +23,7 @@ void UCreditUI::NativeOnInitialized()
 void UCreditUI::OnClickBack()
 {
 	// 로비로 돌아가자
-	CameraComp->SetViewTarget();
+	CameraComp->SetViewTarget(ECameraState::Main);
 	OnClickBackToLobbyFromCredit.Broadcast();
 	RemoveFromParent();
 }

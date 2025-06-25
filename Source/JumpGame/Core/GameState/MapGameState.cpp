@@ -8,6 +8,7 @@
 #include "JumpGame/Core/PlayerController/InGamePlayerController.h"
 #include "JumpGame/Networks/Connection/ConnectionVerifyComponent.h"
 #include "JumpGame/Props/LogicProp/RisingWaterProp.h"
+#include "JumpGame/StageSystem/StageSystemSubsystem.h"
 #include "JumpGame/UI/GameProgressBarUI.h"
 #include "JumpGame/UI/InGameSettingUI.h"
 #include "JumpGame/UI/LoadingUI.h"
@@ -64,6 +65,9 @@ void AMapGameState::BeginPlay()
 
 	// 별 관련
 	StarCount = 0;
+
+	// 시간 기록
+	StartTime = GetWorld()->GetTimeSeconds();
 }
 
 void AMapGameState::Tick(float DeltaTime)
@@ -175,10 +179,24 @@ void AMapGameState::AddStar()
 void AMapGameState::EndStage(bool bIsClear)
 {
 	//for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
-	AInGamePlayerController* PC{(Cast<AInGamePlayerController>(UGameplayStatics::GetPlayerController(this, 0)))};
-	if (PC)
+
+	// 도중에 나가던지 완주했던지 모두 기록은 저장
+	const float ClearTime = GetWorld()->GetTimeSeconds() - StartTime;
+	const FName FieldID = GetGameInstance<UJumpGameInstance>()->GetSubsystem<UStageSystemSubsystem>()->GetChosenField();
+
+	if (auto* Subsystem = GetGameInstance()->GetSubsystem<UStageSystemSubsystem>())
 	{
-		PC->ShowResultUI();
+		Subsystem->SaveFieldResult(FieldID, StarCount, ClearTime);
+	}
+	
+	// 별을 모두 먹었거나 집에 도착했을때만 결과 UI를 띄우기
+	if (bIsClear == true)
+	{
+		AInGamePlayerController* PC{(Cast<AInGamePlayerController>(UGameplayStatics::GetPlayerController(this, 0)))};
+		if (PC)
+		{
+			PC->ShowResultUI();
+		}
 	}
 }
 

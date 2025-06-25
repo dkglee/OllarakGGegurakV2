@@ -35,7 +35,12 @@ public:
 	TSubclassOf<class UStageResultUI> ResultUIClass;
 	UPROPERTY()
 	UStageResultUI* ResultUI{nullptr};
-
+	UPROPERTY()
+	TSubclassOf<class UOutToMainUI> OutToMainUIClass;
+	UPROPERTY()
+	UOutToMainUI* OutToMainUI{nullptr};
+	
+	void ShowOutToMainUI();
 	void ShowResultUI();
 	void UpdateStarCount(int32 Count);
 };

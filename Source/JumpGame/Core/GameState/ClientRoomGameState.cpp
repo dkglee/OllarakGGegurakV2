@@ -83,14 +83,14 @@ void AClientRoomGameState::OnConnectionSucceeded()
 	Super::OnConnectionSucceeded();
 
 	// // PlayerController에 델리게이트 바인딩
-	ALobbyPlayerController* PC = Cast<ALobbyPlayerController>(GetWorld()->GetFirstPlayerController());
-	if (PC)
-	{
-		UFriendsList* FriendList = PC->BottomNaviBarUI->FriendsList;
-		PC->OnFriendListUpdated.AddDynamic(FriendList, &UFriendsList::OnFriendListReceived);
-	
-		// 자동 요청
-		PC->RequestFriendList();
-		FriendList->Btn_Refresh->SetIsEnabled(false);
-	}
+	// ALobbyPlayerController* PC = Cast<ALobbyPlayerController>(GetWorld()->GetFirstPlayerController());
+	// if (PC)
+	// {
+	// 	UFriendsList* FriendList = PC->BottomNaviBarUI->FriendsList;
+	// 	PC->OnFriendListUpdated.AddDynamic(FriendList, &UFriendsList::OnFriendListReceived);
+	//
+	// 	// 자동 요청
+	// 	PC->RequestFriendList();
+	// 	FriendList->Btn_Refresh->SetIsEnabled(false);
+	// }
 }

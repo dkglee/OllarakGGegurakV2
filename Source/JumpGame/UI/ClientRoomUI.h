@@ -56,7 +56,9 @@ public:
 	
 	// 눌렀을때 호출되는 함수
 	UFUNCTION()
-	void OnClickGoFindRoom();
+	void OnClickGoFindRoom(); // 스팀 멀티
+	UFUNCTION()
+	void OnClickGoStartStageGame(); // 스테이지
 	UFUNCTION()
 	void OnClickGoCreateMap();
 	UFUNCTION()
@@ -179,5 +181,14 @@ public:
 	TSubclassOf<class UCreditUI> CreditUIClass;
 	UPROPERTY(editanywhere, BlueprintReadWrite)
 	UCreditUI* CreditUI;
+
+public:
+	// WidgetSwitcher (2)
+	// 스테이지 선택 관련
+	UPROPERTY(meta = (BindWidget))
+	class UButton* Btn_GoLobby;
+
+	UFUNCTION()
+	void OnClickGoLobby();
 };
 

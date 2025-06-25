@@ -4,6 +4,7 @@
 #include "ChameleonProp.h"
 
 #include "JumpGame/MapEditor/Components/GridComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 
 // Sets default values
@@ -22,6 +23,12 @@ void AChameleonProp::BeginPlay()
 	{
 		OriginalMesh = MeshComp->GetStaticMesh();
 		OriginalMaterial = MeshComp->GetMaterial(0);
+	}
+
+	FString CurrentLevelName{UGameplayStatics::GetCurrentLevelName(GetWorld(), true)};
+	if (CurrentLevelName == TEXT("InGameLevel"))
+	{
+		CopyMeshAndMaterial();
 	}
 }
 

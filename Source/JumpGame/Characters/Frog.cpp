@@ -1255,12 +1255,13 @@ void AFrog::MulticastRPC_Landed_Implementation()
 
 void AFrog::SetLightIntensity(float Alpha)
 {
-	SpotLightComponent->SetIntensity(10.f * (1 - Alpha));
-
-	if (IsLocallyControlled())
-	{
-		ServerRPC_SetLight(Alpha);
-	}
+	SpotLightComponent->SetIntensity(0.f);
+	// SpotLightComponent->SetIntensity(10.f * (1 - Alpha));
+	//
+	// if (IsLocallyControlled())
+	// {
+	// 	ServerRPC_SetLight(Alpha);
+	// }
 }
 
 void AFrog::ServerRPC_SetLight_Implementation(float Alpha)

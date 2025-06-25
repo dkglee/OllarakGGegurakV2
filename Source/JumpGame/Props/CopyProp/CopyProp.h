@@ -7,7 +7,7 @@
 #include "CopyProp.generated.h"
 
 UCLASS()
-class JUMPGAME_API ACopyProp : public ABuildProp
+class JUMPGAME_API ACopyProp : public ABaseProp
 {
 	GENERATED_BODY()
 

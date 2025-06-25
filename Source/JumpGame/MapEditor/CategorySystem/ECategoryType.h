@@ -6,12 +6,10 @@ UENUM(BlueprintType)
 enum class EMajorCategoryType : uint8
 {
 	None = 0		UMETA(DisplayName = "None"),
-	Basic = 1		UMETA(DisplayName = "Basic"),
-	Obstacle = 2	UMETA(DisplayName = "Obstacle"),
-	Platform = 3	UMETA(DisplayName = "Platform"),
-	Decoration = 4	UMETA(DisplayName = "Decoration"),
-	Item = 5		UMETA(DisplayName = "Item"),
-	Copy = 6		UMETA(DisplayName = "Copy"),
+	Necessary = 1	UMETA(DisplayName = "Necessary"),	// 필수 카테고리
+	Basic = 2		UMETA(DisplayName = "Basic"), // 기본 카테고리
+	Decoration = 3	UMETA(DisplayName = "Decoration"), // 장식 카테고리
+	Fake = 4		UMETA(DisplayName = "Fake"), // 가짜 카테고리
 	Count			UMETA(DisplayName = "Count"),			// 카테고리 개수
 };
 
@@ -20,55 +18,27 @@ enum class ESubCategoryType : uint8
 {
 	None = 0		UMETA(DisplayName = "None"),
 
-#pragma region BaseSubTags
-	// 자연 재질
-	Wood			UMETA(DisplayName = "Wood"),			// 목재, 대나무 포함
-	Stone			UMETA(DisplayName = "Stone"),			// 암석 계열
-	Soil			UMETA(DisplayName = "Soil"),			// 흙, 모래, 자갈 포함
-	Plant			UMETA(DisplayName = "Plant"),			// 수풀
-	Water			UMETA(DisplayName = "Water"),			// 수풀(물), 수련잎 포함
-	Ice				UMETA(DisplayName = "Ice"),				// 얼음, 눈 포함
+	// Necessary
+	Start			UMETA(DisplayName = "Start"), // 시작점
+	End				UMETA(DisplayName = "End"), // 끝점
+	Star			UMETA(DisplayName = "Star"), // 별
 
-	// 구조 및 인공물
-	Build			UMETA(DisplayName = "Build"),			// 인공물
-	BaseEtc			UMETA(DisplayName = "BaseEtc"),			// 기본/기타
-	
-#pragma endregion
-	
-#pragma region ObstacleSubTags
-	Bouncing			UMETA(DisplayName = "Bouncing"),	// 바운스
-	Rotating			UMETA(DisplayName = "Rotating"),	// 회전
-	Pad					UMETA(DisplayName = "Pad"),			// 패드
-	Firing				UMETA(DisplayName = "Firing"),		// 발사
-	AI					UMETA(DisplayName = "AI"),			// AI
-	ObstacleEtc			UMETA(DisplayName = "ObstacleEtc"),	// 장애물/기타
-	
-#pragma endregion
+	// Basic
+	Ground			UMETA(DisplayName = "Ground"), // 바닥
+	NatureBasic		UMETA(DisplayName = "NatureBasic"), // 자연
+	Building		UMETA(DisplayName = "Building"), // 건물
+	Obstacle		UMETA(DisplayName = "Obstacle"), // 장애물
 
-#pragma region PlatformSubTags
-	// 플랫폼
-	Moving			UMETA(DisplayName = "Moving"),			// 이동 플랫폼
-	Starting		UMETA(DisplayName = "Starting"),		// 시작
-	Ending			UMETA(DisplayName = "Ending"),				// 끝
-	PlatformEtc		UMETA(DisplayName = "PlatformEtc"),		// 플랫폼/기타
+	// Decoration
+	Item			UMETA(DisplayName = "Item"), // 아이템
+	NatureDeco		UMETA(DisplayName = "NatureDeco"), // 자연 장식
+	BuildingDeco	UMETA(DisplayName = "BuildingDeco"), // 건물 장식
 
-#pragma endregion
+	// Fake
+	Chameleon		UMETA(DisplayName = "Chameleon"), // 카멜레온
+	GroundFake		UMETA(DisplayName = "GroundFake"), // 바닥 가짜
+	NatureFake		UMETA(DisplayName = "NatureFake"), // 자연 가짜
+	BuildingFake	UMETA(DisplayName = "BuildingFake"), // 건물 가짜
 
-#pragma region DecorationSubTags
-	// 동적/특수 효과
-	Fire			UMETA(DisplayName = "Fire"),			// 불
-	Flower			UMETA(DisplayName = "Flower"),			// 꽃, 잔디, 꽃, 덩쿨 등
-	Tree			UMETA(DisplayName = "Tree"),			// 나무
-	DecorationEtc	UMETA(DisplayName = "DecorationEtc"),				// 기타
-	
-#pragma endregion
-
-	Count			UMETA(DisplayName = "Count"),			// 카테고리 개수
-
-#pragma region Seasons
-	Spring	= 101		UMETA(DisplayName = "Spring"),			// 봄
-	Summer	= 102		UMETA(DisplayName = "Summer"),			// 여름
-	Fall	= 103		UMETA(DisplayName = "Fall"),				// 가을
-	Winter	= 104		UMETA(DisplayName = "Winter"),			// 겨울
-#pragma endregion
+	Count			UMETA(DisplayName = "Count"), // 서브 카테고리 개수
 };

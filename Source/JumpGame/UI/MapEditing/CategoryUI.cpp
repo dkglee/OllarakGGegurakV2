@@ -68,7 +68,7 @@ void UCategoryUI::NativeOnInitialized()
 
 			MajorCategoryButtonUI->OnMajorButtonClicked.AddDynamic(this, &UCategoryUI::OnMajorCategoryButtonClicked);
 			
-			if (MajorCategory == EMajorCategoryType::Basic)
+			if (MajorCategory == EMajorCategoryType::Necessary)
 			{
 				SelectedMajorCategory = MajorCategoryButtonUI;
 			}

@@ -3,6 +3,8 @@
 
 #include "CopyProp.h"
 
+#include "Components/BoxComponent.h"
+
 
 // Sets default values
 ACopyProp::ACopyProp()
@@ -11,6 +13,10 @@ ACopyProp::ACopyProp()
 	PrimaryActorTick.bCanEverTick = true;
 
 	// 충돌 끄기
+	CollisionComp->SetCollisionProfileName(TEXT("OverlapProp"));
+	CollisionComp->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	MeshComp->SetCollisionProfileName(TEXT("OverlapProp"));
+	MeshComp->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 }
 
 // Called when the game starts or when spawned

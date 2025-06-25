@@ -69,7 +69,6 @@ bool UHttpManagerComponent::InitializeConfigFile()
 	FString ConfigFilePath = FPaths::ProjectConfigDir() + TEXT("HttpHandlerConfig.json");
 	if (!FPaths::FileExists(ConfigFilePath))
 	{
-		FFastLogger::LogScreen(FColor::Red, TEXT("Config file not found: %s"), *ConfigFilePath);
 		return false;
 	}
 
@@ -77,12 +76,10 @@ bool UHttpManagerComponent::InitializeConfigFile()
 	FFileHelper::LoadFileToString(ConfigContent, *ConfigFilePath);
 	if (ConfigContent.IsEmpty())
 	{
-		FFastLogger::LogScreen(FColor::Red, TEXT("Config file is empty: %s"), *ConfigFilePath);
 		return false;
 	}
 	if (!FJsonObjectConverter::JsonObjectStringToUStruct(ConfigContent, &HttpHandlerInitInfo))
 	{
-		FFastLogger::LogScreen(FColor::Red, TEXT("Failed to parse config file: %s"), *ConfigFilePath);
 		return false;
 	}
 

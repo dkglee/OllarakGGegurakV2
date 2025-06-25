@@ -12,6 +12,6 @@ class JUMPGAME_API UPropSlotClickHandler : public UClickHandlerInterface
 public:
 	UPropSlotClickHandler();
 	virtual int32 GetPriority() const override { return 300; }
-	virtual bool HandleClick(FClickResponse& ClickResponse, class AMapEditingPlayerController* PlayerController, bool bRotateGizmoMode) override;
+	virtual bool HandleClick(FClickResponse& ClickResponse, class AMapEditingPlayerController* PlayerController, FClickContext& ClickContext) override;
 	virtual ~UPropSlotClickHandler() override;
 };

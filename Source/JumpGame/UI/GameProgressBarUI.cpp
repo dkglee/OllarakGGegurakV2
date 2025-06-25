@@ -52,8 +52,6 @@ void UGameProgressBarUI::NativeTick(const FGeometry& MyGeometry, float DeltaSeco
 
 void UGameProgressBarUI::InitUISetting()
 {
-	FFastLogger::LogScreen(FColor::Red, TEXT("InitUISetting!!!!!!"));
-	
 	CreatePlayerMarkers();
 	bIsInit = true;
 }

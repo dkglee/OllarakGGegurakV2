@@ -172,8 +172,6 @@ void USelectRoomUI::OnPickFileComplete(const FString& FilePath, bool bSuccess)
 		return ;
 	}
 
-	FFastLogger::LogScreen(FColor::Red, TEXT("here"));
-	
 	UMapSlotUI* MapSlot = CreateWidget<UMapSlotUI>(GetWorld(), MapSlotClass);
 	FString FileName = FPaths::GetCleanFilename(FilePath);
 	MapSlot->Init(FilePath, FileName);
@@ -206,7 +204,6 @@ TArray<FString> USelectRoomUI::GetMapList(const FString& MapType, const FString&
 	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
 	if (!PlatformFile.DirectoryExists(*AbsoluteMapPath))
 	{
-		FFastLogger::LogScreen(FColor::Red, TEXT("Directory does not exist"));
 		return MapList;
 	}
 	

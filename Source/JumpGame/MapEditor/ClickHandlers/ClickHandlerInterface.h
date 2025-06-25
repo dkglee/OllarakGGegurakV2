@@ -3,6 +3,7 @@
 // UI, Gizmo, Actor, Background 클릭시 수행
 #include "ClickResponse.h"
 #include "CoreMinimal.h"
+#include "ClickContext.h"
 #include "ClickHandlerInterface.generated.h"
 
 UCLASS()
@@ -13,7 +14,7 @@ class JUMPGAME_API UClickHandlerInterface : public UObject
 public:
 	UClickHandlerInterface() {};
 	virtual int32 GetPriority() const { return -1; };
-	virtual bool HandleClick(FClickResponse& ClickResponse, class AMapEditingPlayerController* PlayerController, bool bRotateGizmoMode) { return false; };
+	virtual bool HandleClick(FClickResponse& ClickResponse, class AMapEditingPlayerController* PlayerController, FClickContext& ClickContext) { return false; };
 	virtual ~UClickHandlerInterface() override {};
 	virtual void Init(class AMapEditingPawn* InEditingPawn) { ;
 		// 초기화 함수, 필요시 오버라이드

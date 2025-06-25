@@ -65,8 +65,6 @@ void UMapMenuUI::OnSaveConfirmClicked()
 		FString AbsoluteDir = FPaths::ConvertRelativePathToFull(RelativeDir);
 		FPaths::MakePlatformFilename(AbsoluteDir);
 
-		FFastLogger::LogScreen(FColor::Red, TEXT("AbsoluteDir : %s"), *AbsoluteDir);
-
 		MapEditorState->GetLoadMapComponent()->GetFileBrowserUI()->SetVisibility(ESlateVisibility::Visible);
 		MapEditorState->GetLoadMapComponent()->GetFileBrowserUI()->LoadDirectoryContents(AbsoluteDir);
 		// MapEditorState->GetSaveMapComponent()->SaveMap(FileName);

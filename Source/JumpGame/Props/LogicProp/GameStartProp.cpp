@@ -59,7 +59,6 @@ FTransform AGameStartProp::PlayerStartTransform()
 	PlayerIdx %= StartPoints.Num();
 		
 	// 스타트 포인트 값을 반환
-	FFastLogger::LogScreen(FColor::Red, TEXT("StartPoint: %s"), *StartPoints[PlayerIdx]->GetComponentTransform().ToString());
 	return StartPoints[PlayerIdx++]->GetComponentTransform();
 }
 

@@ -127,8 +127,6 @@ void UGizmoComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	FFastLogger::LogScreen(FColor::Red, TEXT("GizmoComponent Tick"));
-	
 	// 안전 체크
 	if (MeshWidthUnit1 <= KINDA_SMALL_NUMBER) return;
 

@@ -70,8 +70,6 @@ FReply UPropSlot::NativeOnPreviewMouseButtonDown(const FGeometry& InGeometry, co
 	}
 	FEventReply Reply = UWidgetBlueprintLibrary::DetectDragIfPressed(InMouseEvent, this, EKeys::LeftMouseButton);
 
-	FFastLogger::LogScreen(FColor::Orange, TEXT("PropSlot::NativeOnPreviewMouseButtonDown"));
-
 	// DragDropOperation을 새롭게 세팅함
 	// @fixme 왜 DragDropOperation이 없지?
 	DragDropOperation->DefaultDragVisual = PropDragVisual;
@@ -97,6 +95,4 @@ void UPropSlot::NativeOnDragDetected(const FGeometry& InGeometry, const FPointer
 	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
 
 	OutOperation = DragDropOperation;
-	
-	FFastLogger::LogScreen(FColor::Orange, TEXT("PropSlot::NativeOnDragDetected"));
 }

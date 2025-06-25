@@ -37,6 +37,8 @@ public:
 	GETTER(FClickResponse, ControlledClickResponse)
 	SETTER(FClickResponse, ControlledClickResponse)
 	SETTER(bool, bRotateGizmoMode)
+	SETTER(bool, bCtrlMultiSelect)
+	SETTER(bool, bShiftMultiSelect)
 
 	UPROPERTY()
 	FOnControlledPropChanged OnControlledPropChanged;
@@ -60,4 +62,6 @@ private:
 
 	bool bMouseEnterUI = false;
 	bool bRotateGizmoMode = false;
+	bool bCtrlMultiSelect = false;
+	bool bShiftMultiSelect = false;
 };

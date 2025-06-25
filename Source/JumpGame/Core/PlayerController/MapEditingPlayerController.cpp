@@ -57,7 +57,7 @@ bool AMapEditingPlayerController::OnGizmoClickOperation(APrimitiveProp* InContro
 	bool bResult = false;
 	TArray<FHitResult> HitResults;
 	FCollisionQueryParams CollisionQueryParams(SCENE_QUERY_STAT(ClickableTrace), true);
-	GetMyHitResultAtScreenPosition(MouseScreenPosition, ECC_GameTraceChannel5, CollisionQueryParams, HitResults);
+	GetMyHitResultsAtScreenPosition(MouseScreenPosition, ECC_GameTraceChannel5, CollisionQueryParams, HitResults);
 	for (auto& HitResult : HitResults)
 	{
 		if (HitResult.IsValidBlockingHit() && HitResult.GetComponent() && HitResult.GetComponent()->GetOwner() == InControlledProp)
@@ -80,7 +80,7 @@ bool AMapEditingPlayerController::OnGizmoClickOperation(APrimitiveProp* InContro
 }
 
 // 최적화용 HitResult
-bool AMapEditingPlayerController::GetMyHitResultAtScreenPosition(const FVector2D ScreenPosition, const ECollisionChannel TraceChannel, const FCollisionQueryParams& CollisionQueryParams, TArray<FHitResult>& OutHitResult) const
+bool AMapEditingPlayerController::GetMyHitResultsAtScreenPosition(const FVector2D ScreenPosition, const ECollisionChannel TraceChannel, const FCollisionQueryParams& CollisionQueryParams, TArray<FHitResult>& OutHitResult) const
 {
 	FVector WorldOrigin;
 	FVector WorldDirection;
@@ -94,6 +94,18 @@ bool AMapEditingPlayerController::GetMyHitResultAtScreenPosition(const FVector2D
 	return false;
 }
 
+bool AMapEditingPlayerController::GetMyHitResultAtScreenPosition(const FVector2D ScreenPosition, const ECollisionChannel TraceChannel, const FCollisionQueryParams& CollisionQueryParams, FHitResult& OutHitResult) const
+{
+	FVector WorldOrigin;
+	FVector WorldDirection;
+	if (UGameplayStatics::DeprojectScreenToWorld(this, ScreenPosition, WorldOrigin, WorldDirection) == true)
+	{
+		// TraceChannel하고 ObjectType의 차이를 확인해야함
+		return GetWorld()->LineTraceSingleByChannel(OutHitResult, WorldOrigin, WorldOrigin + WorldDirection * HitResultTraceDistance, TraceChannel, CollisionQueryParams);
+	}
+
+	return false;
+}
 
 // Click Operation : Actor // Gizmo가 실패하고 나서 다시 시도
 bool AMapEditingPlayerController::OnActorClickOperation(APrimitiveProp* InControlledProp, FClickResponse& ClickResponse)
@@ -101,21 +113,12 @@ bool AMapEditingPlayerController::OnActorClickOperation(APrimitiveProp* InContro
 	FVector2D MouseScreenPosition;
 	if (!GetMousePosition(MouseScreenPosition.X, MouseScreenPosition.Y)) return false;
 
-	// 현재의 InControlledProp가 nullptr이 아니라면 해당 액터의 Collision을 켜준다.
-	if (InControlledProp) 
-	{
-		InControlledProp->SetPrimitivePropCollision(true);
-	}
-
 	// 마우스 위치에 있는 액터를 HitResult로 가져온다.
+	// 이미 선택된 애도 검출할 수 있도록 CollisionChannel을 GameTraceChannel12로 설정 : GizmoSelectedCollision
 	FHitResult HitResult;
-	GetHitResultAtScreenPosition(MouseScreenPosition, ECC_Visibility, true, HitResult);
+	FCollisionQueryParams CollisionQueryParams(SCENE_QUERY_STAT(ClickableTrace), true);
+	GetMyHitResultAtScreenPosition(MouseScreenPosition, ECC_GameTraceChannel12, CollisionQueryParams, HitResult);
 	
-	if (InControlledProp)
-	{
-		InControlledProp->SetPrimitivePropCollision(false);
-	}
-
 	bool bResult = true;
 	if (HitResult.IsValidBlockingHit())
 	{

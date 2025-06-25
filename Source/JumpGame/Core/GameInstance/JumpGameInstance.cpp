@@ -301,7 +301,6 @@ void UJumpGameInstance::OnDestroySessionComplete(FName Name, bool bArg)
 	// // 만약에 파괴 성공했다면
 	// if (bArg == true)
 	// {
-	// 	FFastLogger::LogScreen(FColor::Red, TEXT("UJumpGameInstance::OnDestroySessionComplete"));
 	//
 	// 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
 	// 	if (PC)
@@ -309,7 +308,6 @@ void UJumpGameInstance::OnDestroySessionComplete(FName Name, bool bArg)
 	// 		// 서버라면, 로비로 이동하자
 	// 		if (PC->HasAuthority())
 	// 		{
-	// 			FFastLogger::LogScreen(FColor::Red, TEXT("서버 이동@@@@@"));
 	// 			GetWorld()->ServerTravel(TEXT("/Game/Maps/ClientRoomLevel?closed"));
 	// 		}
 	// 	}
@@ -327,13 +325,11 @@ void UJumpGameInstance::OnDestroySessionComplete(FName Name, bool bArg)
 	// }
 	
 	FFastLogger::LogConsole(TEXT("DestroySession %s"), bArg ? TEXT("Success") : TEXT("Fail"));
-	FFastLogger::LogScreen(FColor::Red, TEXT("DestroySession %s"), bArg ? TEXT("Success") : TEXT("Fail"));
 }
 
 void UJumpGameInstance::OnFailureSessionDetected(const FUniqueNetId& UniqueNetId,
 	ESessionFailure::Type Arg)
 {
-	FFastLogger::LogScreen(FColor::Orange, TEXT("OnFailure"));
 	UWorld* World = GetWorld();
 	if (World)
 	{
@@ -343,7 +339,6 @@ void UJumpGameInstance::OnFailureSessionDetected(const FUniqueNetId& UniqueNetId
 
 void UJumpGameInstance::OnEndSessionComplete(FName Name, bool bArg)
 {
-	// FFastLogger::LogScreen(FColor::Red, TEXT("OnEndSessionComplete@@@@@@"));
 	// UWorld* World = GetWorld();
 	// if (World)
 	// {
@@ -551,8 +546,6 @@ void UJumpGameInstance::RunEyeTrackingScript()
 	
 	//FString ScriptPath = TEXT("C:\\FinalProject\\Game\\AI_Service\\eye_tracking\\infinite_counter.py");
 	FString WorkingDirectory = FPaths::GetPath(AbsoluteScriptPath);
-
-	FFastLogger::LogScreen(FColor::Red, TEXT("Python Path: %s"), *AbsoluteScriptPath);
 
 	// Python 실행 명령 구성
 	FString Command = FString::Printf(TEXT("\"%s\" \"%s\""), *PythonPath, *AbsoluteScriptPath);

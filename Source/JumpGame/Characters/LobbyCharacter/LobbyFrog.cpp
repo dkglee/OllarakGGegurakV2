@@ -3,8 +3,10 @@
 
 #include "LobbyFrog.h"
 
+#include "EnhancedInputComponent.h"
 #include "Components/WidgetComponent.h"
 #include "JumpGame/Core/PlayerController/LobbyPlayerController.h"
+#include "JumpGame/Maps/Node/StageMapNodeComponent.h"
 #include "JumpGame/UI/UICam/LobbyCameraComp.h"
 
 
@@ -17,14 +19,15 @@ ALobbyFrog::ALobbyFrog()
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	ConstructorHelpers::FClassFinder<UAnimInstance> FrogABP
+	ConstructorHelpers::FClassFinder<UAnimInstance> LobbyFrogABP
 	(TEXT("/Script/Engine.AnimBlueprint'/Game/Characters/ABP_LobbyFrog.ABP_LobbyFrog_C'"));
-	if (FrogABP.Succeeded())
+	if (LobbyFrogABP.Succeeded())
 	{
-		GetMesh()->SetAnimInstanceClass(FrogABP.Class);
+		GetMesh()->SetAnimInstanceClass(LobbyFrogABP.Class);
 	}
 
 	CameraComp = CreateDefaultSubobject<ULobbyCameraComp>(TEXT("CameraComp"));
+	StageMapNodeComponent = CreateDefaultSubobject<UStageMapNodeComponent>(TEXT("StageMapNodeComponent"));
 }
 
 // Called when the game starts or when spawned
@@ -68,11 +71,50 @@ void ALobbyFrog::Tick(float DeltaTime)
 		Pitch = FMath::Lerp(PlusPitchMinMax.X, PlusPitchMinMax.Y, FMath::Abs(PitchRatio));
 	}
 	Pitch = FMath::Sign(PitchRatio) * Pitch;
+
+	
+	// 스테이지 상태일때만 밑의 내용 실행
+	if (CurrentState != ELobbyCharacterState::OnStageMap) return;
+	
+	if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::W))
+	{
+		StageMapNodeComponent->HandleKeyBoardInput(1);
+	}
+	if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::S))
+	{
+		StageMapNodeComponent->HandleKeyBoardInput(-1);
+	}
+	if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::A))
+	{
+		StageMapNodeComponent->HandleKeyBoardInput(-1);
+	}
+	if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::D))
+	{
+		StageMapNodeComponent->HandleKeyBoardInput(1);
+	}
 }
 
 // Called to bind functionality to input
 void ALobbyFrog::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
 }
+
+void ALobbyFrog::UpdateAnimation(ELobbyCharacterState NewState)
+{
+	CurrentState = NewState;
+
+	switch (NewState)
+	{
+	case ELobbyCharacterState::InLobby:
+		GetMesh()->SetAnimInstanceClass(LobbyAnimBP);
+		break;
+
+	case ELobbyCharacterState::OnStageMap:
+		GetMesh()->SetAnimInstanceClass(StageMapAnimBP);
+		break;
+	}
+}
+
 

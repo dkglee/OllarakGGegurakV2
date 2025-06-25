@@ -39,8 +39,10 @@ public:
 	TSubclassOf<class UOutToMainUI> OutToMainUIClass;
 	UPROPERTY()
 	UOutToMainUI* OutToMainUI{nullptr};
-	
+
+	void ShowInGameUI();
 	void ShowOutToMainUI();
+	void ShowClearUIAnimation();
 	void ShowResultUI();
 	void UpdateStarCount(int32 Count);
 };

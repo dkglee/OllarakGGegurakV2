@@ -5,6 +5,7 @@
 
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
+#include "JumpGame/Characters/Frog.h"
 #include "JumpGame/Core/GameState/MapGameState.h"
 #include "JumpGame/Utils/FastLogger.h"
 #include "Kismet/GameplayStatics.h"
@@ -43,6 +44,12 @@ void UOutToMainUI::OnClickOutToMain()
 	FString CurrentLevelName{UGameplayStatics::GetCurrentLevelName(GetWorld(), true)};
 	if (CurrentLevelName == TEXT("InGameLevel"))
 	{
+		AMapGameState* GS{Cast<AMapGameState>(GetWorld()->GetGameState())};
+		if (GS)
+		{
+			GS->EndStage(false);
+		}
+		
 		UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/ClientRoomLevel"));
 	}
 	else
@@ -57,6 +64,12 @@ void UOutToMainUI::OnClickReturnToGame()
 	if (!PC)
 	{
 		return;
+	}
+
+	AFrog* Frog{Cast<AFrog>(GetWorld()->GetFirstPlayerController()->GetPawn())};
+	if (Frog)
+	{
+		Frog->ResumeFrogMovement();
 	}
 	
 	PC->SetInputMode(FInputModeGameOnly());

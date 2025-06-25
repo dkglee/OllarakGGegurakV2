@@ -179,6 +179,7 @@ void AMapGameState::AddStar()
 void AMapGameState::EndStage(bool bIsClear)
 {
 	//for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	bIsGameClear = bIsClear;
 
 	// 도중에 나가던지 완주했던지 모두 기록은 저장
 	const float ClearTime = GetWorld()->GetTimeSeconds() - StartTime;
@@ -189,13 +190,13 @@ void AMapGameState::EndStage(bool bIsClear)
 		Subsystem->SaveFieldResult(FieldID, StarCount, ClearTime);
 	}
 	
-	// 별을 모두 먹었거나 집에 도착했을때만 결과 UI를 띄우기
+	// 별을 모두 먹었을 때 결과 UI를 띄우기
 	if (bIsClear == true)
 	{
 		AInGamePlayerController* PC{(Cast<AInGamePlayerController>(UGameplayStatics::GetPlayerController(this, 0)))};
 		if (PC)
 		{
-			PC->ShowResultUI();
+			PC->ShowClearUIAnimation();
 		}
 	}
 }
@@ -246,5 +247,11 @@ void AMapGameState::MulticastRPC_RemoveLoadingUI_Implementation()
 	{
 		LoadingUI->RemoveFromParent();
 		LoadingUI = nullptr;
+	}
+
+	AInGamePlayerController* PC{(Cast<AInGamePlayerController>(UGameplayStatics::GetPlayerController(this, 0)))};
+	if (PC)
+	{
+		PC->ShowInGameUI();
 	}
 }

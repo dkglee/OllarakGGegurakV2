@@ -1821,6 +1821,42 @@ void AFrog::OnTongueBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 	}
 }
 
+void AFrog::StopFrogMovement()
+{
+	APlayerController* PC{GetWorld()->GetFirstPlayerController()};
+	if (!PC)
+	{
+		return;
+	}
+	
+	GetCharacterMovement()->StopMovementImmediately();
+
+	if (ULocalPlayer* LocalPlayer{PC->GetLocalPlayer()})
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem{LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>()})
+		{
+			Subsystem->ClearAllMappings();
+		}
+	}
+}
+
+void AFrog::ResumeFrogMovement()
+{
+	APlayerController* PC{GetWorld()->GetFirstPlayerController()};
+	if (!PC)
+	{
+		return;
+	}
+	
+	if (ULocalPlayer* LocalPlayer{PC->GetLocalPlayer()})
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem{LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>()})
+		{
+			Subsystem->AddMappingContext(DefaultMappingContext, 0);
+		}
+	}
+}
+
 void AFrog::OnRep_TongueLengthRatio()
 {
 	SetTongueLength(TongueLengthRatio);

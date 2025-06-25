@@ -181,5 +181,14 @@ public:
 	TSubclassOf<class UCreditUI> CreditUIClass;
 	UPROPERTY(editanywhere, BlueprintReadWrite)
 	UCreditUI* CreditUI;
+
+public:
+	// WidgetSwitcher (2)
+	// 스테이지 선택 관련
+	UPROPERTY(meta = (BindWidget))
+	class UButton* Btn_GoLobby;
+
+	UFUNCTION()
+	void OnClickGoLobby();
 };
 

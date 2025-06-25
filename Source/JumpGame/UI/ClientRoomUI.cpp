@@ -58,6 +58,9 @@ void UClientRoomUI::NativeOnInitialized()
 	Btn_BackFromFind->OnClicked.AddDynamic(this, &UClientRoomUI::OnClickBackFromFind);
 	GI->OnFindComplete.BindUObject(this, &UClientRoomUI::OnFindComplete);
 
+	// WidgetSwitcher (2)
+	Btn_GoLobby->OnClicked.AddDynamic(this, &UClientRoomUI::UClientRoomUI::OnClickGoLobby);
+
 	// 초기화
 	InitRoomListPool();
 
@@ -91,6 +94,14 @@ void UClientRoomUI::SetVisibleMain()
 	}
 }
 
+void UClientRoomUI::OnClickGoLobby()
+{
+	// 스테이지 -> 로비로 돌아가자
+	WidgetSwitcher->SetActiveWidgetIndex(0);
+	CameraComp->SetViewTarget(ECameraState::Main);
+	CanvasMain->SetVisibility(ESlateVisibility::Visible);
+}
+
 void UClientRoomUI::OnClickGoFindRoom()
 {
 	WidgetSwitcher->SetActiveWidgetIndex(1);
@@ -104,6 +115,7 @@ void UClientRoomUI::OnClickGoFindRoom()
 void UClientRoomUI::OnClickGoStartStageGame()
 {
 	// 스테이지로 이동하자
+	WidgetSwitcher->SetActiveWidgetIndex(2);
 	CameraComp->SetViewTarget(ECameraState::Stage);
 	CanvasMain->SetVisibility(ESlateVisibility::Hidden);
 }

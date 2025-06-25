@@ -883,14 +883,14 @@ void AFrog::StopCrouch()
 
 void AFrog::TongueAttack()
 {
-	if (HasAuthority())
-	{
-		ServerRPC_StartTongueAttack_Implementation();
-	}
-	else
-	{
-		ServerRPC_StartTongueAttack();
-	}
+	// if (HasAuthority())
+	// {
+	// 	ServerRPC_StartTongueAttack_Implementation();
+	// }
+	// else
+	// {
+	// 	ServerRPC_StartTongueAttack();
+	// }
 }
 
 void AFrog::TongueAttackEnd()

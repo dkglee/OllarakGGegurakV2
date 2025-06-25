@@ -25,6 +25,10 @@ struct FFieldTableRow : public FTableRowBase
 	FName ClearCondition; // 필드 클리어 조건 (예: 별 개수)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Field")
 	FName UnlockCondition; // 필드 잠금 해제 조건 (예: 특정 필드 완료 후)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Field")
+	int32 FieldStarCount; // 필드에서 획득한 별 개수
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Field")
+	float FieldClearTime; // 필드 클리어 기록
 
 	FFieldTableRow(
 		const FName& InFieldID = NAME_None,
@@ -43,5 +47,7 @@ struct FFieldTableRow : public FTableRowBase
 		, Description(InDescription)
 		, ClearCondition(InClearCondition)
 		, UnlockCondition(InUnlockCondition)
+		, FieldStarCount(0)
+		, FieldClearTime(0.f)
 	{}
 };

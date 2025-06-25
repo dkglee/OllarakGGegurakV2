@@ -85,4 +85,8 @@ public:
 	void AddStar();
 	// 게임 종료 처리
 	void EndStage(bool bIsClear);
+
+	// 게임 시작 시간
+	UPROPERTY()
+	float StartTime = 0.f;
 };

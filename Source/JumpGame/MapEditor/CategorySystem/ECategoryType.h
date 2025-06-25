@@ -10,6 +10,8 @@ enum class EMajorCategoryType : uint8
 	Obstacle = 2	UMETA(DisplayName = "Obstacle"),
 	Platform = 3	UMETA(DisplayName = "Platform"),
 	Decoration = 4	UMETA(DisplayName = "Decoration"),
+	Item = 5		UMETA(DisplayName = "Item"),
+	Copy = 6		UMETA(DisplayName = "Copy"),
 	Count			UMETA(DisplayName = "Count"),			// 카테고리 개수
 };
 

@@ -26,6 +26,7 @@ public:
 	bool MoveByGizmoPrimary(FVector MouseLocation, const FHitResult& HitResult);
 	void MoveByGizmo(const FVector& NewLocation);;
 	void Rotate(const FVector& Direction);
+	FVector GetSize();
 
 private:
 	void SwapSize(const FVector& Direction);

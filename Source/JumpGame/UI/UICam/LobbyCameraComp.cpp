@@ -4,6 +4,7 @@
 #include "LobbyCameraComp.h"
 
 #include "LobbyMainCamera.h"
+#include "LobbyStageCamera.h"
 #include "LobbySubCamera.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/CanvasPanel.h"
@@ -30,6 +31,7 @@ void ULobbyCameraComp::BeginPlay()
 	
 	MainCamera = Cast<ALobbyMainCamera>(UGameplayStatics::GetActorOfClass(GetWorld(), ALobbyMainCamera::StaticClass()));
 	SubCamera = Cast<ALobbySubCamera>(UGameplayStatics::GetActorOfClass(GetWorld(), ALobbySubCamera::StaticClass()));
+	StageCamera = Cast<ALobbyStageCamera>(UGameplayStatics::GetActorOfClass(GetWorld(), ALobbyStageCamera::StaticClass()));
 
 	PC = GetWorld()->GetFirstPlayerController();
 	if (PC)
@@ -48,19 +50,27 @@ void ULobbyCameraComp::TickComponent(float DeltaTime, ELevelTick TickType,
 	// ...
 }
 
-void ULobbyCameraComp::SetViewTarget()
+void ULobbyCameraComp::SetViewTarget(ECameraState NewState)
 {
 	if (!PC) return;
-	
+
 	AActor* CurrentTarget = PC->GetViewTarget();
-	if (CurrentTarget == MainCamera)
+	ACameraActor* TargetCam = nullptr;
+	switch (NewState)
 	{
-		// 메인카메라 -> 서브카메라 이동
-		PC->SetViewTargetWithBlend(SubCamera, 0.5f);
+	case ECameraState::Main:
+		TargetCam = MainCamera;
+		break;
+	case ECameraState::Sub:
+		TargetCam = SubCamera;
+		break;
+	case ECameraState::Stage:
+		TargetCam = StageCamera;
+		break;
 	}
-	else
+
+	if (TargetCam != CurrentTarget)
 	{
-		// 서브카메라 -> 메인카메라 이동
-		PC->SetViewTargetWithBlend(MainCamera, 0.5f);
+		PC->SetViewTargetWithBlend(TargetCam, 0.5f);
 	}
 }

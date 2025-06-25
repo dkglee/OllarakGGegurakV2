@@ -1,6 +1,8 @@
 #include "StageSystemSubsystem.h"
 
+#include "JumpGame/Core/SaveGame/JumpSaveGame.h"
 #include "JumpGame/Utils/FastLogger.h"
+#include "Kismet/GameplayStatics.h"
 
 void UStageSystemSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -20,6 +22,7 @@ void UStageSystemSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	}
 	
 	BuildCaches();
+	LoadProgressFromDisk();
 
 	// TEST용
 	ChosenStageID = TEXT("Stage_01");
@@ -31,6 +34,7 @@ void UStageSystemSubsystem::Deinitialize()
 	StageCache.Empty();
 	FieldCache.Empty();
 	StageToFields.Empty();
+	SaveProgressToDisk();
 	
 	Super::Deinitialize();
 }
@@ -107,4 +111,65 @@ void UStageSystemSubsystem::BuildCaches()
 	}
 }
 
+void UStageSystemSubsystem::SaveFieldResult(FName FieldID, int32 StarCount, float ClearTime)
+{
+	if (FFieldTableRow* FieldRow = FieldCache.FindRef(FieldID))
+	{
+		const int32 PrevStars = FieldRow->FieldStarCount;
+		const float PrevTime = FieldRow->FieldClearTime;
+
+		if (StarCount > PrevStars)
+		{
+			// 별이 더 많으면 무조건 별 + 시간 갱신 (별먹은게 우선순위)
+			FieldRow->FieldStarCount = StarCount;
+			FieldRow->FieldClearTime = ClearTime;
+		}
+		else if (StarCount == PrevStars && (PrevTime <= 0.f || ClearTime < PrevTime))
+		{
+			// 별은 같고, 시간이 더 빠르면 시간만 갱신
+			FieldRow->FieldClearTime = ClearTime;
+		}
+	}
+}
+
+void UStageSystemSubsystem::SaveProgressToDisk()
+{
+	auto* SG = Cast<UJumpSaveGame>(UGameplayStatics::CreateSaveGameObject(UJumpSaveGame::StaticClass()));
+
+	for (const auto& Pair : FieldCache)
+	{
+		FFieldTableRow* FieldRow = Pair.Value;
+		if (!FieldRow) continue;
+
+		SG->SavedFieldStarCountMap.Add(FieldRow->FieldID, FieldRow->FieldStarCount);
+		SG->SavedFieldClearTimeMap.Add(FieldRow->FieldID, FieldRow->FieldClearTime);
+	}
+
+	UGameplayStatics::SaveGameToSlot(SG, TEXT("StageSaveSlot"), 0);
+}
+
+void UStageSystemSubsystem::LoadProgressFromDisk()
+{
+	if (USaveGame* Loaded = UGameplayStatics::LoadGameFromSlot(TEXT("StageSaveSlot"), 0))
+	{
+		UJumpSaveGame* SG = Cast<UJumpSaveGame>(Loaded);
+		if (!SG) return;
+
+		for (auto& Pair : FieldCache)
+		{
+			FFieldTableRow* FieldRow = Pair.Value;
+			if (!FieldRow) continue;
+
+			if (SG->SavedFieldStarCountMap.Contains(FieldRow->FieldID))
+			{
+				FieldRow->FieldStarCount = SG->SavedFieldStarCountMap[FieldRow->FieldID];
+			}
+
+			if (SG->SavedFieldClearTimeMap.Contains(FieldRow->FieldID))
+			{
+				FieldRow->FieldClearTime = SG->SavedFieldClearTimeMap[FieldRow->FieldID];
+			}
+		}
+	}
+}
 

@@ -10,6 +10,7 @@
 #include "JumpGame/Core/GameState/MapEditorState.h"
 #include "JumpGame/MapEditor/CategorySystem/CategorySystem.h"
 #include "JumpGame/MapEditor/Components/GridComponent.h"
+#include "JumpGame/MapEditor/WarningPropManager/WarningPropManager.h"
 #include "JumpGame/UI/FileBrowser/FileBrowserUI.h"
 #include "JumpGame/UI/MapEditing/MapLoadingUI.h"
 
@@ -260,6 +261,11 @@ void ULoadMapComponent::SpawnProp(TSubclassOf<APrimitiveProp> PropClass, const F
 		NewProp->GetGridComp()->SetSize(Size);
 		NewProp->SetActorRotation(Rotation);
 		NewProp->RotateAllGizmos();
+		AMapEditorState* EditorState = Cast<AMapEditorState>(GetWorld()->GetGameState());
+		if (EditorState)
+		{
+			EditorState->GetWarningPropManager()->RegisterNecessaryProp(NewProp);
+		}
 	}
 	else
 	{

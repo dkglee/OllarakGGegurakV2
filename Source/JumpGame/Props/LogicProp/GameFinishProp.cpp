@@ -95,7 +95,7 @@ void AGameFinishProp::BeginPlay()
 	GI = Cast<UJumpGameInstance>(GetWorld()->GetGameInstance());
 	Character = Cast<AFrog>(GetWorld()->GetFirstPlayerController()->GetPawn());
 
-	if (!GetWorld()->GetMapName().Contains(TEXT("InGameLevel")))
+	if (!GetWorld()->GetMapName().Contains(TEXT("Stage")))
 	{
 		bIsActive = false;
 	}

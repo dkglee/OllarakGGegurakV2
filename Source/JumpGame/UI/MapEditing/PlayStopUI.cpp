@@ -95,7 +95,7 @@ void UPlayStopUI::ShowCopyProps(TArray<AActor*> Actors)
 		AChameleonProp* ChameleonProp = Cast<AChameleonProp>(Actor);
 		if (ChameleonProp)
 		{
-			ChameleonProp->CopyMeshAndMaterial();
+			ChameleonProp->RecoverMeshAndMaterial();
 		}
 	}
 }

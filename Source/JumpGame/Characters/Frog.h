@@ -73,6 +73,8 @@ public:
 
 public:
 	// Input
+	void StopFrogMovement();
+	void ResumeFrogMovement();
 	void Move(const struct FInputActionValue& Value);
 	void Look(const struct FInputActionValue& Value);
 	void StartJump();

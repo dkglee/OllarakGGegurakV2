@@ -3,7 +3,10 @@
 
 #include "InGameUI.h"
 
+#include "Animation/UMGSequencePlayer.h"
+#include "JumpGame/Core/PlayerController/InGamePlayerController.h"
 #include "JumpGame/Utils/FastLogger.h"
+#include "Kismet/GameplayStatics.h"
 
 void UInGameUI::UpdateStarCount(int32 Count)
 {
@@ -21,6 +24,22 @@ void UInGameUI::UpdateStarCount(int32 Count)
 	default:
 		break;
 	}
+}
+
+void UInGameUI::PlayClearAnimation()
+{
+	UUMGSequencePlayer* SequencePlayerClear = PlayAnimation(ClearAnimation, 0.0f, 1, EUMGSequencePlayMode::Forward, 1.0f);
+	TWeakObjectPtr<UInGameUI> WeakThis{this};
+	SequencePlayerClear->OnSequenceFinishedPlaying().AddLambda([WeakThis](UUMGSequencePlayer&) {
+		if (!WeakThis.IsValid())
+		{
+			return;
+		}
+		
+		UInGameUI* StrongThis{WeakThis.Get()};
+		AInGamePlayerController* PC{(Cast<AInGamePlayerController>(UGameplayStatics::GetPlayerController(StrongThis, 0)))};
+		PC->ShowResultUI();
+	});
 }
 
 void UInGameUI::NativeOnInitialized()

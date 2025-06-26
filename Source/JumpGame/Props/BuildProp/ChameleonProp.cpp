@@ -4,6 +4,7 @@
 #include "ChameleonProp.h"
 
 #include "JumpGame/MapEditor/Components/GridComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 
 // Sets default values
@@ -22,6 +23,12 @@ void AChameleonProp::BeginPlay()
 	{
 		OriginalMesh = MeshComp->GetStaticMesh();
 		OriginalMaterial = MeshComp->GetMaterial(0);
+	}
+
+    // CopyMeshAndMaterial();
+	if (bInGame)
+	{
+		CopyMeshAndMaterial();
 	}
 }
 
@@ -70,7 +77,7 @@ void AChameleonProp::CopyMeshAndMaterial()
 				if (BottomMesh)
 				{
 					MeshComp->SetStaticMesh(BottomMesh);
-					MeshComp->SetRelativeScale3D(BaseProp->MeshComp->GetRelativeScale3D());
+					MeshComp->SetRelativeTransform(BaseProp->MeshComp->GetRelativeTransform());
 				}
 
 				// 머티리얼 복사

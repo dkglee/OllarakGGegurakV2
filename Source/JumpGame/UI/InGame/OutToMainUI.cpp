@@ -40,9 +40,8 @@ void UOutToMainUI::NativeConstruct()
 void UOutToMainUI::OnClickOutToMain()
 {
 	// Todo: 나중에 멀티 고려하면 server travel로 ?
-
-	FString CurrentLevelName{UGameplayStatics::GetCurrentLevelName(GetWorld(), true)};
-	if (CurrentLevelName == TEXT("InGameLevel"))
+	
+	if (GetWorld()->GetMapName().Contains(TEXT("Stage")))
 	{
 		AMapGameState* GS{Cast<AMapGameState>(GetWorld()->GetGameState())};
 		if (GS)
@@ -50,11 +49,11 @@ void UOutToMainUI::OnClickOutToMain()
 			GS->EndStage(false);
 		}
 		
-		UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/ClientRoomLevel"));
+		UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/Levels/GameLobby"));
 	}
 	else
 	{
-		FLog::Log("Not InGameLevel, Can not Go");
+		FLog::Log("Not Stage, Can not Go");
 	}
 }
 

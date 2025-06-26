@@ -46,7 +46,7 @@ void ABaseProp::BeginPlay()
 		}
 	}
 
-	bInGame = GetWorld()->GetMapName().Contains(TEXT("InGameLevel"));
+	bInGame = GetWorld()->GetMapName().Contains(TEXT("Stage"));
 
 	
 }

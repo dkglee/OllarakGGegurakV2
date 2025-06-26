@@ -25,8 +25,7 @@ void AChameleonProp::BeginPlay()
 		OriginalMaterial = MeshComp->GetMaterial(0);
 	}
 
-	FString CurrentLevelName{UGameplayStatics::GetCurrentLevelName(GetWorld(), true)};
-	if (CurrentLevelName == TEXT("InGameLevel"))
+	if (bInGame)
 	{
 		CopyMeshAndMaterial();
 	}

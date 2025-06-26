@@ -333,7 +333,7 @@ void UJumpGameInstance::OnFailureSessionDetected(const FUniqueNetId& UniqueNetId
 	UWorld* World = GetWorld();
 	if (World)
 	{
-		UGameplayStatics::OpenLevel(World, FName(TEXT("/Game/Maps/ClientRoomLevel")));
+		UGameplayStatics::OpenLevel(World, FName(TEXT("/Game/Maps/Levels/GameLobby")));
 	}
 }
 
@@ -347,7 +347,7 @@ void UJumpGameInstance::OnEndSessionComplete(FName Name, bool bArg)
 	// }
 
 	// 성공 여부와 무관하게 클라·서버 모두 로비로 이동
-	UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/ClientRoomLevel"));
+	UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/Levels/GameLobby"));
 
 	// 세션 파괴는 백그라운드로
 	IOnlineSessionPtr Sessions = IOnlineSubsystem::Get()->GetSessionInterface();

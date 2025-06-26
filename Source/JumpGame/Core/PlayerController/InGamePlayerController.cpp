@@ -5,6 +5,7 @@
 #include "JumpGame/UI/InGame/InGameUI.h"
 #include "JumpGame/UI/InGame/StageResultUI.h"
 #include "Components/WidgetComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "JumpGame/Characters/Frog.h"
 #include "JumpGame/UI/InGame/OutToMainUI.h"
 #include "JumpGame/Utils/FastLogger.h"
@@ -42,13 +43,8 @@ void AInGamePlayerController::BeginPlay()
 	SetInputMode(FInputModeGameOnly());
 	SetShowMouseCursor(false);
 
-	// 인게임 UI 생성
+	// UI 생성
 	InGameUI = CreateWidget<UInGameUI>(this, InGameUIClass);
-	if (InGameUI)
-	{
-		InGameUI->AddToViewport();
-	}
-
 	ResultUI = CreateWidget<UStageResultUI>(this, ResultUIClass);
 	OutToMainUI = CreateWidget<UOutToMainUI>(this, OutToMainUIClass);
 }
@@ -81,11 +77,22 @@ void AInGamePlayerController::StartInitialize()
 	Frog->InitJumpGaugeUIComponent();
 }
 
-void AInGamePlayerController::ShowOutToMainUI()
+void AInGamePlayerController::ShowInGameUI()
 {
 	if (InGameUI)
 	{
-		InGameUI->RemoveFromParent();
+		InGameUI->AddToViewport();
+	}
+}
+
+void AInGamePlayerController::ShowOutToMainUI()
+{
+	AFrog* Frog{Cast<AFrog>(GetPawn())};
+	Frog->StopFrogMovement();
+	
+	if (InGameUI)
+	{
+		//InGameUI->RemoveFromParent();
 	}
 
 	if (OutToMainUI)
@@ -94,16 +101,29 @@ void AInGamePlayerController::ShowOutToMainUI()
 	}
 }
 
-void AInGamePlayerController::ShowResultUI()
+void AInGamePlayerController::ShowClearUIAnimation()
 {
 	if (InGameUI)
 	{
-		InGameUI->RemoveFromParent();
+		InGameUI->PlayClearAnimation();
 	}
+}
+
+void AInGamePlayerController::ShowResultUI()
+{
+	AFrog* Frog{Cast<AFrog>(GetPawn())};
+	if (Frog)
+	{
+		Frog->StopFrogMovement();
+	}
+	
 	if (ResultUI)
 	{
 		ResultUI->AddToViewport();
 	}
+
+	SetInputMode(FInputModeUIOnly());
+	SetShowMouseCursor(true);
 }
 
 void AInGamePlayerController::UpdateStarCount(int32 Count)

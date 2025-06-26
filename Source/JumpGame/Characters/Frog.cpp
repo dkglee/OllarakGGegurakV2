@@ -271,7 +271,8 @@ AFrog::AFrog()
 	SpotLightComponent = CreateDefaultSubobject<USpotLightComponent>(TEXT("SpotLightComponent"));
 	SpotLightComponent->SetupAttachment(CameraBoom);
 	SpotLightComponent->SetIntensityUnits(ELightUnits::Candelas);
-	SpotLightComponent->SetIntensity(10.f);
+	// SpotLightComponent->SetIntensity(10.f);
+	SpotLightComponent->SetIntensity(0.f);
 	SpotLightComponent->SetAttenuationRadius(630.f);
 	SpotLightComponent->SetOuterConeAngle(29.f);
 	SpotLightComponent->SetCastShadows(false);
@@ -883,14 +884,14 @@ void AFrog::StopCrouch()
 
 void AFrog::TongueAttack()
 {
-	if (HasAuthority())
-	{
-		ServerRPC_StartTongueAttack_Implementation();
-	}
-	else
-	{
-		ServerRPC_StartTongueAttack();
-	}
+	// if (HasAuthority())
+	// {
+	// 	ServerRPC_StartTongueAttack_Implementation();
+	// }
+	// else
+	// {
+	// 	ServerRPC_StartTongueAttack();
+	// }
 }
 
 void AFrog::TongueAttackEnd()
@@ -1255,12 +1256,13 @@ void AFrog::MulticastRPC_Landed_Implementation()
 
 void AFrog::SetLightIntensity(float Alpha)
 {
-	SpotLightComponent->SetIntensity(10.f * (1 - Alpha));
-
-	if (IsLocallyControlled())
-	{
-		ServerRPC_SetLight(Alpha);
-	}
+	SpotLightComponent->SetIntensity(0.f);
+	// SpotLightComponent->SetIntensity(10.f * (1 - Alpha));
+	//
+	// if (IsLocallyControlled())
+	// {
+	// 	ServerRPC_SetLight(Alpha);
+	// }
 }
 
 void AFrog::ServerRPC_SetLight_Implementation(float Alpha)
@@ -1818,6 +1820,42 @@ void AFrog::OnTongueBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 		Dir.Normalize();
 
 		OverlappingFrog->LaunchCharacter(Dir * 300.f, true, true);
+	}
+}
+
+void AFrog::StopFrogMovement()
+{
+	APlayerController* PC{GetWorld()->GetFirstPlayerController()};
+	if (!PC)
+	{
+		return;
+	}
+	
+	GetCharacterMovement()->StopMovementImmediately();
+
+	if (ULocalPlayer* LocalPlayer{PC->GetLocalPlayer()})
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem{LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>()})
+		{
+			Subsystem->ClearAllMappings();
+		}
+	}
+}
+
+void AFrog::ResumeFrogMovement()
+{
+	APlayerController* PC{GetWorld()->GetFirstPlayerController()};
+	if (!PC)
+	{
+		return;
+	}
+	
+	if (ULocalPlayer* LocalPlayer{PC->GetLocalPlayer()})
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem{LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>()})
+		{
+			Subsystem->AddMappingContext(DefaultMappingContext, 0);
+		}
 	}
 }
 

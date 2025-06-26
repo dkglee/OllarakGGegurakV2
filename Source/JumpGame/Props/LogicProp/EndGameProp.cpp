@@ -39,6 +39,12 @@ void AEndGameProp::OnMyBeginOverlap(UPrimitiveComponent* OverlappedComponent, AA
 {
 	if (AFrog* Frog{Cast<AFrog>(OtherActor)})
 	{
+		AMapGameState* GS{Cast<AMapGameState>(GetWorld()->GetGameState())};
+		if (GS->bIsGameClear)
+		{
+			return;
+		}
+		
 		AInGamePlayerController* PC{Cast<AInGamePlayerController>(UGameplayStatics::GetPlayerController(this, 0))};
 		if (PC)
 		{

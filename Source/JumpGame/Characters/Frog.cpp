@@ -271,7 +271,8 @@ AFrog::AFrog()
 	SpotLightComponent = CreateDefaultSubobject<USpotLightComponent>(TEXT("SpotLightComponent"));
 	SpotLightComponent->SetupAttachment(CameraBoom);
 	SpotLightComponent->SetIntensityUnits(ELightUnits::Candelas);
-	SpotLightComponent->SetIntensity(10.f);
+	// SpotLightComponent->SetIntensity(10.f);
+	SpotLightComponent->SetIntensity(0.f);
 	SpotLightComponent->SetAttenuationRadius(630.f);
 	SpotLightComponent->SetOuterConeAngle(29.f);
 	SpotLightComponent->SetCastShadows(false);

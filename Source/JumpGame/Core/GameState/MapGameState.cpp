@@ -28,11 +28,11 @@ void AMapGameState::BeginPlay()
 	int32 MaxPlayer = GI->GetMaxPlayerCount();
 	ConnectionVerifyComponent->InitMaxPlayerCount(MaxPlayer);
 
-	ProgressBarUI = CreateWidget<UGameProgressBarUI>(GetWorld(), UGameProgressBarUIClass);
-	if (ProgressBarUI)
-	{
-		ProgressBarUI->AddToViewport();
-	}
+	// ProgressBarUI = CreateWidget<UGameProgressBarUI>(GetWorld(), UGameProgressBarUIClass);
+	// if (ProgressBarUI)
+	// {
+	// 	ProgressBarUI->AddToViewport();
+	// }
 
 	InGameSettingUI = CreateWidget<UInGameSettingUI>(GetWorld(), InGameSettingUIClass);
 	if (InGameSettingUI)

@@ -80,6 +80,8 @@ private:
 	void MoveUp(float Val);
 	UFUNCTION(BlueprintCallable)
 	void OnMoveFinished();
+	UFUNCTION()
+	void TeleportToProp(class APrimitiveProp* Prop);
 
 	// IMC_MAPEDITING
 	UPROPERTY(EditDefaultsOnly, Category = "Input")

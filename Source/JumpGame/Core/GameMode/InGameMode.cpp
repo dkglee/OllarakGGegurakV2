@@ -31,16 +31,16 @@ void AInGameMode::BeginPlay()
 	// }
 	
 	// Stage System Subsystem을 가져와서 선택된 필드 ID를 가져옵니다. 
-	UStageSystemSubsystem* StageSystem = JumpGameInstance->GetSubsystem<UStageSystemSubsystem>();
-	if (!StageSystem)
-	{
-		FFastLogger::LogConsole(TEXT("StageSystemSubsystem not found!"));
-		return;
-	}
-	FName FieldID = StageSystem->GetChosenField();
-	FString FileName = StageSystem->ConvertFiledIDToPath(FieldID);
-	
-	LoadMapComponent->LoadMapWithString(FileName);
+	// UStageSystemSubsystem* StageSystem = JumpGameInstance->GetSubsystem<UStageSystemSubsystem>();
+	// if (!StageSystem)
+	// {
+	// 	FFastLogger::LogConsole(TEXT("StageSystemSubsystem not found!"));
+	// 	return;
+	// }
+	// FName FieldID = StageSystem->GetChosenField();
+	// FString FileName = StageSystem->ConvertFiledIDToPath(FieldID);
+	//
+	// LoadMapComponent->LoadMapWithString(FileName);
 }
 
 void AInGameMode::PostLogin(APlayerController* NewPlayer)

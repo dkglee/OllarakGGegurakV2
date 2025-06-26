@@ -64,6 +64,9 @@ public:
 	const class UPropWrap* GetPropsByID(FName ID);
 	const TArray<class UPropWrap*>& GetPropsByName(FName Name);
 
+	// 필수 카테고리를 가지고 있는 Prop의 개수 반환
+	int32 GetNecessaryPropCount() const;
+
 	// Updtae 함수
 	UFUNCTION(BlueprintCallable)
 	void UpdatePropByID(FName ID, const FPropStruct& NewProp);

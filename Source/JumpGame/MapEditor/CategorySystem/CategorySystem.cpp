@@ -235,6 +235,21 @@ const UPropWrap* UCategorySystem::GetPropsByID(FName ID)
 	return Found && *Found ? *Found : nullptr;
 }
 
+int32 UCategorySystem::GetNecessaryPropCount() const
+{
+	int32 TotalCount = 0;
+	for (const UPropWrap* Prop : PropList)
+	{
+		if (!Prop || Prop->Data.bIsHidden) continue;
+
+		if (Prop->Data.PropMaxCount > 0)
+		{
+			TotalCount += 1;
+		}
+	}
+	return TotalCount;
+}
+
 void UCategorySystem::UpdatePropByID(FName ID, const FPropStruct& NewProp)
 {
 	UPropWrap** Found = PropList.FindByPredicate([ID](const UPropWrap* It)

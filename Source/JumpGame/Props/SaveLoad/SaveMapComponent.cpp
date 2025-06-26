@@ -115,8 +115,6 @@ bool USaveMapComponent::CheckNecessaryProps()
 		// 0 보다 작으면 더 많이 설치됨
 		if (It.second.first != It.second.second)
 		{
-			FFastLogger::LogScreen(FColor::Red, TEXT("필수 Prop 갯수를 채우지 못했습니다. PropID: %s, Count: %d, MaxCount: %d"), 
-				*It.first, It.second.first, It.second.second);
 			return false;
 		}
 	}

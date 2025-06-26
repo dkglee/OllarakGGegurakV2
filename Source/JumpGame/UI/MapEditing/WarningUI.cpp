@@ -22,8 +22,6 @@ void UWarningUI::NativeOnInitialized()
 	WarningToggle->OnReleased.AddDynamic(this, &UWarningUI::OnWarningButtonReleased);
 	WarningToggle->OnHovered.AddDynamic(this, &UWarningUI::OnWarningButtonHovered);
 	WarningToggle->OnUnhovered.AddDynamic(this, &UWarningUI::OnWarningButtonUnhovered);
-
-	WarningOccured();
 }
 
 void UWarningUI::PlayWarningAnim()
@@ -72,8 +70,16 @@ void UWarningUI::OnWarningButtonReleased()
 void UWarningUI::WarningOccured()
 {
 	WarningToggle->SetVisibility(ESlateVisibility::Visible);
-	PlayAnimation(WarningOccuredAnim);
-	PlayAnimation(WarningButtonActivateAnim, 0.f, 0);
+	
+	if (!bIsWarningOccured)
+	{
+		PlayAnimation(WarningOccuredAnim);
+		PlayAnimation(WarningButtonActivateAnim, 0.f, 0);
+	}
+	else 
+	{
+		bIsWarningOccured = true;
+	}
 }
 
 void UWarningUI::WarningCleared()
@@ -92,6 +98,14 @@ void UWarningUI::WarningCleared()
 			StrongThis->WarningToggle->SetVisibility(ESlateVisibility::Collapsed);
 		});
 	}
+
+	if (bIsButtonClicked)
+	{
+		StopWarningAnim();
+		bIsButtonClicked = false;
+	}
+
+	bIsWarningOccured = false;
 }
 
 void UWarningUI::OnWarningButtonHovered()

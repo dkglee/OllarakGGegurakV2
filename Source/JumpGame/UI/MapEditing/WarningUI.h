@@ -53,4 +53,6 @@ public:
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"), Category = "UI")
 	bool bIsButtonClicked = false;
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"), Category = "UI")
+	bool bIsWarningOccured = false; // 경고가 발생했는지 여부
 };

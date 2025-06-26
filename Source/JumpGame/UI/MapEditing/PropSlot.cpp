@@ -144,7 +144,6 @@ void UPropSlot::NativeOnDragDetected(const FGeometry& InGeometry, const FPointer
 
 void UPropSlot::SetPropCountText(FName ID, int32 Count, int32 MaxCount)
 {
-	FFastLogger::LogScreen(FColor::Red, TEXT("SetPropCountText : ID : %s, Count : %d, MaxCount : %d"), *ID.ToString(), Count, MaxCount);
 	// SetText가 필요가 없음
 	if (MaxCount <= 0)
 	{

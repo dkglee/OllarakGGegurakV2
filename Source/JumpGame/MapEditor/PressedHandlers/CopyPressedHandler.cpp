@@ -12,6 +12,7 @@
 #include "JumpGame/MapEditor/Components/GridComponent.h"
 #include "JumpGame/MapEditor/Components/RotateGizmoComponent.h"
 #include "JumpGame/MapEditor/Pawn/MapEditingPawn.h"
+#include "JumpGame/MapEditor/WarningPropManager/WarningPropManager.h"
 #include "JumpGame/Props/Components/PropDataComponent.h"
 #include "JumpGame/Props/PrimitiveProp/PrimitiveProp.h"
 
@@ -155,6 +156,7 @@ void UCopyPressedHandler::DuplicateSelectedProps(FClickResponse& PressedResponse
 		if (EditorState)
 		{
 			EditorState->GetCategorySystem()->DecrementPropCountByID(SelectedProp->GetPropDataComponent()->GetPropID());
+			EditorState->GetWarningPropManager()->RegisterNecessaryProp(NewProp);
 		}
 
 		NewProp->SetSelected(false);

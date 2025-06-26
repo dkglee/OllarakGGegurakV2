@@ -2,6 +2,9 @@
 
 #pragma once
 
+#include <map>
+#include <utility>
+
 #include "CoreMinimal.h"
 #include "SaveData.h"
 #include "Components/ActorComponent.h"
@@ -25,7 +28,8 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	void GetAllPropsInfo(TArray<FSaveData>& OutSaveDataArray);
+	bool CheckNecessaryProps();
+	bool GetAllPropsInfo(TArray<FSaveData>& OutSaveDataArray);
 	bool SaveDataToFile(const FSaveDataArray& InSaveDataArray, const FString& FileName);
 
 	UPROPERTY()
@@ -33,9 +37,8 @@ private:
 	UPROPERTY()
 	FString DefaultDirectory = SAVE_MAP_DEFAULT_DIRECTORY;
 
-	UPROPERTY()
-	TArray<FString> CollisionPropTags;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MapLoad", meta = (AllowPrivateAccess = "true"))
 	class UDataTable* PropTable = nullptr;
+
+	std::map<FString, std::pair<int32, int32>> PropCountMap; // PropID, (Count, MaxCount) 
 };

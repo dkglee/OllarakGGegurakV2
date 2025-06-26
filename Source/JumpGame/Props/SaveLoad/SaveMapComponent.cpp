@@ -23,10 +23,8 @@ void USaveMapComponent::BeginPlay()
 
 bool USaveMapComponent::SaveMap(const FString& FileName, const FString& ImageBase64)
 {
-	CollisionPropTags.Empty();
 	SaveDataArray.SaveDataArray.Empty();
-	GetAllPropsInfo(SaveDataArray.SaveDataArray);
-	if (CollisionPropTags.Num() != 0)
+	if (!GetAllPropsInfo(SaveDataArray.SaveDataArray))
 	{
 		return false;
 	}
@@ -34,26 +32,19 @@ bool USaveMapComponent::SaveMap(const FString& FileName, const FString& ImageBas
 	return SaveDataToFile(SaveDataArray, FileName);
 }
 
-void USaveMapComponent::GetAllPropsInfo(TArray<FSaveData>& OutSaveDataArray)
+bool USaveMapComponent::GetAllPropsInfo(TArray<FSaveData>& OutSaveDataArray)
 {
 	// 현재 월드에 있는 APrmitiveActor를 모두 가져옴
 	TArray<AActor*> AllActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APrimitiveProp::StaticClass(), AllActors);
-	
+
 	for (AActor* Actor : AllActors)
 	{
 		APrimitiveProp* PrimitiveProp = Cast<APrimitiveProp>(Actor);
+		// 충돌 중인 Prop이 있는지
 		if (PrimitiveProp->IsOnCollision())
 		{
-			if (PrimitiveProp->Tags.Num() != 0)
-			{
-				CollisionPropTags.Add(PrimitiveProp->Tags.Last().ToString());
-			}
-			else
-			{
-				CollisionPropTags.Add(TEXT("NoTag"));
-			}
-			continue;
+			return false;
 		}
 		
 		FSaveData SaveData;
@@ -65,6 +56,12 @@ void USaveMapComponent::GetAllPropsInfo(TArray<FSaveData>& OutSaveDataArray)
 		{
 			continue;
 		}
+
+		if (PropCountMap.find(SaveData.Id.ToString()) == PropCountMap.end())
+		{
+			PropCountMap[SaveData.Id.ToString()] = std::make_pair(0, PropInfo->PropMaxCount);
+		}
+		PropCountMap[SaveData.Id.ToString()].first += 1;
 		
 		SaveData.Position = PrimitiveProp->GetActorLocation();
 		SaveData.Rotation = PrimitiveProp->GetActorRotation();
@@ -72,6 +69,8 @@ void USaveMapComponent::GetAllPropsInfo(TArray<FSaveData>& OutSaveDataArray)
 		
 		OutSaveDataArray.Add(SaveData);
 	}
+
+	return CheckNecessaryProps();
 }
 
 bool USaveMapComponent::SaveDataToFile(const FSaveDataArray& InSaveDataArray, const FString& FileName)
@@ -101,4 +100,25 @@ bool USaveMapComponent::SaveDataToFile(const FSaveDataArray& InSaveDataArray, co
 	bool bSuccess = FFileHelper::SaveStringToFile(JsonString, *FullPath);
 
 	return bSuccess;
+}
+
+
+bool USaveMapComponent::CheckNecessaryProps()
+{
+	for (auto& It : PropCountMap)
+	{
+		if (It.second.second <= 0) // MaxCount가 0 이하면 무시
+		{
+			continue;	
+		}
+		// 0 보다 많으면 필수 갯수를 다 채우지 못함
+		// 0 보다 작으면 더 많이 설치됨
+		if (It.second.first != It.second.second)
+		{
+			FFastLogger::LogScreen(FColor::Red, TEXT("필수 Prop 갯수를 채우지 못했습니다. PropID: %s, Count: %d, MaxCount: %d"), 
+				*It.first, It.second.first, It.second.second);
+			return false;
+		}
+	}
+	return true;
 }

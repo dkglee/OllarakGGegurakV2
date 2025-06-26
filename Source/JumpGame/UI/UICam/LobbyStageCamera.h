@@ -22,4 +22,17 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY()
+	class ALobbyFrog* TargetFrog = nullptr;
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float DeadZoneHalfWidth = 300.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float DeadZoneHalfHeight = 200.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float FollowSpeed = 1.f;
 };

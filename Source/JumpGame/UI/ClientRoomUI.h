@@ -190,5 +190,8 @@ public:
 
 	UFUNCTION()
 	void OnClickGoLobby();
+
+	UPROPERTY()
+	class ALobbyFrog* Frog;
 };
 

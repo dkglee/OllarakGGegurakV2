@@ -31,7 +31,7 @@ void UClientRoomUI::NativeOnInitialized()
 	GetWorld()->GetFirstPlayerController()->SetShowMouseCursor(true);
 
 	GI = Cast<UJumpGameInstance>(GetWorld()->GetGameInstance());
-	ALobbyFrog* Frog = Cast<ALobbyFrog>(UGameplayStatics::GetActorOfClass(GetWorld(),ALobbyFrog::StaticClass()));
+	Frog = Cast<ALobbyFrog>(UGameplayStatics::GetActorOfClass(GetWorld(),ALobbyFrog::StaticClass()));
 	CameraComp = Cast<ULobbyCameraComp>(Frog->CameraComp);
 
 	// WidgetSwitcher (0)
@@ -100,6 +100,13 @@ void UClientRoomUI::OnClickGoLobby()
 	WidgetSwitcher->SetActiveWidgetIndex(0);
 	CameraComp->SetViewTarget(ECameraState::Main);
 	CanvasMain->SetVisibility(ESlateVisibility::Visible);
+
+	// 로비 애니메이션 전환
+	if (Frog)
+	{
+		Frog->UpdateAnimation(ELobbyCharacterState::InLobby);
+		UE_LOG(LogTemp, Display, TEXT("InLobby Updated"));
+	}
 }
 
 void UClientRoomUI::OnClickGoFindRoom()
@@ -118,6 +125,13 @@ void UClientRoomUI::OnClickGoStartStageGame()
 	WidgetSwitcher->SetActiveWidgetIndex(2);
 	CameraComp->SetViewTarget(ECameraState::Stage);
 	CanvasMain->SetVisibility(ESlateVisibility::Hidden);
+
+	// 스테이지 애니메이션 전환
+	if (Frog)
+	{
+		Frog->UpdateAnimation(ELobbyCharacterState::OnStageMap);
+		UE_LOG(LogTemp, Display, TEXT("OnStageMap Updated"));
+	}
 }
 
 void UClientRoomUI::OnClickGoCreateMap()

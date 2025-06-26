@@ -324,7 +324,6 @@ void ALobbyPlayerController::ClientRPC_ReceiveFriendList_Implementation(
 	// Recursive_ReceiveFriendList(FromPlayer, FriendList);
 }
 
-
 void ALobbyPlayerController::Recursive_ReceiveFriendList(const FUniqueNetIdRepl& FromPlayer,
 	const TArray<FSteamFriendData>& FriendList)
 {

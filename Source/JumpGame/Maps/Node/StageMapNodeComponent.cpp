@@ -40,8 +40,8 @@ void UStageMapNodeComponent::BeginPlay()
 	NodeInfoUI = CreateWidget<UNodeInfoUI>(GetWorld(), NodeInfoUIClass);
 	if (NodeInfoUI)
 	{
-		NodeInfoUI->AddToViewport();
-		NodeInfoUI->SetVisibility(ESlateVisibility::Collapsed);
+		NodeInfoUI->AddToViewport(50);
+		NodeInfoUI->SetVisibility(ESlateVisibility::HitTestInvisible);
 	}
 }
 
@@ -53,30 +53,57 @@ void UStageMapNodeComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 	if (!bIsMoving) return;
 	if (!OwnerChar) return;
+	
+	FVector CharLoc = OwnerChar->GetActorLocation();
+	FVector TargetLoc = NodeMap[DestinationNodeID].WorldPosition;
 
-	float Dist = FVector::Dist(OwnerChar->GetActorLocation(), NodeMap[DestinationNodeID].WorldPosition);
-	if (Dist < 10.f) // 충분히 가까우면 도착했다고 간주
+	float XYDist = FVector2D::Distance(
+		FVector2D(CharLoc.X, CharLoc.Y),
+		FVector2D(TargetLoc.X, TargetLoc.Y)
+	);
+
+	UE_LOG(LogTemp, Log, TEXT("[Tick] XY 거리 = %.2f"), XYDist);
+
+	if (XYDist < 52.f)
 	{
+		UE_LOG(LogTemp, Log, TEXT("[도착] CurrentNodeID = %d, DestinationNodeID = %d"), CurrentNodeID, DestinationNodeID);
+
 		CurrentNodeID = DestinationNodeID;
 		DestinationNodeID = -1;
 		bIsMoving = false;
 
 		const FStageNodeInfo* NodeInfo = GetNode(CurrentNodeID);
+		if (NodeInfo)
+		{
+			UE_LOG(LogTemp, Log, TEXT("[NodeInfo 있음] FieldName = %s, bHasField = %s"),
+				*NodeInfo->FieldName.ToString(),
+				NodeInfo->bHasField ? TEXT("true") : TEXT("false"));
+		}
+
 		if (NodeInfo && NodeInfo->bHasField)
 		{
+			NodeInfoUI->SetVisibility(ESlateVisibility::Visible);
 			if (const FFieldTableRow* FieldData = StageSystem->GetField(NodeInfo->FieldName))
 			{
+				UE_LOG(LogTemp, Log, TEXT("[UI 설정] 별 개수 = %d, 클리어 시간 = %.2f"),
+					FieldData->FieldStarCount,
+					FieldData->FieldClearTime);
+
 				NodeInfoUI->SetFieldInfo(
 					NodeInfo->FieldName,
-					FieldData->FieldStarCount,
+					2,
 					FieldData->FieldClearTime
 				);
 			}
-			NodeInfoUI->SetVisibility(ESlateVisibility::Visible);
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("[경고] FieldData 없음. FieldName = %s"), *NodeInfo->FieldName.ToString());
+			}
 		}
 		else
 		{
 			NodeInfoUI->SetVisibility(ESlateVisibility::Collapsed);
+			UE_LOG(LogTemp, Log, TEXT("[UI 숨김] NodeInfo가 없거나 필드가 없음"));
 		}
 	}
 }
@@ -201,11 +228,6 @@ void UStageMapNodeComponent::RequestMoveTo(int32 TargetNodeID)
 	UAIBlueprintHelperLibrary::SimpleMoveToLocation(AICon, TargetNode->WorldPosition);
 	bIsMoving = true;
 	DestinationNodeID = TargetNodeID; // 도착 후 갱신
-}
-
-void UStageMapNodeComponent::ShowFieldInfoUI(FName FieldName)
-{
-	
 }
 
 /*bool UStageMapNodeComponent::IsValidNodeID(int32 FromNodeID, int32 ToNodeID)

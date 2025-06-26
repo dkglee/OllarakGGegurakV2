@@ -15,7 +15,7 @@ class JUMPGAME_API UNodeInfoUI : public UUserWidget
 	GENERATED_BODY()
 	
 public:
-	void NativeOnInitialized() override;
+	virtual void NativeOnInitialized() override;
 	
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* Text_FieldName;
@@ -26,9 +26,7 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	class UImage* Image_Star3;
 	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* Text_Min;
-	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* Text_Sec;
+	class UTextBlock* Text_Time;
 	UPROPERTY(meta = (BindWidget))
 	class UButton* Btn_GameStart;
 
@@ -40,4 +38,15 @@ public:
 
 	UFUNCTION()
 	void SetFieldInfo(FName CurrentFieldName, int32 StarCount, float ClearTime);
+
+	UPROPERTY(EditDefaultsOnly)
+	UTexture2D* StarBlackTex;
+	UPROPERTY(EditDefaultsOnly)
+	UTexture2D* StarYellowTex;
+	
+	UFUNCTION()
+	void UpdateStarImages(int32 StarCount);
+	UFUNCTION()
+	void UpdateClearTime(float ClearTime);
 };
+

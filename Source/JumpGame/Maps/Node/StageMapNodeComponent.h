@@ -69,10 +69,6 @@ public:
 	// 이동 요청
 	UFUNCTION()
 	void RequestMoveTo(int32 TargetNodeID);
-
-	// 노드 UI 띄우기
-	UFUNCTION()
-	void ShowFieldInfoUI(FName FieldName);
 	
 	// 이동 가능한 노드인가?
 	// bool IsValidNodeID(int32 FromNodeID, int32 ToNodeID);

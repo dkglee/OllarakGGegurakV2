@@ -6,6 +6,7 @@
 #include "Components/Button.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
+#include "Kismet/GameplayStatics.h"
 
 void UNodeInfoUI::NativeOnInitialized()
 {
@@ -17,7 +18,7 @@ void UNodeInfoUI::NativeOnInitialized()
 void UNodeInfoUI::OnClickGameStart()
 {
 	// 필드 이름받아서 이동
-	// UGameplayStatics::OpenLevel(GetWorld(), TEXT(""));
+	UGameplayStatics::OpenLevel(GetWorld(), SelectFieldLevel);
 }
 
 void UNodeInfoUI::SetFieldInfo(FName CurrentFieldName, int32 StarCount, float ClearTime)

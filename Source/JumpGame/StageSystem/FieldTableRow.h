@@ -29,6 +29,8 @@ struct FFieldTableRow : public FTableRowBase
 	int32 FieldStarCount; // 필드에서 획득한 별 개수
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Field")
 	float FieldClearTime; // 필드 클리어 기록
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Field")
+	FName FieldLevel; // 필드
 
 	FFieldTableRow(
 		const FName& InFieldID = NAME_None,
@@ -49,5 +51,6 @@ struct FFieldTableRow : public FTableRowBase
 		, UnlockCondition(InUnlockCondition)
 		, FieldStarCount(0)
 		, FieldClearTime(0.f)
+		, FieldLevel(NAME_None)
 	{}
 };

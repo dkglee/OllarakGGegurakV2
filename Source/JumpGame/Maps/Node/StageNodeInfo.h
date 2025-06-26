@@ -14,9 +14,6 @@ struct FStageNodeInfo
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector WorldPosition;
 
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	//TArray<int32> ConnectedNodes; // 인접한 노드들의 ID
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bHasField; // 필드 존재 여부
 	
@@ -26,7 +23,6 @@ struct FStageNodeInfo
 	FStageNodeInfo()
 		: NodeID(0)
 		, WorldPosition(FVector::ZeroVector)
-		//, ConnectedNodes(TArray<int32>())
 		, bHasField(false)
 		, FieldName(NAME_None)
 	{}

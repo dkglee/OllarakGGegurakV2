@@ -33,11 +33,10 @@ public:
 	UFUNCTION()
 	void OnClickGameStart();
 
-	UPROPERTY()
-	FName StartFieldName;
-
 	UFUNCTION()
 	void SetFieldInfo(FName CurrentFieldName, int32 StarCount, float ClearTime);
+	UPROPERTY()
+	FName SelectFieldLevel;
 
 	UPROPERTY(EditDefaultsOnly)
 	UTexture2D* StarBlackTex;

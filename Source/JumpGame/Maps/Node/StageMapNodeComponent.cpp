@@ -41,7 +41,8 @@ void UStageMapNodeComponent::BeginPlay()
 	if (NodeInfoUI)
 	{
 		NodeInfoUI->AddToViewport(50);
-		NodeInfoUI->SetVisibility(ESlateVisibility::HitTestInvisible);
+		NodeInfoUI->SetVisibility(ESlateVisibility::Hidden);
+		NodeInfoUI->SetIsEnabled(false);
 	}
 }
 
@@ -62,12 +63,8 @@ void UStageMapNodeComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 		FVector2D(TargetLoc.X, TargetLoc.Y)
 	);
 
-	UE_LOG(LogTemp, Log, TEXT("[Tick] XY 거리 = %.2f"), XYDist);
-
-	if (XYDist < 52.f)
+	if (XYDist < 55.f)
 	{
-		UE_LOG(LogTemp, Log, TEXT("[도착] CurrentNodeID = %d, DestinationNodeID = %d"), CurrentNodeID, DestinationNodeID);
-
 		CurrentNodeID = DestinationNodeID;
 		DestinationNodeID = -1;
 		bIsMoving = false;
@@ -82,16 +79,18 @@ void UStageMapNodeComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 		if (NodeInfo && NodeInfo->bHasField)
 		{
-			NodeInfoUI->SetVisibility(ESlateVisibility::Visible);
+			NodeInfoUI->SetVisibility(ESlateVisibility::HitTestInvisible);
+			NodeInfoUI->SetIsEnabled(true);
 			if (const FFieldTableRow* FieldData = StageSystem->GetField(NodeInfo->FieldName))
 			{
 				UE_LOG(LogTemp, Log, TEXT("[UI 설정] 별 개수 = %d, 클리어 시간 = %.2f"),
 					FieldData->FieldStarCount,
 					FieldData->FieldClearTime);
 
+				NodeInfoUI->SelectFieldLevel = FieldData->FieldLevel;
 				NodeInfoUI->SetFieldInfo(
 					NodeInfo->FieldName,
-					2,
+					FieldData->FieldStarCount,
 					FieldData->FieldClearTime
 				);
 			}
@@ -160,7 +159,7 @@ void UStageMapNodeComponent::InitCurrentNode()
 	if (ClosestID != -1)
 	{
 		CurrentNodeID = ClosestID;
-		DestinationNodeID = ClosestID;
+		// DestinationNodeID = ClosestID;
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("서있는 곳 노드 번호: %d"), CurrentNodeID);
@@ -179,6 +178,9 @@ void UStageMapNodeComponent::HandleKeyBoardInput(int32 Direction)
 	if (NodeMap.Contains(NextID))
 	{
 		RequestMoveTo(NextID); // 항상 호출 가능
+
+		// 이동 시작 시 UI는 반드시 꺼야 함 (마우스 클릭 UI 중이었어도!)
+		NodeInfoUI->SetVisibility(ESlateVisibility::Collapsed);
 	}
 }
 
@@ -188,6 +190,26 @@ void UStageMapNodeComponent::HandleMouseInput(FVector2D ScreenPos)
 	if (ClickedID != -1)
 	{
 		RequestMoveTo(ClickedID);
+	}
+
+	// 마우스는 즉시 UI 갱신
+	if (const FStageNodeInfo* NodeInfo = GetNode(ClickedID))
+	{
+		if (NodeInfo->bHasField)
+		{
+			NodeInfoUI->SetVisibility(ESlateVisibility::HitTestInvisible);
+			NodeInfoUI->SetIsEnabled(true);
+			
+			if (const FFieldTableRow* FieldData = StageSystem->GetField(NodeInfo->FieldName))
+			{
+				NodeInfoUI->SelectFieldLevel = FieldData->FieldLevel;
+				NodeInfoUI->SetFieldInfo(NodeInfo->FieldName, FieldData->FieldStarCount, FieldData->FieldClearTime);
+			}
+		}
+		else
+		{
+			NodeInfoUI->SetVisibility(ESlateVisibility::Collapsed);
+		}
 	}
 }
 

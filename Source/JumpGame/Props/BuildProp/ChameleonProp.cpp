@@ -25,6 +25,7 @@ void AChameleonProp::BeginPlay()
 		OriginalMaterial = MeshComp->GetMaterial(0);
 	}
 
+    CopyMeshAndMaterial();
 	if (bInGame)
 	{
 		CopyMeshAndMaterial();

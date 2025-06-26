@@ -5,6 +5,7 @@
 
 #include "JumpGame/Characters/LobbyCharacter/LobbyFrog.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 // Sets default values
@@ -31,39 +32,16 @@ void ALobbyStageCamera::Tick(float DeltaTime)
 
 	FVector CamLocation = GetActorLocation();
 	FVector CharLocation = TargetFrog->GetActorLocation();
-	FVector Offset = CharLocation - CamLocation;
 
-	FVector TargetCamLoc = CamLocation;
-
-	// X 방향
-	if (FMath::Abs(Offset.X) > ScreenThreshold.X)
-	{
-		TargetCamLoc.X = CharLocation.X;
-	}
-
-	// Y 방향
-	if (FMath::Abs(Offset.Y) > ScreenThreshold.Y)
-	{
-		TargetCamLoc.Y = CharLocation.Y;
-	}
-
-	// 부드럽게 이동
-	FVector NewCamLoc = FMath::VInterpTo(CamLocation, TargetCamLoc, DeltaTime, FollowSpeed);
-	SetActorLocation(NewCamLoc);
-
-	// 디버깅
+	// Dead Zone 박스
 	FVector BoxCenter = CamLocation;
-	FVector BoxExtent = FVector(ScreenThreshold.X, ScreenThreshold.Y, 10.f);
+	FVector BoxExtent = FVector(DeadZoneHalfWidth, DeadZoneHalfHeight, 100.f);
 
-	DrawDebugBox(
-		GetWorld(),
-		BoxCenter,
-		BoxExtent,
-		FColor::Green,
-		false,
-		-1.f,
-		0,
-		2.f
-	);
+	// 박스 안에 캐릭터가 있으면 정지
+	if (UKismetMathLibrary::IsPointInBox(CharLocation, BoxCenter, BoxExtent)) return;
+
+	// 벗어나면 카메라를 캐릭터 쪽으로 이동
+	FVector NewLocation = FMath::VInterpTo(CamLocation, CharLocation, DeltaTime, FollowSpeed);
+	SetActorLocation(NewLocation);
 }
 

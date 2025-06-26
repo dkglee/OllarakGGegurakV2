@@ -29,7 +29,6 @@ void UStageMapNodeComponent::BeginPlay()
 
 	OwnerChar = Cast<ACharacter>(GetOwner());
 
-	InitCurrentNode();
 	AddAllNodesFromWorld();
 }
 
@@ -49,31 +48,16 @@ void UStageMapNodeComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 		CurrentNodeID = DestinationNodeID;
 		DestinationNodeID = -1;
 		bIsMoving = false;
-	}
-}
 
-void UStageMapNodeComponent::InitCurrentNode()
-{
-	if (!OwnerChar) return;
-
-	FVector MyLoc = OwnerChar->GetActorLocation();
-	float ClosestDist = TNumericLimits<float>::Max();
-	int32 ClosestID = -1;
-
-	for (auto& Pair : NodeMap)
-	{
-		float Dist = FVector::Dist(Pair.Value.WorldPosition, MyLoc);
-		if (Dist < ClosestDist)
+		const FStageNodeInfo* NodeInfo = GetNode(CurrentNodeID);
+		if (NodeInfo && NodeInfo->bHasField)
 		{
-			ClosestDist = Dist;
-			ClosestID = Pair.Key;
+			ShowFieldInfoUI(NodeInfo->FieldName);
 		}
-	}
-
-	if (ClosestID != -1)
-	{
-		CurrentNodeID = ClosestID;
-		DestinationNodeID = ClosestID;
+		else
+		{
+			// HideFieldInfoUI();
+		}
 	}
 }
 
@@ -101,8 +85,36 @@ void UStageMapNodeComponent::AddAllNodesFromWorld()
 
 		AddNode(NodeInfo);
 	}
+	
+	InitCurrentNode();
 
 	UE_LOG(LogTemp, Log, TEXT("총 %d개 노드 등록"), NodeMap.Num());
+}
+
+void UStageMapNodeComponent::InitCurrentNode()
+{
+	if (!OwnerChar) return;
+
+	// 캐릭터가 어디 서있는지 판단
+	FVector MyLoc = OwnerChar->GetActorLocation();
+	float ClosestDist = TNumericLimits<float>::Max();
+	int32 ClosestID = -1;
+
+	for (auto& Pair : NodeMap)
+	{
+		float Dist = FVector::Dist(Pair.Value.WorldPosition, MyLoc);
+		if (Dist < ClosestDist)
+		{
+			ClosestDist = Dist;
+			ClosestID = Pair.Key;
+		}
+	}
+
+	if (ClosestID != -1)
+	{
+		CurrentNodeID = ClosestID;
+		DestinationNodeID = ClosestID;
+	}
 }
 
 void UStageMapNodeComponent::HandleKeyBoardInput(int32 Direction)
@@ -167,6 +179,11 @@ void UStageMapNodeComponent::RequestMoveTo(int32 TargetNodeID)
 	UAIBlueprintHelperLibrary::SimpleMoveToLocation(AICon, TargetNode->WorldPosition);
 	bIsMoving = true;
 	DestinationNodeID = TargetNodeID; // 도착 후 갱신
+}
+
+void UStageMapNodeComponent::ShowFieldInfoUI(FName FieldName)
+{
+	
 }
 
 /*bool UStageMapNodeComponent::IsValidNodeID(int32 FromNodeID, int32 ToNodeID)

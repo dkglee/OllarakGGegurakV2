@@ -4,6 +4,7 @@
 #include "LobbyFrog.h"
 
 #include "EnhancedInputComponent.h"
+#include "InputState.h"
 #include "Components/WidgetComponent.h"
 #include "JumpGame/Core/PlayerController/LobbyPlayerController.h"
 #include "JumpGame/Maps/Node/StageMapNodeComponent.h"
@@ -76,14 +77,6 @@ void ALobbyFrog::Tick(float DeltaTime)
 	// 스테이지 상태일때만 밑의 내용 실행
 	if (CurrentState != ELobbyCharacterState::OnStageMap) return;
 	
-	if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::W))
-	{
-		StageMapNodeComponent->HandleKeyBoardInput(1);
-	}
-	if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::S))
-	{
-		StageMapNodeComponent->HandleKeyBoardInput(-1);
-	}
 	if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::A))
 	{
 		StageMapNodeComponent->HandleKeyBoardInput(-1);
@@ -91,6 +84,15 @@ void ALobbyFrog::Tick(float DeltaTime)
 	if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::D))
 	{
 		StageMapNodeComponent->HandleKeyBoardInput(1);
+	}
+	if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::LeftMouseButton))
+	{
+		FVector2D ScreenPos;
+		if (GetWorld()->GetFirstPlayerController()->GetMousePosition(ScreenPos.X, ScreenPos.Y))
+		{
+			StageMapNodeComponent->HandleMouseInput(ScreenPos);
+		}
+		StageMapNodeComponent->HandleMouseInput(ScreenPos);
 	}
 }
 

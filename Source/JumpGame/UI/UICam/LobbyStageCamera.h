@@ -22,12 +22,16 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	
-	UPROPERTY()
-	FVector2D ScreenThreshold = FVector2D(200.f, 700.f);
 
 	UPROPERTY()
 	class ALobbyFrog* TargetFrog = nullptr;
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float DeadZoneHalfWidth = 300.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float DeadZoneHalfHeight = 200.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float FollowSpeed = 1.f;

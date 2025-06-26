@@ -7,6 +7,7 @@
 #include "ClickHandlerManager.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnControlledPropChanged);
+DECLARE_DYNAMIC_DELEGATE(FOnPropDragCancelled);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class JUMPGAME_API UClickHandlerManager : public UActorComponent
@@ -42,7 +43,9 @@ public:
 
 	UPROPERTY()
 	FOnControlledPropChanged OnControlledPropChanged;
-
+	UPROPERTY()
+	FOnPropDragCancelled OnPropDragCancelledDelegate;
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void InitializeComponent() override;

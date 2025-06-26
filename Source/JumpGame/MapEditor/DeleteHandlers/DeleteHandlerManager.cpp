@@ -1,5 +1,8 @@
 ﻿#include "DeleteHandlerManager.h"
 
+#include "JumpGame/Core/GameState/MapEditorState.h"
+#include "JumpGame/MapEditor/CategorySystem/CategorySystem.h"
+#include "JumpGame/Props/Components/PropDataComponent.h"
 #include "JumpGame/Props/PrimitiveProp/PrimitiveProp.h"
 
 UDeleteHandlerManager::UDeleteHandlerManager()
@@ -20,6 +23,12 @@ void UDeleteHandlerManager::HandleDelete(FClickResponse& ClickResponse)
 	{
 		if (SelectedProp)
 		{
+			AMapEditorState* GameState = GetWorld()->GetGameState<AMapEditorState>();
+			if (!GameState)
+			{
+				return;
+			}
+			GameState->GetCategorySystem()->IncrementPropCountByID(SelectedProp->GetPropDataComponent()->GetPropID());
 			SelectedProp->Destroy();
 		}
 	}

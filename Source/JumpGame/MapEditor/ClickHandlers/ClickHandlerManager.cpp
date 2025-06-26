@@ -134,7 +134,7 @@ void UClickHandlerManager::OnWidgetDragEnter()
 	}
 
 	AActor* Actor = FCommonUtil::SafeLast(ControlledClickResponse.SelectedProps);
-	if (Actor) Actor->SetActorHiddenInGame(false);
+	if (Actor) Actor->SetActorHiddenInGame(true);
 }
 
 void UClickHandlerManager::OnPropDragCancelled()
@@ -147,8 +147,10 @@ void UClickHandlerManager::OnPropDragCancelled()
 		APrimitiveProp* LastSelected = FCommonUtil::SafeLast(ControlledClickResponse.SelectedProps);
 		if (LastSelected) LastSelected->Destroy();
 		ControlledClickResponse = FClickResponse();
+		OnPropDragCancelledDelegate.Execute();
 	}
 
 	ControlledClickResponse.Result = EClickHandlingResult::None;
 	ControlledClickResponse.ClickedPropByWidget = nullptr;
+	OnPropDragCancelledDelegate.Clear();
 }

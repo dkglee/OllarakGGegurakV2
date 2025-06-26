@@ -7,9 +7,13 @@
 #include "Blueprint/UserWidget.h"
 #include "Developer/DesktopPlatform/Public/IDesktopPlatform.h"
 #include "JumpGame/Core/GameInstance/JumpGameInstance.h"
+#include "JumpGame/Core/GameState/MapEditorState.h"
+#include "JumpGame/MapEditor/CategorySystem/CategorySystem.h"
 #include "JumpGame/MapEditor/Components/GridComponent.h"
 #include "JumpGame/UI/FileBrowser/FileBrowserUI.h"
 #include "JumpGame/UI/MapEditing/MapLoadingUI.h"
+
+class AMapEditorState;
 
 ULoadMapComponent::ULoadMapComponent()
 {
@@ -195,9 +199,16 @@ void ULoadMapComponent::BuildMapFromSaveDataV2()
 		{
 			continue ;
 		}
+		
 		TSubclassOf<APrimitiveProp> PropClass = PropInfo->PropClass;
 
 		SpawnProp(PropClass, SaveData);
+
+		AMapEditorState* EditorState = Cast<AMapEditorState>(GetWorld()->GetGameState());
+		if (EditorState)
+		{
+			EditorState->GetCategorySystem()->DecrementPropCountByID(PropInfo->PropID);
+		}
 	}
 	
 	if ((CurrentChunkIndex + 1) * ChunkSize >= (uint32)SaveDataArray.SaveDataArray.Num())

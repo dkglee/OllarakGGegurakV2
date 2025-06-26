@@ -9,6 +9,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPropAdded, const class UPropWrap*, Prop);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPropRemoved, const class UPropWrap*, Prop);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnPropCountUpdated, FName, PropID, int32, NewCount, int32, OldCount);
 
 USTRUCT()
 struct FPropIndexList
@@ -63,10 +64,22 @@ public:
 	const class UPropWrap* GetPropsByID(FName ID);
 	const TArray<class UPropWrap*>& GetPropsByName(FName Name);
 
+	// Updtae 함수
+	UFUNCTION(BlueprintCallable)
+	void UpdatePropByID(FName ID, const FPropStruct& NewProp);
+	UFUNCTION(BlueprintCallable)
+	void UpdatePropCountByID(FName ID, int32 NewCount);
+	UFUNCTION(BlueprintCallable)
+	void IncrementPropCountByID(FName ID, int32 IncrementValue = 1);
+	UFUNCTION(BlueprintCallable)
+	void DecrementPropCountByID(FName ID, int32 DecrementValue = 1);
+
 	UPROPERTY(BlueprintAssignable)
 	FOnPropAdded OnPropAdded;
 	UPROPERTY(BlueprintAssignable)
 	FOnPropRemoved OnPropRemoved;
+	UPROPERTY(BlueprintAssignable)
+	FOnPropCountUpdated OnPropCountUpdated;
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual ~UCategorySystem() override;

@@ -12,13 +12,8 @@ void UVerticalPropSlotUI::NativeOnInitialized()
 void UVerticalPropSlotUI::InitWidget(UClickHandlerManager* ClickHandlerManager,
 	class UWidgetMapEditDragDropOperation* CachedDragDropOperation, UCategoryUI* CategoryUI)
 {
-	PropTop->InitWidget(CachedDragDropOperation);
-	PropTop->OnPropSlotClicked.AddDynamic(ClickHandlerManager, &UClickHandlerManager::OnPropSlotClicked);
-	PropTop->OnPropSlotClicked.AddDynamic(CategoryUI, &UCategoryUI::OnPropSlotClicked);
-	
-	PropBelow->InitWidget(CachedDragDropOperation);
-	PropBelow->OnPropSlotClicked.AddDynamic(ClickHandlerManager, &UClickHandlerManager::OnPropSlotClicked);
-	PropBelow->OnPropSlotClicked.AddDynamic(CategoryUI, &UCategoryUI::OnPropSlotClicked);
+	PropTop->InitWidget(ClickHandlerManager, CachedDragDropOperation, CategoryUI);
+	PropBelow->InitWidget(ClickHandlerManager, CachedDragDropOperation, CategoryUI);
 }
 
 void UVerticalPropSlotUI::SetPropSlots(UPropWrap* Top, UPropWrap* Below)

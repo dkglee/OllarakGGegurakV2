@@ -78,5 +78,15 @@ public:
 	// bool IsValidNodeID(int32 FromNodeID, int32 ToNodeID);
 	// 경로탐색
 	// TArray<int32> FindPathAStar(int32 StartNodeID, int32 EndNodeID);
+
+public:
+	UPROPERTY()
+	class UStageSystemSubsystem* StageSystem;
+	
+	// 필드 UI
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UNodeInfoUI> NodeInfoUIClass;
+	UPROPERTY(EditAnywhere)
+	class UNodeInfoUI* NodeInfoUI;
 };
 

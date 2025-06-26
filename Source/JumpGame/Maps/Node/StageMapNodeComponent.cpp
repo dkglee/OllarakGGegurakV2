@@ -6,7 +6,11 @@
 #include "AIController.h"
 #include "StageNodeActor.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "Blueprint/UserWidget.h"
 #include "GameFramework/Character.h"
+#include "JumpGame/StageSystem/FieldTableRow.h"
+#include "JumpGame/StageSystem/StageSystemSubsystem.h"
+#include "JumpGame/UI/StageNode/NodeInfoUI.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -30,6 +34,15 @@ void UStageMapNodeComponent::BeginPlay()
 	OwnerChar = Cast<ACharacter>(GetOwner());
 
 	AddAllNodesFromWorld();
+
+	StageSystem = Cast<UStageSystemSubsystem>(GetWorld()->GetGameInstance()->GetSubsystem<UStageSystemSubsystem>());
+
+	NodeInfoUI = CreateWidget<UNodeInfoUI>(GetWorld(), NodeInfoUIClass);
+	if (NodeInfoUI)
+	{
+		NodeInfoUI->AddToViewport();
+		NodeInfoUI->SetVisibility(ESlateVisibility::Collapsed);
+	}
 }
 
 // Called every frame
@@ -39,11 +52,10 @@ void UStageMapNodeComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	if (!bIsMoving) return;
-	
 	if (!OwnerChar) return;
 
 	float Dist = FVector::Dist(OwnerChar->GetActorLocation(), NodeMap[DestinationNodeID].WorldPosition);
-	if (Dist < 20.f) // 충분히 가까우면 도착했다고 간주
+	if (Dist < 10.f) // 충분히 가까우면 도착했다고 간주
 	{
 		CurrentNodeID = DestinationNodeID;
 		DestinationNodeID = -1;
@@ -52,11 +64,19 @@ void UStageMapNodeComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 		const FStageNodeInfo* NodeInfo = GetNode(CurrentNodeID);
 		if (NodeInfo && NodeInfo->bHasField)
 		{
-			ShowFieldInfoUI(NodeInfo->FieldName);
+			if (const FFieldTableRow* FieldData = StageSystem->GetField(NodeInfo->FieldName))
+			{
+				NodeInfoUI->SetFieldInfo(
+					NodeInfo->FieldName,
+					FieldData->FieldStarCount,
+					FieldData->FieldClearTime
+				);
+			}
+			NodeInfoUI->SetVisibility(ESlateVisibility::Visible);
 		}
 		else
 		{
-			// HideFieldInfoUI();
+			NodeInfoUI->SetVisibility(ESlateVisibility::Collapsed);
 		}
 	}
 }
@@ -115,6 +135,8 @@ void UStageMapNodeComponent::InitCurrentNode()
 		CurrentNodeID = ClosestID;
 		DestinationNodeID = ClosestID;
 	}
+
+	UE_LOG(LogTemp, Log, TEXT("서있는 곳 노드 번호: %d"), CurrentNodeID);
 }
 
 void UStageMapNodeComponent::HandleKeyBoardInput(int32 Direction)

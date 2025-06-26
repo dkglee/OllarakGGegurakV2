@@ -28,10 +28,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 NodeID = -1;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bHasField = false;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName FieldName;
 
 	// UPROPERTY(EditAnywhere, BlueprintReadWrite)

@@ -171,7 +171,7 @@ void APrimitiveProp::BeginPlay()
 	GridInnerCollision->OnComponentBeginOverlap.AddDynamic(this, &APrimitiveProp::OnGridPropBeginOverlap);
 	GridInnerCollision->OnComponentEndOverlap.AddDynamic(this, &APrimitiveProp::OnGridPropEndOverlap);
 
-	if (GetWorld()->GetMapName().Contains(TEXT("MapEditorLevel")))
+	if (GetWorld()->GetMapName().Contains(TEXT("Edit")))
 	{
 		GridOuterCollision->SetHiddenInGame(false);
 		GridOuterCollision->SetVisibility(true);

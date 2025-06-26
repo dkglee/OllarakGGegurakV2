@@ -37,7 +37,7 @@ void UVictoryPageUI::OnClickGoLobby()
 		APlayerController* OtherPC = Cast<APlayerController>(*It);
 		if (OtherPC && !OtherPC->IsLocalController())
 		{
-			OtherPC->ClientTravel(TEXT("/Game/Maps/ClientRoomLevel?closed"), TRAVEL_Absolute);
+			OtherPC->ClientTravel(TEXT("/Game/Maps/Levels/GameLobby?closed"), TRAVEL_Absolute);
 		}
 	}
 

@@ -80,7 +80,7 @@ public:
 	int32 StarCount{};
 	// 최대 별 개수
 	int32 MaxStarCount{3};
-
+	bool bIsGameClear{false};
 	// 별 획득
 	void AddStar();
 	// 게임 종료 처리

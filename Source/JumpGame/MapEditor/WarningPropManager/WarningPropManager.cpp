@@ -44,6 +44,7 @@ void UWarningPropManager::RegisterNecessaryProp(APrimitiveProp* Prop)
 
 	EEditorWarningType WarningType = CheckWarnings();
 	SetWarning(WarningType);
+	ResetIndex();
 }
 
 void UWarningPropManager::RegisterCollisionProp(APrimitiveProp* Prop)
@@ -62,6 +63,7 @@ void UWarningPropManager::RegisterCollisionProp(APrimitiveProp* Prop)
 
 	EEditorWarningType WarningType = CheckWarnings();
 	SetWarning(WarningType);
+	ResetIndex();
 }
 
 void UWarningPropManager::UnRegisterCollisionProp(APrimitiveProp* Prop)
@@ -82,6 +84,7 @@ void UWarningPropManager::UnRegisterCollisionProp(APrimitiveProp* Prop)
 	
 	EEditorWarningType WarningType = CheckWarnings();
 	SetWarning(WarningType);
+	ResetIndex();
 }
 
 void UWarningPropManager::UnRegisterNecessaryProp(APrimitiveProp* Prop)
@@ -100,6 +103,7 @@ void UWarningPropManager::UnRegisterNecessaryProp(APrimitiveProp* Prop)
 
 	EEditorWarningType WarningType = CheckWarnings();
 	SetWarning(WarningType);
+	ResetIndex();
 }
 
 void UWarningPropManager::UnRegister(APrimitiveProp* Prop)
@@ -119,6 +123,7 @@ void UWarningPropManager::InitWarningManager(UCategorySystem* CategorySystem, UW
 	TotalNecessaryPropCount = CachedCategorySystem->GetNecessaryPropCount();
 	EEditorWarningType WarningType = CheckWarnings();
 	SetWarning(WarningType);
+	ResetIndex();
 }
 
 void UWarningPropManager::BeginPlay()
@@ -217,3 +222,49 @@ bool UWarningPropManager::CheckNecessaryProps(EEditorWarningType& OutWarningType
 	return OutWarningType == EEditorWarningType::None; // Warning이 없으면 true, 있으면 false
 }
 
+APrimitiveProp* UWarningPropManager::GetTargetProp()
+{
+	// 우선 충돌중인 Prop을 반환
+	APrimitiveProp* TargetProp = nullptr;
+	if (OnCollisionProps.Num() > 0 && OnCollisionProps.IsValidIndex(CurrentIndex))
+	{
+		TargetProp = OnCollisionProps[CurrentIndex++].Get();
+
+		CurrentIndex %= OnCollisionProps.Num(); // 인덱스가 범위를 벗어나지 않도록 순환
+		if (TargetProp && TargetProp->IsValidLowLevel())
+		{
+			return TargetProp; // 충돌중인 Prop이 유효하면 반환
+		}
+	}
+
+	// 충돌중인 Prop이 없으면 필수 Prop 중 초과한 Prop을 반환
+	for (const auto& Pair : NecessaryProps)
+	{
+		const FWarningNecessaryPropList& NecessaryPropList = Pair.Value;
+		const UPropWrap* PropInfo = CachedCategorySystem->GetPropsByID(Pair.Key);
+		if (!PropInfo || PropInfo->Data.PropMaxCount <= 0)
+		{
+			continue; // MaxCount가 0 이하인 Prop은 Warning 대상이 아님.
+		}
+		
+		if (NecessaryPropList.NecessaryProps.Num() > PropInfo->Data.PropMaxCount)
+		{
+			// 초과한 Prop이 있으면 그 중 하나를 반환
+			TargetProp = NecessaryPropList.NecessaryProps[NecessaryIndexMap[Pair.Key]++]; // 첫 번째 Prop을 반환
+			NecessaryIndexMap[Pair.Key] %= NecessaryPropList.NecessaryProps.Num(); // 인덱스가 범위를 벗어나지 않도록 순환
+			return TargetProp; // 유효한 Prop을 반환
+		}
+	}
+	
+	return TargetProp;
+}
+
+void UWarningPropManager::ResetIndex()
+{
+	CurrentIndex = 0; // 인덱스를 초기화
+	NecessaryIndexMap.Empty(); // 필요시 필요한 Prop 인덱스 맵도 초기화
+	for (const auto& Pair : NecessaryProps)
+	{
+		NecessaryIndexMap.Add(Pair.Key, 0); // 각 Prop ID에 대해 인덱스를 초기화
+	}
+}

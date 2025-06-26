@@ -36,7 +36,12 @@ public:
 	void UnRegister(APrimitiveProp* Prop);
 
 	void InitWarningManager(class UCategorySystem* CategorySystem, class UWarningUI* WarningUI);
-	
+
+	UFUNCTION()
+	class APrimitiveProp* GetTargetProp();
+	UFUNCTION()
+	void ResetIndex();
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -65,4 +70,7 @@ protected:
 
 	UPROPERTY()
 	int32 TotalNecessaryPropCount = 0;
+
+	int32 CurrentIndex = 0;
+	TMap<FName, int32> NecessaryIndexMap;
 };

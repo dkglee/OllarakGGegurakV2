@@ -8,19 +8,20 @@
 #include "JumpGame/MapEditor/ClickHandlers/GizmoClickHandler.h"
 #include "JumpGame/MapEditor/Components/GizmoPrimaryComponent.h"
 #include "JumpGame/MapEditor/Components/GridComponent.h"
+#include "JumpGame/MapEditor/Components/RotateGizmoComponent.h"
 #include "JumpGame/Props/PrimitiveProp/PrimitiveProp.h"
 
 
-FGizmoPressedHandler::FGizmoPressedHandler()
+UGizmoPressedHandler::UGizmoPressedHandler()
 {
 }
 
-FGizmoPressedHandler::~FGizmoPressedHandler()
+UGizmoPressedHandler::~UGizmoPressedHandler()
 {
 }
 
-bool FGizmoPressedHandler::HandlePressed(FClickResponse& PressedResponse,
-	class AMapEditingPlayerController* PlayerController, const FGizmoPressedInfo& GizmoPressedInfo)
+bool UGizmoPressedHandler::HandlePressed(FClickResponse& PressedResponse,
+	class AMapEditingPlayerController* PlayerController, FGizmoPressedInfo& GizmoPressedInfo)
 {
 	if (PressedResponse.Result != EClickHandlingResult::GizmoEditing)
 	{
@@ -28,7 +29,8 @@ bool FGizmoPressedHandler::HandlePressed(FClickResponse& PressedResponse,
 	}
 
 	// 예외 처리: 잘못된 Gizmo 타입
-	if (PressedResponse.TargetGizmo->IsA(UGizmoPrimaryComponent::StaticClass()))
+	if (PressedResponse.TargetGizmo->IsA(UGizmoPrimaryComponent::StaticClass()) ||
+		PressedResponse.TargetGizmo->IsA(URotateGizmoComponent::StaticClass()))
 	{
 		return false;
 	}
@@ -39,7 +41,13 @@ bool FGizmoPressedHandler::HandlePressed(FClickResponse& PressedResponse,
 		return false;
 	}
 
-	TWeakObjectPtr<UGridComponent> GridComponent = PressedResponse.TargetProp->GetGridComp();
+	APrimitiveProp* LastSelected = FCommonUtil::SafeLast(PressedResponse.SelectedProps);
+	if (!LastSelected)
+	{
+		return false;
+	}
+	
+	TWeakObjectPtr<UGridComponent> GridComponent = LastSelected->GetGridComp();
 	UGridComponent* Grid = GridComponent.Get();
 	if (!Grid)
 	{
@@ -58,9 +66,8 @@ bool FGizmoPressedHandler::HandlePressed(FClickResponse& PressedResponse,
 	FVector RayOrigin = HitResult.Location;
 	FVector RayDirection = HitResult.Normal;
 
-	// FVector GizmoOrigin = PressedResponse.TargetProp->GetActorLocation() - (Grid->GetSize() * Grid->GetSnapSize() * 0.5f);
 	// 교차점으로 중심을 옮김
-	FVector GizmoOrigin = PressedResponse.TargetProp->GetActorLocation();
+	FVector GizmoOrigin = PressedResponse.SelectedProps.Last()->GetActorLocation();
 	FVector GizmoDirection = Gizmo->GetDirection();
 	
 	// 1. 최초 클릭 시점의 레이와 기즈모 선분 사이 최근접점
@@ -87,10 +94,27 @@ bool FGizmoPressedHandler::HandlePressed(FClickResponse& PressedResponse,
 	float DeltaT = CurrentLineT - InitialLineT;
 	FVector DeltaMove = GizmoDirection * DeltaT;
 	
-	// 4. Actor 이동
-	FVector NewLocation = GizmoPressedInfo.OriginalActorLocation + DeltaMove;
+	// 4. Actor 이동 (다중 이동)
+	for (APrimitiveProp* SelectedProp : PressedResponse.SelectedProps)
+	{
+		if (!SelectedProp || !SelectedProp->IsValidLowLevel())
+		{
+			continue;
+		}
+		if (!GizmoPressedInfo.OriginalActorLocations.Contains(SelectedProp))
+		{
+			continue;
+		}
+		FVector OriginalLocation = GizmoPressedInfo.OriginalActorLocations.FindRef(SelectedProp);
+		FVector NewLocation = OriginalLocation + DeltaMove;
+
+		UGridComponent* PropGrid = SelectedProp->GetGridComp();
+		PropGrid->MoveByGizmo(NewLocation);
+	}
+	
+	// FVector NewLocation = GizmoPressedInfo.OriginalActorLocation + DeltaMove;
 
 	// GridComponent 이동 수행
-	Grid->MoveByGizmo(NewLocation);
+	// Grid->MoveByGizmo(NewLocation);
 	return true;
 }

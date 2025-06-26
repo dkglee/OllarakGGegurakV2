@@ -15,7 +15,7 @@ struct FFastLogger
 		const FString LogMessage = FString::Printf(Format, std::forward<Arg>(Args_)...);
 		if (GEngine)
 		{
-			// GEngine->AddOnScreenDebugMessage(-1, 15.f, Color, LogMessage);
+			GEngine->AddOnScreenDebugMessage(-1, 15.f, Color, LogMessage);
 		}
 	}
 

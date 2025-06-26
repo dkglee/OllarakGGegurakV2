@@ -23,8 +23,6 @@ void UMapEditingHUD::NativeOnDragLeave(const FDragDropEvent& InDragDropEvent, UD
 
 	// 여기서 Delegate를 보내야 함.
 	OnDragLeaveWidget.Broadcast();
-	
-	FFastLogger::LogScreen(FColor::Red, TEXT("Drag Leave"));
 }
 
 void UMapEditingHUD::NativeOnDragEnter(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent,
@@ -33,8 +31,6 @@ void UMapEditingHUD::NativeOnDragEnter(const FGeometry& InGeometry, const FDragD
 	Super::NativeOnDragEnter(InGeometry, InDragDropEvent, InOperation);
 
 	OnDragEnterWidget.Broadcast();
-	
-	FFastLogger::LogScreen(FColor::Green, TEXT("Drag Enter"));
 }
 
 void UMapEditingHUD::InitWidget(UClickHandlerManager* ClickHandlerManager, UWidgetMapEditDragDropOperation* DragDropOperation)

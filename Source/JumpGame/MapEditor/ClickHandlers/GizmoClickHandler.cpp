@@ -17,25 +17,24 @@ UGizmoClickHandler::~UGizmoClickHandler()
 {
 }
 
-bool UGizmoClickHandler::HandleClick(FClickResponse& ClickResponse, AMapEditingPlayerController* PlayerController, bool bRotateGizmoMode)
+bool UGizmoClickHandler::HandleClick(FClickResponse& ClickResponse, AMapEditingPlayerController* PlayerController, FClickContext& ClickContext)
 {
 	ClickResponse.Result = EClickHandlingResult::GizmoEditing;
 
-	FFastLogger::LogScreen(FColor::Red, TEXT("Gizmo Click Handler : Rotate Gizmo Mode is enabled"));
 	// 만약 RotateGizmo 모드가 활성화 되어 있다면 이동 Gizmo를 클릭할 수 없음
-	if (bRotateGizmoMode)
+	if (ClickContext.Has(FClickContext::RotateGizmoMode))
 	{
 		return false;
 	}
 	
 	// true가 될 경우 해당 액터의 기즈모가 클릭이 된거임!
-	if (PlayerController->OnClickOperation(ClickResponse.TargetProp, ClickResponse))
+	APrimitiveProp* LastSelected = FCommonUtil::SafeLast(ClickResponse.SelectedProps);
+	if (PlayerController->OnClickOperation(LastSelected, ClickResponse))
 	{
 		ClickResponse.DebugMessage = TEXT("Gizmo Click");
 
 		FHitResult HitResult = ClickResponse.HitResult;
 
-		ClickResponse.TargetProp = Cast<APrimitiveProp>(HitResult.GetActor());
 		// 기존의 Gizmo가 선택되어 있다면 UnSelected 처리
 		if (UGizmoComponent* ControlledGizmo = ClickResponse.TargetGizmo)
 		{

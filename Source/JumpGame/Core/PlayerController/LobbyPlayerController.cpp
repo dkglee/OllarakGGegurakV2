@@ -191,7 +191,6 @@ void ALobbyPlayerController::CalculateMinMax(const FVector& InLocallyPosition)
 	FVector TopLeftWorldDirection;
 	if (!UGameplayStatics::DeprojectScreenToWorld(this, TopLeft, TopLeftWorld, TopLeftWorldDirection))
 	{
-		FFastLogger::LogScreen(FColor::Red, TEXT("Deproject Top Left World ScreenToWorld failed"));
 		return;
 	}
 
@@ -199,7 +198,6 @@ void ALobbyPlayerController::CalculateMinMax(const FVector& InLocallyPosition)
 	FVector BottomRightWorldDirection;
 	if (!UGameplayStatics::DeprojectScreenToWorld(this, BottomRight, BottomRightWorld, BottomRightWorldDirection))
 	{
-		FFastLogger::LogScreen(FColor::Red, TEXT("Deproject Bottom Right ScreenToWorld failed"));
 		return;
 	}
 

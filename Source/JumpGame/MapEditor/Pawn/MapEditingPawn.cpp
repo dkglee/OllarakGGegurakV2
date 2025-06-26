@@ -112,6 +112,18 @@ AMapEditingPawn::AMapEditingPawn()
 	{
 		IA_RotateGizmoMode = IA_ROTATE_GIZMO_MODE.Object;
 	}
+	static ConstructorHelpers::FObjectFinder<UInputAction> IA_MULTISELECT
+	(TEXT("/Game/MapEditor/Input/Actions/IA_MultiSelect.IA_MultiSelect"));
+	if (IA_MULTISELECT.Succeeded())
+	{
+		IA_MultiSelect = IA_MULTISELECT.Object;
+	}
+	static ConstructorHelpers::FObjectFinder<UInputAction> IA_COPY_MODE
+	(TEXT("/Game/MapEditor/Input/Actions/IA_CopyMode.IA_CopyMode"));
+	if (IA_COPY_MODE.Succeeded())
+	{
+		IA_CopyMode = IA_COPY_MODE.Object;
+	}
 
 	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionComponentMapEditing"));
 	CollisionComponent->InitSphereRadius(35.0f);
@@ -188,6 +200,12 @@ void AMapEditingPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 		PlayerInput->BindAction(IA_MoveGizmoMode, ETriggerEvent::Started, this, &AMapEditingPawn::HandleChangeMoveGizmoMode);
 		PlayerInput->BindAction(IA_RotateGizmoMode, ETriggerEvent::Started, this, &AMapEditingPawn::HandleChangeRotateGizmoMode);
+
+		PlayerInput->BindAction(IA_MultiSelect, ETriggerEvent::Started, this, &AMapEditingPawn::HandleStartedMultiSelect);
+		PlayerInput->BindAction(IA_MultiSelect, ETriggerEvent::Completed, this, &AMapEditingPawn::HandleCompletedMultiSelect);
+
+		PlayerInput->BindAction(IA_CopyMode, ETriggerEvent::Started, this, &AMapEditingPawn::HandleStartedCopyMode);
+		PlayerInput->BindAction(IA_CopyMode, ETriggerEvent::Completed, this, &AMapEditingPawn::HandleCompletedCopyMode);
 	}
 }
 
@@ -327,15 +345,15 @@ void AMapEditingPawn::HandleScroll(const FInputActionValue& InputActionValue)
 void AMapEditingPawn::HandleTeleport(const FInputActionValue& InputActionValue)
 {
 	FClickResponse HandlingInfo = ClickHandlerManager->GetControlledClickResponse();
-	if (!HandlingInfo.TargetProp || !HandlingInfo.TargetProp->IsValidLowLevel())
+	if (!FCommonUtil::SafeLast(HandlingInfo.SelectedProps) || !FCommonUtil::SafeLast(HandlingInfo.SelectedProps)->IsValidLowLevel())
 	{
 		return;
 	}
 	// Target Location을 가져옴
-	FVector TargetLocation = HandlingInfo.TargetProp->GetActorLocation() - FVector(0.f, 0.f, 50.f);
+	FVector TargetLocation = FCommonUtil::SafeLast(HandlingInfo.SelectedProps)->GetActorLocation() - FVector(0.f, 0.f, 50.f);
 	// Target Location에서 현재 카메라가 보고 있는 방향의 뒤로 Size + @ 만큼 이동
 	FVector Direction = Controller->GetControlRotation().Vector();
-	FVector Size = HandlingInfo.TargetProp->GetGridComp()->GetSize() * HandlingInfo.TargetProp->GetGridComp()->GetSnapSize();
+	FVector Size = FCommonUtil::SafeLast(HandlingInfo.SelectedProps)->GetGridComp()->GetSize() * FCommonUtil::SafeLast(HandlingInfo.SelectedProps)->GetGridComp()->GetSnapSize();
 	float MaxOffset = Size.GetMax() + 200.f;
 	FVector NewLocation = TargetLocation - Direction * MaxOffset;
 
@@ -368,9 +386,9 @@ void AMapEditingPawn::HandleChangeMoveGizmoMode(const FInputActionValue& InputAc
 	ClickHandlerManager->SetbRotateGizmoMode(bRotateGizmoMode);
 
 	FClickResponse ControlledInfo = ClickHandlerManager->GetControlledClickResponse();
-	if (ControlledInfo.TargetProp && ControlledInfo.TargetProp->IsValidLowLevel())
+	if (FCommonUtil::SafeLast(ControlledInfo.SelectedProps) && FCommonUtil::SafeLast(ControlledInfo.SelectedProps)->IsValidLowLevel())
 	{
-		ControlledInfo.TargetProp->ShowMoveGizmo();
+		FCommonUtil::SafeLast(ControlledInfo.SelectedProps)->ShowMoveGizmo();
 	}
 	
 	if (!(ControlledInfo.TargetGizmo && ControlledInfo.TargetGizmo->IsValidLowLevel()))
@@ -392,9 +410,9 @@ void AMapEditingPawn::HandleChangeRotateGizmoMode(const FInputActionValue& Input
 
 	// 현재 클릭되고 있는 Gizmo가 있는지 확인
 	FClickResponse ControlledInfo = ClickHandlerManager->GetControlledClickResponse();
-	if (ControlledInfo.TargetProp && ControlledInfo.TargetProp->IsValidLowLevel())
+	if (FCommonUtil::SafeLast(ControlledInfo.SelectedProps) && FCommonUtil::SafeLast(ControlledInfo.SelectedProps)->IsValidLowLevel())
 	{
-		ControlledInfo.TargetProp->ShowRotateGizmo();
+		FCommonUtil::SafeLast(ControlledInfo.SelectedProps)->ShowRotateGizmo();
 	}
 	
 	if (!(ControlledInfo.TargetGizmo && ControlledInfo.TargetGizmo->IsValidLowLevel()))
@@ -405,6 +423,26 @@ void AMapEditingPawn::HandleChangeRotateGizmoMode(const FInputActionValue& Input
 	ControlledInfo.TargetGizmo->SetUnSelected();
 	ControlledInfo.TargetGizmo = nullptr;
 	ClickHandlerManager->SetControlledClickResponse(ControlledInfo);
+}
+
+void AMapEditingPawn::HandleStartedMultiSelect(const FInputActionValue& InputActionValue)
+{
+	ClickHandlerManager->SetbCtrlMultiSelect(true);
+}
+
+void AMapEditingPawn::HandleCompletedMultiSelect(const FInputActionValue& InputActionValue)
+{
+	ClickHandlerManager->SetbCtrlMultiSelect(false);
+}
+
+void AMapEditingPawn::HandleStartedCopyMode(const FInputActionValue& InputActionValue)
+{
+	PressedHandlerManager->SetbCopyMode(true);
+}
+
+void AMapEditingPawn::HandleCompletedCopyMode(const FInputActionValue& InputActionValue)
+{
+	PressedHandlerManager->SetbCopyMode(false);
 }
 
 void AMapEditingPawn::MoveForward(float Val)

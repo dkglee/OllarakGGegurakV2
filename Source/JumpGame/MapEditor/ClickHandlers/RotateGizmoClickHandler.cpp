@@ -12,20 +12,19 @@ URotateGizmoClickHandler::URotateGizmoClickHandler()
 }
 
 bool URotateGizmoClickHandler::HandleClick(FClickResponse& ClickResponse,
-	class AMapEditingPlayerController* PlayerController, bool bRotateGizmoMode)
+	class AMapEditingPlayerController* PlayerController, FClickContext& ClickContext)
 {
 	ClickResponse.Result = EClickHandlingResult::RotateGizmoEditing;
 	
-	if (!bRotateGizmoMode)
+	if (!ClickContext.Has(FClickContext::RotateGizmoMode))
 	{
 		return false;
 	}
 
-	if (PlayerController->OnClickOperation(ClickResponse.TargetProp, ClickResponse))
+	APrimitiveProp* LastSelected = FCommonUtil::SafeLast(ClickResponse.SelectedProps);
+	if (PlayerController->OnClickOperation(LastSelected, ClickResponse))
 	{
 		FHitResult HitResult = ClickResponse.HitResult;
-
-		ClickResponse.TargetProp = Cast<APrimitiveProp>(HitResult.GetActor());
 
 		URotateGizmoComponent* RotateGizmoComponent = Cast<URotateGizmoComponent>(HitResult.GetComponent());
 		if (!RotateGizmoComponent)
@@ -35,9 +34,6 @@ bool URotateGizmoClickHandler::HandleClick(FClickResponse& ClickResponse,
 
 		RotateGizmoComponent->SetSelected();
 		RotateGizmoComponent->Clicked();
-
-		// Rotate 할 축을 들고옴
-		// FVector Direction = RotateGizmo->GetDirection();
 
 		AMapEditingPawn* Editor = Cast<AMapEditingPawn>(PlayerController->GetPawn());
 		if (!Editor)

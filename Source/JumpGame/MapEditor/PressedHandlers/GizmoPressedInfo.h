@@ -14,14 +14,25 @@ public:
 	
 	UPROPERTY(Blueprintable)
 	FVector InitialMouseRayDirection = FVector::ZeroVector;
-	
+
 	UPROPERTY(Blueprintable)
-	FVector OriginalActorLocation = FVector::ZeroVector;
+	TMap<class APrimitiveProp*, FVector> OriginalActorLocations;
+
+	UPROPERTY(Blueprintable)
+	uint8 Flags;
+	enum : uint8
+	{
+		CopyMode = 1 << 0,  // 0x01
+		AlreadyCopied = 1 << 1, // 0x02
+	};
 	
-	FGizmoPressedInfo(const FVector& InInitialMouseRayOrigin = FVector::ZeroVector, const FVector& InInitialMouseRayDirection = FVector::ZeroVector, const FVector& InOriginalActorLocation = FVector::ZeroVector)
+	FGizmoPressedInfo(const FVector& InInitialMouseRayOrigin = FVector::ZeroVector, const FVector& InInitialMouseRayDirection = FVector::ZeroVector, const TMap<class APrimitiveProp*, FVector>& InOriginalActorLocations = TMap<class APrimitiveProp*, FVector>(), uint8 InFlags = 0)
 		: InitialMouseRayOrigin(InInitialMouseRayOrigin)
 		, InitialMouseRayDirection(InInitialMouseRayDirection)
-		, OriginalActorLocation(InOriginalActorLocation)
+		, OriginalActorLocations(InOriginalActorLocations)
+		, Flags(InFlags)
 	{
 	}
+
+	FORCEINLINE bool Has(uint8 Flag) const { return (Flags & Flag) != 0; }
 };

@@ -38,8 +38,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetUnSelected();
 	UFUNCTION(BlueprintCallable)
-	void SetPrimitivePropCollision(bool bCond);
-	UFUNCTION(BlueprintCallable)
 	void SetGizmosCollision(bool bCond);
 	UFUNCTION(BlueprintCallable)
 	virtual void RotateAllGizmos();
@@ -57,6 +55,9 @@ public:
 
 	void ShowRotateGizmo();;
 	void ShowMoveGizmo();
+
+	void ActivateGizmos(bool bRotateGizmoMode);
+	void DeactivateGizmos();
 	
 protected:
 	UFUNCTION()

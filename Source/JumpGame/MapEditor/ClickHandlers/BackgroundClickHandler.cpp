@@ -17,12 +17,13 @@ UBackgroundClickHandler::~UBackgroundClickHandler()
 }
 
 bool UBackgroundClickHandler::HandleClick(FClickResponse& ClickResponse,
-	class AMapEditingPlayerController* PlayerController, bool bRotateGizmoMode)
+	class AMapEditingPlayerController* PlayerController, FClickContext& ClickContext)
 {
 	ClickResponse.Result = EClickHandlingResult::BackgroundEditing;
-	
+
 	// true가 될 경우 액터가 선택됨
-	if (PlayerController->OnClickOperation(ClickResponse.TargetProp, ClickResponse))
+	APrimitiveProp* LastSelected = FCommonUtil::SafeLast(ClickResponse.SelectedProps);
+	if (PlayerController->OnClickOperation(LastSelected, ClickResponse))
 	{
 		ClickResponse.DebugMessage = TEXT("Background Click");
 
@@ -34,12 +35,16 @@ bool UBackgroundClickHandler::HandleClick(FClickResponse& ClickResponse,
 		}
 
 		// 기존의 액터가 선택되어 있다면 UnSelected 처리
-		if (APrimitiveProp* ControlledActor = ClickResponse.TargetProp)
+
+		for (APrimitiveProp* SelectedProp : ClickResponse.SelectedProps)
 		{
-			ControlledActor->SetUnSelected();
-			ClickResponse.TargetProp = nullptr;
+			if (SelectedProp)
+			{
+				SelectedProp->SetUnSelected();
+			}
 		}
-		
+		ClickResponse.SelectedProps.Empty();
+
 		return true;
 	}
 	return false;

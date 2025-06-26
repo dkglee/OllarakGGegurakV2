@@ -6,6 +6,8 @@
 #include "JumpGame/UI/InGame/StageResultUI.h"
 #include "Components/WidgetComponent.h"
 #include "JumpGame/Characters/Frog.h"
+#include "JumpGame/UI/InGame/OutToMainUI.h"
+#include "JumpGame/Utils/FastLogger.h"
 
 AInGamePlayerController::AInGamePlayerController()
 {
@@ -21,6 +23,13 @@ AInGamePlayerController::AInGamePlayerController()
 	if (StageResultUIClassFinder.Succeeded())
 	{
 		ResultUIClass = StageResultUIClassFinder.Class;
+	}
+
+	ConstructorHelpers::FClassFinder<UOutToMainUI> OutToMainUIClassFinder
+	(TEXT("/Game/UI/Game/WBP_OutToMain.WBP_OutToMain_C"));
+	if (OutToMainUIClassFinder.Succeeded())
+	{
+		OutToMainUIClass = OutToMainUIClassFinder.Class;
 	}
 }
 
@@ -41,6 +50,7 @@ void AInGamePlayerController::BeginPlay()
 	}
 
 	ResultUI = CreateWidget<UStageResultUI>(this, ResultUIClass);
+	OutToMainUI = CreateWidget<UOutToMainUI>(this, OutToMainUIClass);
 }
 
 void AInGamePlayerController::OnRep_PlayerState()
@@ -69,6 +79,19 @@ void AInGamePlayerController::StartInitialize()
 	SetShowMouseCursor(false);
 
 	Frog->InitJumpGaugeUIComponent();
+}
+
+void AInGamePlayerController::ShowOutToMainUI()
+{
+	if (InGameUI)
+	{
+		InGameUI->RemoveFromParent();
+	}
+
+	if (OutToMainUI)
+	{
+		OutToMainUI->AddToViewport();
+	}
 }
 
 void AInGamePlayerController::ShowResultUI()

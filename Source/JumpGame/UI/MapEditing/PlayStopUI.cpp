@@ -9,7 +9,9 @@
 #include "JumpGame/Core/GameState/MapEditorState.h"
 #include "JumpGame/MapEditor/ClickHandlers/ClickHandlerManager.h"
 #include "JumpGame/MapEditor/Pawn/MapEditingPawn.h"
+#include "JumpGame/Props/BuildProp/ChameleonProp.h"
 #include "JumpGame/UI/Character/JumpGaugeUI.h"
+#include "Kismet/GameplayStatics.h"
 
 void UPlayStopUI::NativeOnInitialized()
 {
@@ -59,13 +61,42 @@ void UPlayStopUI::OnPlayStopButtonClicked()
 
 void UPlayStopUI::ChangePlayer()
 {
+	TArray<AActor*> FindCopyProps;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AChameleonProp::StaticClass(), FindCopyProps);
+	
 	if (bIsPlayMode)
 	{
 		ChangeToFrog();
+		ApplyCopyProps(FindCopyProps);
 	}
 	else
 	{
 		ChangeToEditor();
+		ShowCopyProps(FindCopyProps);
+	}
+}
+
+void UPlayStopUI::ApplyCopyProps(TArray<AActor*> Actors)
+{
+	for (AActor* Actor : Actors)
+	{
+		AChameleonProp* ChameleonProp = Cast<AChameleonProp>(Actor);
+		if (ChameleonProp)
+		{
+			ChameleonProp->CopyMeshAndMaterial();
+		}
+	}
+}
+
+void UPlayStopUI::ShowCopyProps(TArray<AActor*> Actors)
+{
+	for (AActor* Actor : Actors)
+	{
+		AChameleonProp* ChameleonProp = Cast<AChameleonProp>(Actor);
+		if (ChameleonProp)
+		{
+			ChameleonProp->CopyMeshAndMaterial();
+		}
 	}
 }
 

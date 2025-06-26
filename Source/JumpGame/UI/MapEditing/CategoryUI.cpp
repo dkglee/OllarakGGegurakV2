@@ -68,7 +68,7 @@ void UCategoryUI::NativeOnInitialized()
 
 			MajorCategoryButtonUI->OnMajorButtonClicked.AddDynamic(this, &UCategoryUI::OnMajorCategoryButtonClicked);
 			
-			if (MajorCategory == EMajorCategoryType::Basic)
+			if (MajorCategory == EMajorCategoryType::Necessary)
 			{
 				SelectedMajorCategory = MajorCategoryButtonUI;
 			}
@@ -473,7 +473,6 @@ void UCategoryUI::SetGridToDefault()
 
 void UCategoryUI::OnImageSearchButtonResponse(const FString& ImgPath, bool bSuccess)
 {
-	FFastLogger::LogScreen(FColor::Red, TEXT("OnImageSearchButtonResponse : %s"), *ImgPath);
 	if (!bSuccess)
 	{
 		SetTextToDefault();

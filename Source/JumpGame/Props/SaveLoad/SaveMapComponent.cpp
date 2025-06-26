@@ -28,7 +28,6 @@ bool USaveMapComponent::SaveMap(const FString& FileName, const FString& ImageBas
 	GetAllPropsInfo(SaveDataArray.SaveDataArray);
 	if (CollisionPropTags.Num() != 0)
 	{
-		FFastLogger::LogScreen(FColor::Red, TEXT("충돌중인 프롭이 있습니다! 저장 실패!!"));
 		return false;
 	}
 	SaveDataArray.ImageBase64 = ImageBase64; // TODO: 이미지 저장 기능 추가
@@ -101,13 +100,5 @@ bool USaveMapComponent::SaveDataToFile(const FSaveDataArray& InSaveDataArray, co
 	// 저장
 	bool bSuccess = FFileHelper::SaveStringToFile(JsonString, *FullPath);
 
-	if (bSuccess)
-	{
-		FFastLogger::LogScreen(FColor::Green, TEXT("성공적으로 저장했습니다! 경로: %s"), *FullPath);
-	}
-	else
-	{
-		FFastLogger::LogScreen(FColor::Red, TEXT("저장 실패했습니다. 경로: %s"), *FullPath);
-	}
 	return bSuccess;
 }

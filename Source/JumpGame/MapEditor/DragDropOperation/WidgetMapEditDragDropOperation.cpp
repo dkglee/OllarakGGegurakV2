@@ -32,7 +32,6 @@ void UWidgetMapEditDragDropOperation::Dragged_Implementation(const FPointerEvent
 		OnDraggedWidget.Broadcast(LocalPx);
 
 		// 필요하다면 로그로 확인
-		// FFastLogger::LogScreen(FColor::Emerald,
 		// 	TEXT("Dragged (VP px): %.1f, %.1f  |  UMG: %.1f, %.1f"),
 		// 	LocalPx.X, LocalPx.Y, LocalUMG.X, LocalUMG.Y);
 	}
@@ -40,7 +39,6 @@ void UWidgetMapEditDragDropOperation::Dragged_Implementation(const FPointerEvent
 
 void UWidgetMapEditDragDropOperation::OnDragging(UDragDropOperation* Operation)
 {
-	// FFastLogger::LogScreen(FColor::Emerald, TEXT("Dragging"));
 	UCursorManager::SetCursor(this, ECursorName::LeafPoint);
 }
 

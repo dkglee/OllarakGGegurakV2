@@ -23,7 +23,9 @@ private:
 	void ChangePlayer();
 	UFUNCTION()
 	void OnPlayStopButtonClicked();
-
+	void ShowCopyProps(TArray<AActor*> Actors);
+	void ApplyCopyProps(TArray<AActor*> Actors);
+	
 	UPROPERTY()
 	class AFrog* PlayPawn;
 	UPROPERTY()

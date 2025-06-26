@@ -11,6 +11,6 @@ class JUMPGAME_API URotateGizmoClickHandler : public UClickHandlerInterface
 public:
 	URotateGizmoClickHandler();
 	virtual int32 GetPriority() const override { return 200; }
-	virtual bool HandleClick(FClickResponse& ClickResponse, class AMapEditingPlayerController* PlayerController, bool bRotateGizmoMode) override;
+	virtual bool HandleClick(FClickResponse& ClickResponse, class AMapEditingPlayerController* PlayerController, FClickContext& ClickContext) override;
 	virtual ~URotateGizmoClickHandler() override;
 };

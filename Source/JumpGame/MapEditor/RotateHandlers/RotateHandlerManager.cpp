@@ -32,22 +32,22 @@ void URotateHandlerManager::InitializeComponent()
 
 void URotateHandlerManager::HandleRotate(FClickResponse& ClickResponse)
 {
-	APrimitiveProp* PrimitiveProp = ClickResponse.TargetProp;
-	if (!PrimitiveProp) return;
+	for (APrimitiveProp* SelectedProp : ClickResponse.SelectedProps)
+	{
+		if (!SelectedProp || !SelectedProp->IsValidLowLevel()) continue;
+		
+		UGridComponent* GridComponent = SelectedProp->GetGridComp();
+		if (!GridComponent) continue;
 
-	UGridComponent* GridComponent = PrimitiveProp->GetGridComp();
-	if (!GridComponent) return;
+		GridComponent->Rotate(Axis);
 
-	// FVector PrimitiveProp->GetRotateGizmo()->GetDirection();
-	GridComponent->Rotate(Axis);
-
-	// PrimitiveProp->SetNewSizeByRotation(GridComponent->GetSize());
-	PrimitiveProp->RotateAllGizmos();
+		SelectedProp->RotateAllGizmos();
+	}
 }
 
 void URotateHandlerManager::HandleAxis(FVector InAxis, FClickResponse& ClickResponse)
 {
-	APrimitiveProp* PrimitiveProp = ClickResponse.TargetProp;
+	APrimitiveProp* PrimitiveProp = FCommonUtil::SafeLast(ClickResponse.SelectedProps);
 	if (!PrimitiveProp) return;
 
 	Axis = InAxis.GetSafeNormal().GetAbs();

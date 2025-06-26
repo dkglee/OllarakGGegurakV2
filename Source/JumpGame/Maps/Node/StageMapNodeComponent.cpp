@@ -97,6 +97,13 @@ void UStageMapNodeComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 			else
 			{
 				UE_LOG(LogTemp, Warning, TEXT("[경고] FieldData 없음. FieldName = %s"), *NodeInfo->FieldName.ToString());
+
+				NodeInfoUI->SelectFieldLevel = NAME_None;
+				NodeInfoUI->SetFieldInfo(
+					NAME_None,
+					0,
+					0
+				);
 			}
 		}
 		else

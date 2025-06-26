@@ -8,6 +8,7 @@
 #include "Components/WidgetComponent.h"
 #include "JumpGame/Core/PlayerController/LobbyPlayerController.h"
 #include "JumpGame/Maps/Node/StageMapNodeComponent.h"
+#include "JumpGame/UI/StageNode/NodeInfoUI.h"
 #include "JumpGame/UI/UICam/LobbyCameraComp.h"
 
 
@@ -92,7 +93,11 @@ void ALobbyFrog::Tick(float DeltaTime)
 		{
 			StageMapNodeComponent->HandleMouseInput(ScreenPos);
 		}
-		StageMapNodeComponent->HandleMouseInput(ScreenPos);
+	}
+	if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::SpaceBar))
+	{
+		if (StageMapNodeComponent->NodeInfoUI->SelectFieldLevel == NAME_None) return;
+		StageMapNodeComponent->NodeInfoUI->OnClickGameStart();
 	}
 }
 

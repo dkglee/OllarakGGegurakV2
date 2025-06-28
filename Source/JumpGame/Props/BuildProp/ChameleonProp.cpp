@@ -77,7 +77,7 @@ void AChameleonProp::CopyMeshAndMaterial()
 				if (BottomMesh)
 				{
 					MeshComp->SetStaticMesh(BottomMesh);
-					MeshComp->SetRelativeTransform(BaseProp->MeshComp->GetRelativeTransform());
+					MeshComp->SetWorldTransform(BaseProp->MeshComp->GetComponentTransform());
 				}
 
 				// 머티리얼 복사

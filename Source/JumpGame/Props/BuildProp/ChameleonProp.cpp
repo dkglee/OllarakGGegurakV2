@@ -5,6 +5,7 @@
 
 #include "JumpGame/MapEditor/Components/GridComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 // Sets default values
@@ -19,13 +20,7 @@ void AChameleonProp::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (MeshComp)
-	{
-		OriginalMesh = MeshComp->GetStaticMesh();
-		OriginalMaterial = MeshComp->GetMaterial(0);
-	}
-
-    // CopyMeshAndMaterial();
+	// CopyMeshAndMaterial();
 	if (bInGame)
 	{
 		CopyMeshAndMaterial();
@@ -40,6 +35,20 @@ void AChameleonProp::Tick(float DeltaTime)
 
 void AChameleonProp::CopyMeshAndMaterial()
 {
+	if (MeshComp)
+	{
+		OriginalWorldTransform = MeshComp->GetComponentTransform();
+		OriginalRelativeTransform = MeshComp->GetRelativeTransform();
+		OriginalMesh = MeshComp->GetStaticMesh();
+
+		int32 MaterialNum{MeshComp->GetNumMaterials()};
+		OriginalMaterials.Empty();
+		for (int32 i{}; i < MaterialNum; ++i)
+		{
+			OriginalMaterials.Add(MeshComp->GetMaterial(i));
+		}
+	}
+	
 	if (MeshComp)
 	{
 		FVector Start{GetActorLocation()};
@@ -60,7 +69,9 @@ void AChameleonProp::CopyMeshAndMaterial()
 
 			// ChameleonProp 인지 확인
 			AChameleonProp* HitChameleon{Cast<AChameleonProp>(HitResult.GetActor())};
-			if (HitChameleon)
+			if (HitChameleon
+				&& UKismetMathLibrary::NearlyEqual_FloatFloat(HitChameleon->GetActorLocation().X, GetActorLocation().X)
+				&& UKismetMathLibrary::NearlyEqual_FloatFloat(HitChameleon->GetActorLocation().Y, GetActorLocation().Y))
 			{
 				// 더 아래로 End를 내리고 계속 검사
 				Start = End;
@@ -70,14 +81,34 @@ void AChameleonProp::CopyMeshAndMaterial()
 
 			// BaseProp 인지 확인
 			ABaseProp* BaseProp{Cast<ABaseProp>(HitResult.GetActor())};
-			if (BaseProp && BaseProp->MeshComp && BaseProp->GetGridComp()->GetSize() == FVector(1, 1, 1))
+			if (BaseProp && BaseProp->MeshComp && BaseProp->GetGridComp()->GetSize() == FVector(1, 1, 1)
+				&& UKismetMathLibrary::NearlyEqual_FloatFloat(BaseProp->GetActorLocation().X, GetActorLocation().X)
+				&& UKismetMathLibrary::NearlyEqual_FloatFloat(BaseProp->GetActorLocation().Y, GetActorLocation().Y)
+				)
 			{
 				// Mesh 복사
 				UStaticMesh* BottomMesh{BaseProp->MeshComp->GetStaticMesh()};
 				if (BottomMesh)
 				{
 					MeshComp->SetStaticMesh(BottomMesh);
-					MeshComp->SetRelativeTransform(BaseProp->MeshComp->GetRelativeTransform());
+					
+					MeshComp->SetWorldTransform(BaseProp->MeshComp->GetComponentTransform());
+					if (i == 0)
+					{
+						MeshComp->SetWorldLocation(FVector(
+							BaseProp->MeshComp->GetComponentLocation().X,
+							BaseProp->MeshComp->GetComponentLocation().Y,
+							BaseProp->MeshComp->GetComponentLocation().Z + 100.f * (i + 1)
+						));
+					}
+					else
+					{
+						MeshComp->SetWorldLocation(FVector(
+							BaseProp->MeshComp->GetComponentLocation().X,
+							BaseProp->MeshComp->GetComponentLocation().Y,
+							BaseProp->MeshComp->GetComponentLocation().Z + 50.f * (i + 1)
+						));
+					}
 				}
 
 				// 머티리얼 복사
@@ -91,7 +122,7 @@ void AChameleonProp::CopyMeshAndMaterial()
 					}
 				}
 			}
-			
+
 			break;
 		}
 	}
@@ -102,7 +133,15 @@ void AChameleonProp::RecoverMeshAndMaterial()
 	if (MeshComp && OriginalMesh)
 	{
 		MeshComp->SetStaticMesh(OriginalMesh);
-		MeshComp->SetMaterial(0, OriginalMaterial);
+		MeshComp->SetWorldTransform(OriginalWorldTransform);
+		MeshComp->SetRelativeTransform(OriginalRelativeTransform);
+
+		for (int32 i{}; i < OriginalMaterials.Num(); ++i)
+		{
+			if (OriginalMaterials[i])
+			{
+				MeshComp->SetMaterial(i, OriginalMaterials[i]);
+			}
+		}
 	}
 }
-

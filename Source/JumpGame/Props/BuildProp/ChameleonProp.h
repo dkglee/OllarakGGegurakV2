@@ -31,5 +31,9 @@ public:
 	UPROPERTY()
 	UStaticMesh* OriginalMesh{nullptr};
 	UPROPERTY()
-	UMaterialInterface* OriginalMaterial{nullptr};
+	TArray<UMaterialInterface*> OriginalMaterials{nullptr};
+	UPROPERTY()
+	FTransform OriginalWorldTransform{FTransform::Identity};
+	UPROPERTY()
+	FTransform OriginalRelativeTransform{FTransform::Identity};
 };

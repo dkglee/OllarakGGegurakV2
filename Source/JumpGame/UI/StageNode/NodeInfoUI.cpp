@@ -21,9 +21,9 @@ void UNodeInfoUI::OnClickGameStart()
 	UGameplayStatics::OpenLevel(GetWorld(), SelectFieldLevel);
 }
 
-void UNodeInfoUI::SetFieldInfo(FName CurrentFieldName, int32 StarCount, float ClearTime)
+void UNodeInfoUI::SetFieldInfo(FText CurrentFieldName, int32 StarCount, float ClearTime)
 {
-	Text_FieldName->SetText(FText::FromName(CurrentFieldName));
+	Text_FieldName->SetText(FText(CurrentFieldName));
 	UpdateStarImages(StarCount);
 	UpdateClearTime(ClearTime);
 	UpdateClearText(StarCount, ClearTime);

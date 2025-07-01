@@ -36,7 +36,7 @@ public:
 	void OnClickGameStart();
 
 	UFUNCTION()
-	void SetFieldInfo(FName CurrentFieldName, int32 StarCount, float ClearTime);
+	void SetFieldInfo(FText CurrentFieldName, int32 StarCount, float ClearTime);
 	UPROPERTY()
 	FName SelectFieldLevel;
 

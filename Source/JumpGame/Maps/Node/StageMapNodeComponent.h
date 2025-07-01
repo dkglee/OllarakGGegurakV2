@@ -77,7 +77,6 @@ public:
 	
 	UPROPERTY()
 	class AStageOutSign* StageOutSign = nullptr; // 외출중 표지판
-
 	UFUNCTION()
 	void UpdateStageSign(int32 CurrentNode, int32 DestinationNode);
 	

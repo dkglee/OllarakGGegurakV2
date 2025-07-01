@@ -32,7 +32,10 @@ public:
 	bool bHasField = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName FieldName;
+	FName FieldID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText FieldName;
 
 	// UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	// TArray<AStageNodeActor*> ConnectedActors; // Actor 참조

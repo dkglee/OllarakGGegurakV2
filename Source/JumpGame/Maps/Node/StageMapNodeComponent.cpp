@@ -10,12 +10,10 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "JumpGame/StageSystem/FieldTableRow.h"
 #include "JumpGame/StageSystem/StageSystemSubsystem.h"
 #include "JumpGame/UI/StageNode/NodeInfoUI.h"
 #include "Kismet/GameplayStatics.h"
-#include "Navigation/PathFollowingComponent.h"
 
 
 class AAIController;
@@ -71,7 +69,7 @@ void UStageMapNodeComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 		CurrentNodeID = DestinationNodeID;
 		DestinationNodeID = -1;
 		bIsMoving = false;
-
+		
 		const FStageNodeInfo* NodeInfo = GetNode(CurrentNodeID);
 		if (NodeInfo)
 		{
@@ -85,7 +83,7 @@ void UStageMapNodeComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 		{
 			NodeInfoUI->SetVisibility(ESlateVisibility::HitTestInvisible);
 			NodeInfoUI->SetIsEnabled(true);
-			if (const FFieldTableRow* FieldData = StageSystem->GetField(NodeInfo->FieldName))
+			if (const FFieldTableRow* FieldData = StageSystem->GetField(NodeInfo->FieldID))
 			{
 				UE_LOG(LogTemp, Warning, TEXT("[UI 설정] 별 개수 = %d, 클리어 시간 = %.2f"),
 					FieldData->FieldStarCount,
@@ -104,7 +102,7 @@ void UStageMapNodeComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 				NodeInfoUI->SelectFieldLevel = NAME_None;
 				NodeInfoUI->SetFieldInfo(
-					NAME_None,
+					FText::GetEmpty(),
 					0,
 					0
 				);
@@ -232,7 +230,7 @@ void UStageMapNodeComponent::HandleMouseInput(FVector2D ScreenPos)
 			NodeInfoUI->SetVisibility(ESlateVisibility::HitTestInvisible);
 			NodeInfoUI->SetIsEnabled(true);
 			
-			if (const FFieldTableRow* FieldData = StageSystem->GetField(NodeInfo->FieldName))
+			if (const FFieldTableRow* FieldData = StageSystem->GetField(NodeInfo->FieldID))
 			{
 				NodeInfoUI->SelectFieldLevel = FieldData->FieldLevel;
 				NodeInfoUI->SetFieldInfo(NodeInfo->FieldName, FieldData->FieldStarCount, FieldData->FieldClearTime);

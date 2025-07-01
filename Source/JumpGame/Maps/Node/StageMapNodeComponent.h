@@ -9,8 +9,6 @@
 
 // 런타임에서 노드 데이터를 관리, 이동/경로 관련 계산 처리
 
-struct FStageNodeInfo;
-
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class JUMPGAME_API UStageMapNodeComponent : public UActorComponent
 {
@@ -41,6 +39,9 @@ public:
 	UPROPERTY()
 	bool bIsMoving = false;
 
+	UPROPERTY()
+	bool bHasData = false;
+
 public:
 	// 시작할 때 플레이어의 위치
 	UPROPERTY()
@@ -69,6 +70,16 @@ public:
 	// 이동 요청
 	UFUNCTION()
 	void RequestMoveTo(int32 TargetNodeID);
+
+	// 앞을 보자
+	UPROPERTY()
+	FRotator TargetRotation = FRotator(0.f, -10.f, 0.f);
+	
+	UPROPERTY()
+	class AStageOutSign* StageOutSign = nullptr; // 외출중 표지판
+
+	UFUNCTION()
+	void UpdateStageSign(int32 CurrentNode, int32 DestinationNode);
 	
 	// 이동 가능한 노드인가?
 	// bool IsValidNodeID(int32 FromNodeID, int32 ToNodeID);
@@ -85,4 +96,5 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UNodeInfoUI* NodeInfoUI;
 };
+
 

@@ -4,10 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Components/Button.h"
-#include "Components/Image.h"
 #include "ClientRoomLogoUI.generated.h"
-
 
 /**
  * 
@@ -28,9 +25,9 @@ public:
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
 	UWidgetAnimation* LogoAnimation;
 	UPROPERTY(meta = (BindWidget))
-	UButton* Btn_GoMainStart;
+	class UButton* Btn_GoMainStart;
 	UPROPERTY(meta = (BindWidget))
-	UImage* Image_Circle;
+	class UImage* Image_Circle;
 	UPROPERTY()
 	UMaterialInstanceDynamic* DynMaterial;
 

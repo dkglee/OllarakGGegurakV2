@@ -26,6 +26,7 @@ void UNodeInfoUI::SetFieldInfo(FName CurrentFieldName, int32 StarCount, float Cl
 	Text_FieldName->SetText(FText::FromName(CurrentFieldName));
 	UpdateStarImages(StarCount);
 	UpdateClearTime(ClearTime);
+	UpdateClearText(StarCount, ClearTime);
 }
 
 void UNodeInfoUI::UpdateStarImages(int32 StarCount)
@@ -59,8 +60,37 @@ void UNodeInfoUI::UpdateClearTime(float ClearTime)
 
 	const FString TimeText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
 
-	if (Text_Time)
+	if (ClearTime == 0)
 	{
-		Text_Time->SetText(FText::FromString(TimeText));
+		if (Text_Time)
+		{
+			Text_Time->SetText(FText::FromString(TEXT("--:--")));
+		}
+	}
+	else
+	{
+		if (Text_Time)
+		{
+			Text_Time->SetText(FText::FromString(TimeText));
+		}
+	}
+}
+
+void UNodeInfoUI::UpdateClearText(int32 StarCount, float ClearTime)
+{
+	if (StarCount == 0 && ClearTime == 0)
+	{
+		Text_ClearTF->SetText(FText::FromString(TEXT("도전 기록 없음")));
+	}
+	else
+	{
+		if (StarCount == 3)
+		{
+			Text_ClearTF->SetText(FText::FromString(TEXT("클리어 기록!")));
+		}
+		else
+		{
+			Text_ClearTF->SetText(FText::FromString(TEXT("도전 진행 중")));
+		}
 	}
 }

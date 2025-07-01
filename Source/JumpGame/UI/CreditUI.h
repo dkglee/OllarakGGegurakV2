@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "UICam/LobbyCameraComp.h"
 #include "CreditUI.generated.h"
 
 /**
@@ -30,7 +29,7 @@ public:
 
 	// 카메라 전환하기
 	UPROPERTY()
-	ULobbyCameraComp* CameraComp;
+	class ULobbyCameraComp* CameraComp;
 
 	FOnClickBackToLobbyFromCredit OnClickBackToLobbyFromCredit;
 };

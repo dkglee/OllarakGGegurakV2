@@ -26,6 +26,8 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	class UImage* Image_Star3;
 	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* Text_ClearTF;
+	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* Text_Time;
 	UPROPERTY(meta = (BindWidget))
 	class UButton* Btn_GameStart;
@@ -47,5 +49,7 @@ public:
 	void UpdateStarImages(int32 StarCount);
 	UFUNCTION()
 	void UpdateClearTime(float ClearTime);
+	UFUNCTION()
+	void UpdateClearText(int32 StarCount, float ClearTime);
 };
 

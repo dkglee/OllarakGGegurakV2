@@ -5,13 +5,17 @@
 
 #include "AIController.h"
 #include "StageNodeActor.h"
+#include "StageOutSign.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "JumpGame/StageSystem/FieldTableRow.h"
 #include "JumpGame/StageSystem/StageSystemSubsystem.h"
 #include "JumpGame/UI/StageNode/NodeInfoUI.h"
 #include "Kismet/GameplayStatics.h"
+#include "Navigation/PathFollowingComponent.h"
 
 
 class AAIController;
@@ -36,6 +40,7 @@ void UStageMapNodeComponent::BeginPlay()
 	AddAllNodesFromWorld();
 
 	StageSystem = Cast<UStageSystemSubsystem>(GetWorld()->GetGameInstance()->GetSubsystem<UStageSystemSubsystem>());
+	StageOutSign = Cast<AStageOutSign>(UGameplayStatics::GetActorOfClass(GetWorld(),AStageOutSign::StaticClass()));
 
 	NodeInfoUI = CreateWidget<UNodeInfoUI>(GetWorld(), NodeInfoUIClass);
 	if (NodeInfoUI)
@@ -57,14 +62,12 @@ void UStageMapNodeComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	
 	FVector CharLoc = OwnerChar->GetActorLocation();
 	FVector TargetLoc = NodeMap[DestinationNodeID].WorldPosition;
-
-	float XYDist = FVector2D::Distance(
-		FVector2D(CharLoc.X, CharLoc.Y),
-		FVector2D(TargetLoc.X, TargetLoc.Y)
-	);
-
+	float XYDist = FVector2D::Distance(FVector2D(CharLoc.X, CharLoc.Y), FVector2D(TargetLoc.X, TargetLoc.Y));
+	
 	if (XYDist < 55.f)
 	{
+		UpdateStageSign(CurrentNodeID, DestinationNodeID);
+		
 		CurrentNodeID = DestinationNodeID;
 		DestinationNodeID = -1;
 		bIsMoving = false;
@@ -72,9 +75,10 @@ void UStageMapNodeComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 		const FStageNodeInfo* NodeInfo = GetNode(CurrentNodeID);
 		if (NodeInfo)
 		{
-			UE_LOG(LogTemp, Log, TEXT("[NodeInfo 있음] FieldName = %s, bHasField = %s"),
+			UE_LOG(LogTemp, Warning, TEXT("[NodeInfo 있음] FieldName = %s, bHasField = %s"),
 				*NodeInfo->FieldName.ToString(),
 				NodeInfo->bHasField ? TEXT("true") : TEXT("false"));
+			bHasData = true;
 		}
 
 		if (NodeInfo && NodeInfo->bHasField)
@@ -83,7 +87,7 @@ void UStageMapNodeComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 			NodeInfoUI->SetIsEnabled(true);
 			if (const FFieldTableRow* FieldData = StageSystem->GetField(NodeInfo->FieldName))
 			{
-				UE_LOG(LogTemp, Log, TEXT("[UI 설정] 별 개수 = %d, 클리어 시간 = %.2f"),
+				UE_LOG(LogTemp, Warning, TEXT("[UI 설정] 별 개수 = %d, 클리어 시간 = %.2f"),
 					FieldData->FieldStarCount,
 					FieldData->FieldClearTime);
 
@@ -108,8 +112,9 @@ void UStageMapNodeComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 		}
 		else
 		{
+			bHasData = false;
 			NodeInfoUI->SetVisibility(ESlateVisibility::Collapsed);
-			UE_LOG(LogTemp, Log, TEXT("[UI 숨김] NodeInfo가 없거나 필드가 없음"));
+			UE_LOG(LogTemp, Warning, TEXT("[UI 숨김] NodeInfo가 없거나 필드가 없음"));
 		}
 	}
 }
@@ -140,8 +145,7 @@ void UStageMapNodeComponent::AddAllNodesFromWorld()
 	}
 	
 	InitCurrentNode();
-
-	UE_LOG(LogTemp, Log, TEXT("총 %d개 노드 등록"), NodeMap.Num());
+	UE_LOG(LogTemp, Warning, TEXT("총 %d개 노드 등록"), NodeMap.Num());
 }
 
 void UStageMapNodeComponent::InitCurrentNode()
@@ -169,7 +173,28 @@ void UStageMapNodeComponent::InitCurrentNode()
 		// DestinationNodeID = ClosestID;
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("서있는 곳 노드 번호: %d"), CurrentNodeID);
+	UE_LOG(LogTemp, Warning, TEXT("서있는 곳 노드 번호: %d"), CurrentNodeID);
+}
+
+void UStageMapNodeComponent::UpdateStageSign(int32 CurrentNode, int32 DestinationNode)
+{
+	// 집 → 바깥
+	if (CurrentNodeID == 0 && DestinationNodeID != 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("집에서 바깥으로! 간판 보이기"));
+		StageOutSign->SpawnSign(false); // 간판 보이기
+	}
+	// 바깥 → 집
+	else if (CurrentNodeID != 0 && DestinationNodeID == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("바깥에서 집으로! 간판 숨기기"));
+		StageOutSign->SpawnSign(true); // 간판 숨기기
+	}
+	// 그 외 (밖 → 밖 or 집 → 집)
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("간판 변화 없음"));
+	}
 }
 
 void UStageMapNodeComponent::HandleKeyBoardInput(int32 Direction)
@@ -254,7 +279,12 @@ void UStageMapNodeComponent::RequestMoveTo(int32 TargetNodeID)
 	AAIController* AICon = Cast<AAIController>(OwnerChar->GetController());
 	if (!AICon) return;
 
-	UAIBlueprintHelperLibrary::SimpleMoveToLocation(AICon, TargetNode->WorldPosition);
+	// 캡슐 너비만큼 보정
+	FVector DirectionToTarget = (TargetNode->WorldPosition - OwnerChar->GetActorLocation()).GetSafeNormal(); // 방향 벡터
+	float CapsuleRadius = AICon->GetPawn()->FindComponentByClass<UCapsuleComponent>()->GetScaledCapsuleRadius();
+	FVector AdjustedTarget = TargetNode->WorldPosition + DirectionToTarget * CapsuleRadius;
+	
+	UAIBlueprintHelperLibrary::SimpleMoveToLocation(AICon, AdjustedTarget); 
 	bIsMoving = true;
 	DestinationNodeID = TargetNodeID; // 도착 후 갱신
 }

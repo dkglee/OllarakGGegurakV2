@@ -4,8 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "JumpGame/Core/GameState/TypeInfo/GameInfo.h"
-#include "UICam/LobbyCameraComp.h"
 #include "ClientRoomUI.generated.h"
 
 /*
@@ -18,6 +16,7 @@ WidgetSwitcher 구조
 -> FindRoom에서 팝업으로 방을 생성한다
  */
 
+struct FRoomData;
 class UButton;
 class UImage;
 
@@ -154,7 +153,7 @@ public:
 
 	// 카메라 전환하기
 	UPROPERTY()
-	ULobbyCameraComp* CameraComp;
+	class ULobbyCameraComp* CameraComp;
 
 public:
 	// 스토리 UI 띄우기

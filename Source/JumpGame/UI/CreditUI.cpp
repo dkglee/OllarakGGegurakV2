@@ -2,11 +2,11 @@
 
 
 #include "CreditUI.h"
-
 #include "Components/Button.h"
 #include "Components/CanvasPanel.h"
 #include "JumpGame/Characters/LobbyCharacter/LobbyFrog.h"
 #include "Kismet/GameplayStatics.h"
+#include "UICam/LobbyCameraComp.h"
 
 class ALobbyFrog;
 

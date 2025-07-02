@@ -29,8 +29,6 @@ public:
 	class UTextBlock* Text_ClearTF;
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* Text_Time;
-	UPROPERTY(meta = (BindWidget))
-	class UButton* Btn_GameStart;
 
 	UFUNCTION()
 	void OnClickGameStart();

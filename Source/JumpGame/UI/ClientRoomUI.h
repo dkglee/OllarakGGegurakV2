@@ -16,6 +16,7 @@ WidgetSwitcher 구조
 -> FindRoom에서 팝업으로 방을 생성한다
  */
 
+
 struct FRoomData;
 class UButton;
 class UImage;
@@ -161,6 +162,12 @@ public:
 	TSubclassOf<class UStoryMenuUI> StoryMenuUIClass;
 	UPROPERTY(editanywhere, BlueprintReadWrite)
 	UStoryMenuUI* StoryMenuUI;
+
+	// 커스텀 맵 UI 띄우기
+	UPROPERTY(editanywhere, BlueprintReadWrite)
+	TSubclassOf<class UCustomGameUI> CustomGameUIClass;
+	UPROPERTY(editanywhere, BlueprintReadWrite)
+	UCustomGameUI* CustomGameUI;
 
 	// 보이니?
 	UPROPERTY()

@@ -4,6 +4,7 @@
 #include "ClientRoomUI.h"
 
 #include "CreditUI.h"
+#include "CustomGameUI.h"
 #include "GameQuitUI.h"
 #include "GameSettingUI.h"
 #include "SessionListItemWidget.h"
@@ -18,7 +19,6 @@
 #include "Components/WidgetSwitcher.h"
 #include "JumpGame/Core/GameInstance/JumpGameInstance.h"
 #include "Kismet/GameplayStatics.h"
-#include "StoryMenuUI.h"
 #include "JumpGame/Characters/LobbyCharacter/LobbyFrog.h"
 #include "JumpGame/Maps/Node/StageMapNodeComponent.h"
 #include "StageNode/NodeInfoUI.h"
@@ -66,10 +66,15 @@ void UClientRoomUI::NativeOnInitialized()
 	InitRoomListPool();
 
 	// UI 만들기
-	StoryMenuUI = CreateWidget<UStoryMenuUI>(GetWorld(), StoryMenuUIClass);
+	/*StoryMenuUI = CreateWidget<UStoryMenuUI>(GetWorld(), StoryMenuUIClass);
 	if (StoryMenuUI)
 	{
 		StoryMenuUI->OnClickBackToLobby.AddDynamic(this, &UClientRoomUI::SetVisibleMain);
+	}*/
+	CustomGameUI = CreateWidget<UCustomGameUI>(GetWorld(), CustomGameUIClass);
+	if (CustomGameUI)
+	{
+		CustomGameUI->OnClickBackToLobby.AddDynamic(this, &UClientRoomUI::SetVisibleMain);
 	}
 
 	GameSettingUI = CreateWidget<UGameSettingUI>(GetWorld(), GameSettingUIClass);
@@ -98,6 +103,12 @@ void UClientRoomUI::SetVisibleMain()
 void UClientRoomUI::OnClickGoLobby()
 {
 	// 스테이지 -> 로비로 돌아가자
+	if (Frog)
+	{
+		// 움직이는 중이면 반응하지말자
+		if (Frog->StageMapNodeComponent->bIsMoving == true) return;
+	}
+	
 	WidgetSwitcher->SetActiveWidgetIndex(0);
 	CameraComp->SetViewTarget(ECameraState::Main);
 	CanvasMain->SetVisibility(ESlateVisibility::Visible);
@@ -107,6 +118,7 @@ void UClientRoomUI::OnClickGoLobby()
 	{
 		Frog->UpdateAnimation(ELobbyCharacterState::InLobby);
 		Frog->StageMapNodeComponent->NodeInfoUI->SetVisibility(ESlateVisibility::Collapsed);
+		Frog->SetActorRotation(FRotator(0, -10, 0));
 	}
 }
 
@@ -145,12 +157,20 @@ void UClientRoomUI::OnClickGoCreateMap()
 
 void UClientRoomUI::OnClickGoStoryMenu()
 {
-	CameraComp->SetViewTarget(ECameraState::Sub);
+	// 스토리 UI를 커스텀 게임 UI로 변경함
+	CameraComp->SetViewTarget(ECameraState::CustomGame);
+	CanvasMain->SetVisibility(ESlateVisibility::Hidden);
+	if (CustomGameUI)
+	{
+		CustomGameUI->AddToViewport();
+	}
+	
+	/*CameraComp->SetViewTarget(ECameraState::Sub);
 	CanvasMain->SetVisibility(ESlateVisibility::Hidden);
 	if (StoryMenuUI)
 	{
 		StoryMenuUI->AddToViewport();
-	}
+	}*/
 }
 
 void UClientRoomUI::OnClickGoSettings()

@@ -16,6 +16,7 @@ class JUMPGAME_API UNodeTutorialUI : public UUserWidget
 
 public:
 	virtual void NativeOnInitialized() override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float DeltaTime) override;
 	virtual void NativeDestruct() override;
 
 	UFUNCTION()

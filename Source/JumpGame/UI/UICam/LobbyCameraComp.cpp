@@ -3,12 +3,15 @@
 
 #include "LobbyCameraComp.h"
 
+#include "LobbyCustomCamera.h"
 #include "LobbyMainCamera.h"
 #include "LobbyStageCamera.h"
 #include "LobbySubCamera.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/CanvasPanel.h"
+#include "JumpGame/Maps/Node/NodeTutorial.h"
 #include "JumpGame/UI/ClientRoomUI.h"
+#include "JumpGame/UI/StageNode/NodeTutorialUI.h"
 #include "JumpGame/Utils/FastLogger.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -32,6 +35,7 @@ void ULobbyCameraComp::BeginPlay()
 	MainCamera = Cast<ALobbyMainCamera>(UGameplayStatics::GetActorOfClass(GetWorld(), ALobbyMainCamera::StaticClass()));
 	SubCamera = Cast<ALobbySubCamera>(UGameplayStatics::GetActorOfClass(GetWorld(), ALobbySubCamera::StaticClass()));
 	StageCamera = Cast<ALobbyStageCamera>(UGameplayStatics::GetActorOfClass(GetWorld(), ALobbyStageCamera::StaticClass()));
+	CustomCamera = Cast<ALobbyCustomCamera>(UGameplayStatics::GetActorOfClass(GetWorld(), ALobbyCustomCamera::StaticClass()));
 
 	PC = GetWorld()->GetFirstPlayerController();
 	if (PC)
@@ -66,6 +70,9 @@ void ULobbyCameraComp::SetViewTarget(ECameraState NewState)
 		break;
 	case ECameraState::Stage:
 		TargetCam = StageCamera;
+		break;
+	case ECameraState::CustomGame:
+		TargetCam = CustomCamera;
 		break;
 	}
 

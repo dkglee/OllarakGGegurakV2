@@ -70,8 +70,8 @@ bool USaveMapComponent::GetAllPropsInfo(TArray<FSaveData>& OutSaveDataArray)
 		OutSaveDataArray.Add(SaveData);
 	}
 
-	// return CheckNecessaryProps();
-	return true;
+	return CheckNecessaryProps();
+	// return true;
 }
 
 bool USaveMapComponent::SaveDataToFile(const FSaveDataArray& InSaveDataArray, const FString& FileName)

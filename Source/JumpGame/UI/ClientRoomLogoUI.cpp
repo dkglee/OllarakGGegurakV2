@@ -2,7 +2,8 @@
 
 
 #include "ClientRoomLogoUI.h"
-
+#include "Components/Button.h"
+#include "Components/Image.h"
 #include "JumpGame/Core/GameInstance/JumpGameInstance.h"
 
 void UClientRoomLogoUI::NativeOnInitialized()

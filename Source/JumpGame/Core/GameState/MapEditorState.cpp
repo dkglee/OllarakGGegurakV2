@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "JumpGame/AIServices/Shared/HttpManagerComponent.h"
 #include "JumpGame/MapEditor/CategorySystem/CategorySystem.h"
+#include "JumpGame/MapEditor/WarningPropManager/WarningPropManager.h"
 #include "JumpGame/Props/SaveLoad/LoadMapComponent.h"
 #include "JumpGame/Props/SaveLoad/SaveMapComponent.h"
 #include "JumpGame/UI/MapEditing/MapEditingHUD.h"
@@ -26,6 +27,7 @@ AMapEditorState::AMapEditorState()
 	SaveMapComponent = CreateDefaultSubobject<USaveMapComponent>(TEXT("SaveMapComponent"));
 	LoadMapComponent = CreateDefaultSubobject<ULoadMapComponent>(TEXT("LoadMapComponent"));
 	HttpManagerComponent = CreateDefaultSubobject<UHttpManagerComponent>(TEXT("HttpManagerComponent"));
+	WarningPropManager = CreateDefaultSubobject<UWarningPropManager>(TEXT("WarningPropManager"));
 }
 
 void AMapEditorState::BeginPlay()
@@ -43,6 +45,7 @@ void AMapEditorState::BeginPlay()
 			InitWidget(MapEditingPawn->GetClickHandlerManager(), MapEditingPawn->GetDragDropOperation());
 		}
 	}
+	WarningPropManager->InitWarningManager(CategorySystem, MapEditingHUD->GetEditWarningUI());
 }
 
 void AMapEditorState::Tick(float DeltaSeconds)

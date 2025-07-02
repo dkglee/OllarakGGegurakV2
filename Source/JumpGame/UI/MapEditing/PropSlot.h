@@ -16,7 +16,8 @@ class JUMPGAME_API UPropSlot : public UUserWidget
 
 public:
 	// SETTER(class UWidgetMapEditDragDropOperation*, DragDropOperation);
-	void InitWidget(class UWidgetMapEditDragDropOperation* InDragDropOperation);
+	void InitWidget(class UClickHandlerManager* ClickHandlerManager, class UWidgetMapEditDragDropOperation* CachedDragDropOperation, class UCategoryUI
+					* CategoryUI);
 	void SetPropID(FName InPropID);
 	void SetPropInfo(class UPropWrap* PropInfo);
 	void ClearInfo();
@@ -32,13 +33,16 @@ protected:
 	virtual FReply NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	// 해당 위젯에서 Drag가 감지 되었을 때 호출되는 함수
 	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
+	UFUNCTION()
+	void SetPropCountText(FName ID, int32 Count, int32 MaxCount);
+	UFUNCTION()
+	void OnPropDragCancelled();
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Prop")
 	FName PropID = NAME_None;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Prop", meta = (BindWidget), meta = (AllowPrivateAccess = "true"))
 	class UTextBlock* PropText;
-	
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Prop")
 	TSubclassOf<class UUserWidget> PropWidgetClass;
@@ -49,9 +53,18 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Prop")
 	class UWidgetMapEditDragDropOperation* DragDropOperation = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Prop")
+	class UClickHandlerManager* CachedClickHandlerManager = nullptr;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget), meta = (AllowPrivateAccess = "true"), Category = "UI")
 	class UImage* PropImage;
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"), Category = "UI")
 	class UClass* PropClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Prop", meta = (BindWidget), meta = (AllowPrivateAccess = "true"))
+	class UTextBlock* PropCountText;
+
+	int32 PropCount = -1;
+	int32 PropMaxCount = -1; // -1이면 무제한, 0이면 사용 불가
 };

@@ -5,11 +5,13 @@
 
 #include "Components/BoxComponent.h"
 #include "Components/WidgetComponent.h"
+#include "JumpGame/Core/GameState/MapEditorState.h"
 #include "JumpGame/MapEditor/Components/GizmoComponent.h"
 #include "JumpGame/MapEditor/Components/GizmoPrimaryComponent.h"
 #include "JumpGame/MapEditor/Components/GridComponent.h"
 #include "JumpGame/MapEditor/CategorySystem/PropStruct.h"
 #include "JumpGame/MapEditor/Components/RotateGizmoComponent.h"
+#include "JumpGame/MapEditor/WarningPropManager/WarningPropManager.h"
 #include "JumpGame/Props/Components/PropDataComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -101,6 +103,12 @@ void APrimitiveProp::OnGridPropBeginOverlap(UPrimitiveComponent* OverlappedCompo
 	}
 	CollisionCount++;
 	bIsOnCollision = true;
+	AMapEditorState* MapEditorState = Cast<AMapEditorState>(GetWorld()->GetGameState());
+	if (MapEditorState)
+	{
+		MapEditorState->GetWarningPropManager()->RegisterCollisionProp(this);
+	}
+	
 	MaterialChangeOnCollision();
 }
 
@@ -117,6 +125,11 @@ void APrimitiveProp::OnGridPropEndOverlap(UPrimitiveComponent* OverlappedCompone
 	{
 		CollisionCount = 0;
 		bIsOnCollision = false;
+		AMapEditorState* MapEditorState = Cast<AMapEditorState>(GetWorld()->GetGameState());
+		if (MapEditorState)
+		{
+			MapEditorState->GetWarningPropManager()->UnRegisterCollisionProp(this);
+		}
 	}
 	MaterialChangeOnCollision();
 }

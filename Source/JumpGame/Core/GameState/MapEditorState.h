@@ -29,6 +29,7 @@ public:
 	GETTER(class USaveMapComponent*, SaveMapComponent);
 	GETTER(class ULoadMapComponent*, LoadMapComponent);
 	GETTER(class UMapEditingHUD*, MapEditingHUD);
+	GETTER(class UWarningPropManager*, WarningPropManager);
 
 private:
 	UPROPERTY(Category = EditorState, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -37,6 +38,8 @@ private:
 	class UMapEditingHUD* MapEditingHUD = nullptr;
 	UPROPERTY(Category = EditorState, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCategorySystem* CategorySystem = nullptr;
+	UPROPERTY(Category = EditorState, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UWarningPropManager* WarningPropManager = nullptr;
 
 	UPROPERTY(Category = EditorState, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USaveMapComponent* SaveMapComponent = nullptr;

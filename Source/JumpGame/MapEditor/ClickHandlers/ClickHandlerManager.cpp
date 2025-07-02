@@ -7,10 +7,12 @@
 #include "MultiSelectClickHandler.h"
 #include "PropSlotClickHandler.h"
 #include "RotateGizmoClickHandler.h"
+#include "JumpGame/Core/GameState/MapEditorState.h"
 #include "JumpGame/Core/PlayerController/MapEditingPlayerController.h"
 #include "JumpGame/MapEditor/Components/GizmoComponent.h"
 #include "JumpGame/MapEditor/DragDropOperation/WidgetMapEditDragDropOperation.h"
 #include "JumpGame/MapEditor/Pawn/MapEditingPawn.h"
+#include "JumpGame/MapEditor/WarningPropManager/WarningPropManager.h"
 #include "JumpGame/Props/PrimitiveProp/PrimitiveProp.h"
 #include "JumpGame/Utils/FastLogger.h"
 
@@ -134,7 +136,15 @@ void UClickHandlerManager::OnWidgetDragEnter()
 	}
 
 	AActor* Actor = FCommonUtil::SafeLast(ControlledClickResponse.SelectedProps);
-	if (Actor) Actor->SetActorHiddenInGame(false);
+	if (Actor)
+	{
+		Actor->SetActorHiddenInGame(true);
+		AMapEditorState* GameState = GetWorld()->GetGameState<AMapEditorState>();
+		if (GameState)
+		{
+			GameState->GetWarningPropManager()->RegisterNecessaryProp(Cast<APrimitiveProp>(Actor));
+		}
+	}
 }
 
 void UClickHandlerManager::OnPropDragCancelled()
@@ -145,10 +155,20 @@ void UClickHandlerManager::OnPropDragCancelled()
 	if (bMouseEnterUI)
 	{
 		APrimitiveProp* LastSelected = FCommonUtil::SafeLast(ControlledClickResponse.SelectedProps);
-		if (LastSelected) LastSelected->Destroy();
+		if (LastSelected)
+		{
+			AMapEditorState* GameState = GetWorld()->GetGameState<AMapEditorState>();
+			if (GameState)
+			{
+				GameState->GetWarningPropManager()->RegisterNecessaryProp(Cast<APrimitiveProp>(LastSelected));
+			}
+			LastSelected->Destroy();
+		}
 		ControlledClickResponse = FClickResponse();
+		OnPropDragCancelledDelegate.Execute();
 	}
 
 	ControlledClickResponse.Result = EClickHandlingResult::None;
 	ControlledClickResponse.ClickedPropByWidget = nullptr;
+	OnPropDragCancelledDelegate.Clear();
 }

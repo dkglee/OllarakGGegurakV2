@@ -4,12 +4,16 @@
 #include "CopyPressedHandler.h"
 
 #include "BaseGizmos/GizmoMath.h"
+#include "JumpGame/Core/GameState/MapEditorState.h"
 #include "JumpGame/Core/PlayerController/MapEditingPlayerController.h"
+#include "JumpGame/MapEditor/CategorySystem/CategorySystem.h"
 #include "JumpGame/MapEditor/ClickHandlers/ClickHandlerManager.h"
 #include "JumpGame/MapEditor/Components/GizmoPrimaryComponent.h"
 #include "JumpGame/MapEditor/Components/GridComponent.h"
 #include "JumpGame/MapEditor/Components/RotateGizmoComponent.h"
 #include "JumpGame/MapEditor/Pawn/MapEditingPawn.h"
+#include "JumpGame/MapEditor/WarningPropManager/WarningPropManager.h"
+#include "JumpGame/Props/Components/PropDataComponent.h"
 #include "JumpGame/Props/PrimitiveProp/PrimitiveProp.h"
 
 bool UCopyPressedHandler::HandlePressed(FClickResponse& PressedResponse, AMapEditingPlayerController* PlayerController,
@@ -147,6 +151,12 @@ void UCopyPressedHandler::DuplicateSelectedProps(FClickResponse& PressedResponse
 			NewProp->RotateAllGizmos();
 
 			NewProps.Add(NewProp);
+		}
+		AMapEditorState* EditorState = Cast<AMapEditorState>(GetWorld()->GetGameState());
+		if (EditorState)
+		{
+			EditorState->GetCategorySystem()->DecrementPropCountByID(SelectedProp->GetPropDataComponent()->GetPropID());
+			EditorState->GetWarningPropManager()->RegisterNecessaryProp(NewProp);
 		}
 
 		NewProp->SetSelected(false);

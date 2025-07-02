@@ -22,6 +22,7 @@
 #include "JumpGame/MapEditor/DragDropOperation/WidgetMapEditDragDropOperation.h"
 #include "JumpGame/MapEditor/PressedHandlers/PressedHandlerManager.h"
 #include "JumpGame/MapEditor/RotateHandlers/RotateHandlerManager.h"
+#include "JumpGame/MapEditor/WarningPropManager/WarningPropManager.h"
 #include "JumpGame/Props/PrimitiveProp/PrimitiveProp.h"
 #include "JumpGame/UI/MapEditing/MapEditingHUD.h"
 #include "JumpGame/Utils/CursorManager.h"
@@ -345,37 +346,22 @@ void AMapEditingPawn::HandleScroll(const FInputActionValue& InputActionValue)
 void AMapEditingPawn::HandleTeleport(const FInputActionValue& InputActionValue)
 {
 	FClickResponse HandlingInfo = ClickHandlerManager->GetControlledClickResponse();
-	if (!FCommonUtil::SafeLast(HandlingInfo.SelectedProps) || !FCommonUtil::SafeLast(HandlingInfo.SelectedProps)->IsValidLowLevel())
+
+	APrimitiveProp* TargetProp = nullptr;
+	AMapEditorState* EditorState = Cast<AMapEditorState>(GetWorld()->GetGameState());
+	if (EditorState)
 	{
-		return;
+		TargetProp = EditorState->GetWarningPropManager()->GetTargetProp();
 	}
-	// Target Location을 가져옴
-	FVector TargetLocation = FCommonUtil::SafeLast(HandlingInfo.SelectedProps)->GetActorLocation() - FVector(0.f, 0.f, 50.f);
-	// Target Location에서 현재 카메라가 보고 있는 방향의 뒤로 Size + @ 만큼 이동
-	FVector Direction = Controller->GetControlRotation().Vector();
-	FVector Size = FCommonUtil::SafeLast(HandlingInfo.SelectedProps)->GetGridComp()->GetSize() * FCommonUtil::SafeLast(HandlingInfo.SelectedProps)->GetGridComp()->GetSnapSize();
-	float MaxOffset = Size.GetMax() + 200.f;
-	FVector NewLocation = TargetLocation - Direction * MaxOffset;
-
-	// Pawn을 이동
-	/** --- Latent action 설정 --- */
-	FLatentActionInfo LatentInfo;
-	LatentInfo.CallbackTarget   = this;          // 필수
-	LatentInfo.UUID             = __LINE__;      // 고유값(아무 숫자나 OK)
-	LatentInfo.Linkage          = 0;
-	LatentInfo.ExecutionFunction = FName(TEXT("OnMoveFinished"));;    // 이동 완료 시 호출 함수 이름(선택)
-
-	// 0.25초 동안 EaseIn‧EaseOut 보간
-	UKismetSystemLibrary::MoveComponentTo(
-		GetRootComponent(),          // Pawn 루트(전 Actor 이동)
-		NewLocation,                 // 최종 위치
-		GetActorRotation(),          // 회전 유지
-		true,                        // bEaseOut
-		true,                        // bEaseIn
-		0.25f,                       // Duration
-		false,                       // bForceShortestRotationPath
-		EMoveComponentAction::Move,  // 바로 이동
-		LatentInfo);
+	
+	APrimitiveProp* Temp = FCommonUtil::SafeLast(HandlingInfo.SelectedProps);
+	if (Temp && Temp->IsValidLowLevel())
+	{
+		TargetProp = Temp;
+		EditorState->GetWarningPropManager()->ResetIndex();
+	}
+	
+	TeleportToProp(TargetProp);
 }
 
 void AMapEditingPawn::HandleChangeMoveGizmoMode(const FInputActionValue& InputActionValue)
@@ -482,4 +468,40 @@ void AMapEditingPawn::SetActive(bool bInActive)
 
 void AMapEditingPawn::OnMoveFinished()
 {
+}
+
+void AMapEditingPawn::TeleportToProp(APrimitiveProp* Prop)
+{
+	if (!Prop || !Prop->IsValidLowLevel())
+	{
+		return;
+	}
+	
+	// Target Location을 가져옴
+	FVector TargetLocation = Prop->GetActorLocation() - FVector(0.f, 0.f, 50.f);
+	// Target Location에서 현재 카메라가 보고 있는 방향의 뒤로 Size + @ 만큼 이동
+	FVector Direction = Controller->GetControlRotation().Vector();
+	FVector Size = Prop->GetGridComp()->GetSize() * Prop->GetGridComp()->GetSnapSize();
+	float MaxOffset = Size.GetMax() + 200.f;
+	FVector NewLocation = TargetLocation - Direction * MaxOffset;
+
+	// Pawn을 이동
+	/** --- Latent action 설정 --- */
+	FLatentActionInfo LatentInfo;
+	LatentInfo.CallbackTarget   = this;          // 필수
+	LatentInfo.UUID             = __LINE__;      // 고유값(아무 숫자나 OK)
+	LatentInfo.Linkage          = 0;
+	LatentInfo.ExecutionFunction = FName(TEXT("OnMoveFinished"));;    // 이동 완료 시 호출 함수 이름(선택)
+
+	// 0.25초 동안 EaseIn‧EaseOut 보간
+	UKismetSystemLibrary::MoveComponentTo(
+		GetRootComponent(),          // Pawn 루트(전 Actor 이동)
+		NewLocation,                 // 최종 위치
+		GetActorRotation(),          // 회전 유지
+		true,                        // bEaseOut
+		true,                        // bEaseIn
+		0.25f,                       // Duration
+		false,                       // bForceShortestRotationPath
+		EMoveComponentAction::Move,  // 바로 이동
+		LatentInfo);
 }

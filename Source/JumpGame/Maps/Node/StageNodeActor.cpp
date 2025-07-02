@@ -30,6 +30,7 @@ FStageNodeInfo AStageNodeActor::ToNodeInfo()
 	Info.NodeID = NodeID;
 	Info.WorldPosition = GetActorLocation();
 	Info.bHasField = bHasField;
+	Info.FieldID = FieldID;
 	Info.FieldName = FieldName;
 
 	/*for (AStageNodeActor* Connected : ConnectedActors)

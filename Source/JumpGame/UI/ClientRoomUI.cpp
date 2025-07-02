@@ -17,11 +17,12 @@
 #include "Components/TextBlock.h"
 #include "Components/WidgetSwitcher.h"
 #include "JumpGame/Core/GameInstance/JumpGameInstance.h"
-#include "JumpGame/Utils/FastLogger.h"
 #include "Kismet/GameplayStatics.h"
 #include "StoryMenuUI.h"
-#include "Components/Image.h"
 #include "JumpGame/Characters/LobbyCharacter/LobbyFrog.h"
+#include "JumpGame/Maps/Node/StageMapNodeComponent.h"
+#include "StageNode/NodeInfoUI.h"
+#include "UICam/LobbyCameraComp.h"
 
 
 void UClientRoomUI::NativeOnInitialized()
@@ -105,7 +106,7 @@ void UClientRoomUI::OnClickGoLobby()
 	if (Frog)
 	{
 		Frog->UpdateAnimation(ELobbyCharacterState::InLobby);
-		UE_LOG(LogTemp, Display, TEXT("InLobby Updated"));
+		Frog->StageMapNodeComponent->NodeInfoUI->SetVisibility(ESlateVisibility::Collapsed);
 	}
 }
 
@@ -130,7 +131,10 @@ void UClientRoomUI::OnClickGoStartStageGame()
 	if (Frog)
 	{
 		Frog->UpdateAnimation(ELobbyCharacterState::OnStageMap);
-		UE_LOG(LogTemp, Display, TEXT("OnStageMap Updated"));
+		if (Frog->StageMapNodeComponent->NodeInfoUI->GetVisibility() == ESlateVisibility::Collapsed && Frog->StageMapNodeComponent->bHasData == true)
+		{
+			Frog->StageMapNodeComponent->NodeInfoUI->SetVisibility(ESlateVisibility::Visible);
+		}
 	}
 }
 

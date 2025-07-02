@@ -18,6 +18,10 @@ class JUMPGAME_API AMapGameState : public ANetworkGameState
 
 public:
 	AMapGameState();
+
+	UPROPERTY(EditAnywhere)
+	class USaveMapComponent* SaveMapComponent{nullptr};
+	
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void OnAllClientAdded() override;

@@ -8,6 +8,7 @@
 #include "JumpGame/Core/PlayerController/InGamePlayerController.h"
 #include "JumpGame/Networks/Connection/ConnectionVerifyComponent.h"
 #include "JumpGame/Props/LogicProp/RisingWaterProp.h"
+#include "JumpGame/Props/SaveLoad/SaveMapComponent.h"
 #include "JumpGame/StageSystem/StageSystemSubsystem.h"
 #include "JumpGame/UI/GameProgressBarUI.h"
 #include "JumpGame/UI/InGameSettingUI.h"
@@ -17,11 +18,17 @@
 
 AMapGameState::AMapGameState()
 {
+	SaveMapComponent = CreateDefaultSubobject<USaveMapComponent>(TEXT("SaveMapComponent"));
 }
 
 void AMapGameState::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	// FString MapName = GetWorld()->GetMapName();
+	// MapName.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
+	// FFastLogger::LogConsole(TEXT("MapName : %s"), *MapName);
+	// SaveMapComponent->SaveMap(MapName, TEXT(""));
 
 	UJumpGameInstance* GI = Cast<UJumpGameInstance>(GetWorld()->GetGameInstance());
 	// 최대 몇명의 플레이어가 플레이를 할지 설정하는 함수 (GI에서 정보를 들고와서 설정해준다)

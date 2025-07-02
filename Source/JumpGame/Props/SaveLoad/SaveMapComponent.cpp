@@ -24,6 +24,7 @@ void USaveMapComponent::BeginPlay()
 bool USaveMapComponent::SaveMap(const FString& FileName, const FString& ImageBase64)
 {
 	SaveDataArray.SaveDataArray.Empty();
+	PropCountMap.clear();
 	if (!GetAllPropsInfo(SaveDataArray.SaveDataArray))
 	{
 		return false;

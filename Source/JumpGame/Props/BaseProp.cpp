@@ -46,9 +46,8 @@ void ABaseProp::BeginPlay()
 		}
 	}
 
-	bInGame = GetWorld()->GetMapName().Contains(TEXT("Stage"));
-
-	
+	//bInGame = GetWorld()->GetMapName().Contains(TEXT("Stage"));
+	bInGame = GetWorld()->GetMapName().Equals(TEXT("Stage_01"));
 }
 
 void ABaseProp::SetCollision(bool bEnable)

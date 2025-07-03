@@ -158,7 +158,7 @@ void UClientRoomUI::OnClickGoCreateMap()
 void UClientRoomUI::OnClickGoStoryMenu()
 {
 	// 스토리 UI를 커스텀 게임 UI로 변경함
-	CameraComp->SetViewTarget(ECameraState::CustomGame);
+	CameraComp->SetViewTarget(ECameraState::Sub);
 	CanvasMain->SetVisibility(ESlateVisibility::Hidden);
 	if (CustomGameUI)
 	{

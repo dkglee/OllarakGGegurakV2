@@ -457,7 +457,8 @@ void AFrog::Tick(float DeltaTime)
 		JumpBufferTimeFlow -= DeltaTime;
 		if (CanJump())
 		{
-			Jump();
+			//Jump();
+			StartJump();
 			bJumpBuffered = false;
 		}
 		else if (JumpBufferTimeFlow <= 0.f)

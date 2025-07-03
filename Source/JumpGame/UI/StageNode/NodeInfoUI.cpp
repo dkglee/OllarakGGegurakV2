@@ -11,8 +11,6 @@
 void UNodeInfoUI::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
-
-	Btn_GameStart->OnClicked.AddDynamic(this, &UNodeInfoUI::OnClickGameStart);
 }
 
 void UNodeInfoUI::OnClickGameStart()

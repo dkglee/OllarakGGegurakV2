@@ -3,18 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Camera/CameraActor.h"
 #include "GameFramework/Actor.h"
-#include "LobbySubCamera.generated.h"
+#include "NodeTutorial.generated.h"
 
 UCLASS()
-class JUMPGAME_API ALobbySubCamera : public ACameraActor
+class JUMPGAME_API ANodeTutorial : public AActor
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this actor's properties
-	ALobbySubCamera();
+	ANodeTutorial();
 
 protected:
 	// Called when the game starts or when spawned
@@ -24,4 +23,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UWidgetComponent* TutorialWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class UNodeTutorialUI> NodeTutorialUIClass;
 };

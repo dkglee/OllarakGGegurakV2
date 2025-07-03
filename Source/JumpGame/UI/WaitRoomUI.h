@@ -40,7 +40,6 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	class UImage* Image_Selected;
 	
-
 	// 클릭시 실행될 함수
 	UFUNCTION()
 	void OnClickGameStart();

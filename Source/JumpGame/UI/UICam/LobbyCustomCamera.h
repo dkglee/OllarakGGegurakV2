@@ -4,17 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "Camera/CameraActor.h"
-#include "GameFramework/Actor.h"
-#include "LobbySubCamera.generated.h"
+#include "LobbyCustomCamera.generated.h"
 
 UCLASS()
-class JUMPGAME_API ALobbySubCamera : public ACameraActor
+class JUMPGAME_API ALobbyCustomCamera : public ACameraActor
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this actor's properties
-	ALobbySubCamera();
+	ALobbyCustomCamera();
 
 protected:
 	// Called when the game starts or when spawned
@@ -23,5 +22,4 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
 };

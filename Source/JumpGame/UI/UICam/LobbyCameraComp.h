@@ -11,7 +11,8 @@ enum class ECameraState : uint8
 {
 	Main,
 	Sub,
-	Stage
+	Stage,
+	CustomGame
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnChangeViewTarget, ECameraState, NewState);
@@ -44,11 +45,13 @@ public:
 	class ALobbySubCamera* SubCamera;
 	UPROPERTY(editanywhere, BlueprintReadWrite)
 	class ALobbyStageCamera* StageCamera;
+	UPROPERTY(editanywhere, BlueprintReadWrite)
+	class ALobbyCustomCamera* CustomCamera;
 	
 	UFUNCTION()
 	void SetViewTarget(ECameraState NewState);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnChangeViewTarget OnChangeViewTarget;
-
+	
 };

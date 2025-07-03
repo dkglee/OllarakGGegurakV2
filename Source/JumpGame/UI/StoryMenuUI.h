@@ -8,10 +8,10 @@
 
 class ULobbyCameraComp;
 /**
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnClickBackToLobby);
  * 
  */
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnClickBackToLobby);
 
 UCLASS()
 class JUMPGAME_API UStoryMenuUI : public UUserWidget
@@ -69,7 +69,7 @@ public:
 	UPROPERTY()
 	ULobbyCameraComp* CameraComp;
 
-	FOnClickBackToLobby OnClickBackToLobby;
+	// FOnClickBackToLobby OnClickBackToLobby;
 
 	// 스토리 UI들
 	UPROPERTY(EditDefaultsOnly)

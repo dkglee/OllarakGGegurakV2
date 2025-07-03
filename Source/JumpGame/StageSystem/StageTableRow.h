@@ -16,7 +16,7 @@ struct FStageTableRow : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stage")
 	FText StageDescription; // 스테이지 설명
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stage")
-	TSoftObjectPtr<class UWorld> StageWorld; // 스테이지 월드 경로
+	FName StageWorld; // 스테이지 월드 경로
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stage")
 	class UTexture2D* StageThumbnail; // 스테이지 썸네일 이미지
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stage")
@@ -28,7 +28,7 @@ struct FStageTableRow : public FTableRowBase
 		const FName& InStageID = NAME_None,
 		const FText& InStageName = FText::GetEmpty(),
 		const FText& InStageDescription = FText::GetEmpty(),
-		TSoftObjectPtr<class UWorld> InStageWorld = nullptr,
+		FName InStageWorld = NAME_None,
 		TObjectPtr<const UTexture2D> InStageThumbnail = nullptr,
 		TArray<FName> InFieldLists = {},
 		const FName& InUnlockCondition = NAME_None)

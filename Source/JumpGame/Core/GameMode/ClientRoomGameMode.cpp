@@ -8,6 +8,7 @@
 #include "JumpGame/Core/GameInstance/JumpGameInstance.h"
 #include "JumpGame/Core/GameState/ClientRoomGameState.h"
 #include "JumpGame/Core/PlayerController/LobbyPlayerController.h"
+#include "JumpGame/Maps/Node/StageMapNodeComponent.h"
 #include "JumpGame/StageSystem/StageSystemSubsystem.h"
 #include "JumpGame/UI/ClientRoomLogoUI.h"
 #include "JumpGame/UI/Cinematic/IntroCinematic.h"
@@ -40,6 +41,10 @@ void AClientRoomGameMode::BeginPlay()
 		IntroCinematic->MediaPlayer->OnEndReached.AddDynamic(this, &AClientRoomGameMode::OnVideoEnd);
 	}
 	
+	if (UStageMapNodeComponent* NodeComp = UStageMapNodeComponent::Get(GetWorld()))
+	{
+		NodeComp->InitAllFieldStars();
+	}
 }
 
 void AClientRoomGameMode::OnVideoEnd()

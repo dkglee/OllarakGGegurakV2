@@ -7,6 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "StageNodeActor.generated.h"
 
+
 UCLASS()
 class JUMPGAME_API AStageNodeActor : public AActor
 {
@@ -42,4 +43,20 @@ public:
 
 	// 런타임 등록용
 	FStageNodeInfo ToNodeInfo();
+
+public:
+	UPROPERTY()
+	class USceneComponent* Root;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UStaticMeshComponent* StaticMesh;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class UNodeResultUI> NodeResultUIClass;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UWidgetComponent* NodeResultUIComponent;
+
+	UFUNCTION()
+	void UpdateInfo(int32 Star);
 };

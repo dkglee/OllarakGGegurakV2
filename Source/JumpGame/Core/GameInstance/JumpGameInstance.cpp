@@ -22,7 +22,7 @@ void UJumpGameInstance::Init()
 	Super::Init();
 
 	// 현재 사용하는 서브시스템을 가져오자
-	IOnlineSubsystem* Subsys = IOnlineSubsystem::Get();
+	/*IOnlineSubsystem* Subsys = IOnlineSubsystem::Get();
 	if (Subsys)
 	{
 		SessionInterface = Subsys->GetSessionInterface();
@@ -49,7 +49,7 @@ void UJumpGameInstance::Init()
 	if (bIsRunEyeScript)
 	{
 		RunEyeTrackingScript();
-	}
+	}*/
 }
 
 void UJumpGameInstance::CreateMySession(FString DisplayName, int32 PlayerCount, const FString& Password)

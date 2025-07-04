@@ -23,6 +23,7 @@ struct FStageNodeInfo
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText FieldName; // 필드 있다면, 이름
 
+
 	FStageNodeInfo()
 		: NodeID(0)
 		, WorldPosition(FVector::ZeroVector)

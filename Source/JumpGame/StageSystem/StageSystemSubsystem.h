@@ -8,7 +8,6 @@
 
 #define DEFAULT_STAGE_PREFIX TEXT("Maps/Stages/") 
 
-
 UCLASS()
 class JUMPGAME_API UStageSystemSubsystem : public UGameInstanceSubsystem
 {
@@ -31,7 +30,7 @@ public:
 	// Save/Load 함수
 	void SaveProgressToDisk();
 	void LoadProgressFromDisk();
-
+	
 #pragma region GETTERSETTER
 	void SetChosenStage(const FName& StageID) { ChosenStageID = StageID; }
 	FName GetChosenStage() const { return ChosenStageID; }

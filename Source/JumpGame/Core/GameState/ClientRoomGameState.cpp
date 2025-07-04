@@ -3,12 +3,12 @@
 
 #include "ClientRoomGameState.h"
 
+#include "IImageWrapper.h"
+#include "IImageWrapperModule.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
-#include "Components/Button.h"
-#include "JumpGame/Core/PlayerController/LobbyPlayerController.h"
-#include "JumpGame/UI/BottomNaviBarUI.h"
+#include "JumpGame/UI/ClientRoomUI.h"
+#include "JumpGame/UI/CustomGameUI.h"
 #include "JumpGame/UI/FriendsList.h"
-#include "JumpGame/UI/Cinematic/IntroCinematic.h"
 #include "JumpGame/UI/Lobby/Follower.h"
 #include "JumpGame/Utils/FastLogger.h"
 #include "Kismet/GameplayStatics.h"
@@ -21,6 +21,12 @@ AClientRoomGameState::AClientRoomGameState()
 	PrimaryActorTick.bCanEverTick = true;
 
 	PrevLoc = FVector2D::ZeroVector;
+
+	ConstructorHelpers::FClassFinder<UClientRoomUI> TempClientUI(TEXT("/Game/UI/LobbyUI/WBP_ClientRoomUI.WBP_ClientRoomUI_C"));
+	if (TempClientUI.Succeeded())
+	{
+		ClientRoomUIClass = TempClientUI.Class;
+	}
 }
 
 void AClientRoomGameState::BeginPlay()
@@ -33,6 +39,16 @@ void AClientRoomGameState::BeginPlay()
 		FollowerUI->AddToViewport();
 		APlayerController* PC{UGameplayStatics::GetPlayerController(this, 0)};
 		PrevLoc = UWidgetLayoutLibrary::GetMousePositionOnViewport(PC);
+	}
+
+	// 위젯 생성
+	if (ClientRoomUIClass)
+	{
+		ClientRoomUI = CreateWidget<UClientRoomUI>(GetWorld(), ClientRoomUIClass);
+		if (ClientRoomUI)
+		{
+			ClientRoomUI->AddToViewport();
+		}
 	}
 }
 
@@ -93,4 +109,78 @@ void AClientRoomGameState::OnConnectionSucceeded()
 	// 	PC->RequestFriendList();
 	// 	FriendList->Btn_Refresh->SetIsEnabled(false);
 	// }
+}
+
+void AClientRoomGameState::MulticastRPC_ClientBeginRecvImage_Implementation(const FString& InMapName,
+	int32 InImageByteSize)
+{
+	FFastLogger::LogConsole(TEXT("이미지1111111111"));
+	CurrentMapName = InMapName;
+	CurrentMapImageData.SetNumUninitialized(InImageByteSize); // 목적지 버퍼 확보
+	ClientRoomUI->CustomGameUI->UpdateCurrentMapName(CurrentMapName);
+	RecvBytes = 0;
+}
+
+void AClientRoomGameState::MulticastRPC_ClientRecvImageChunk_Implementation(const TArray<uint8>& InChunk,
+	int32 InOffset)
+{
+	FFastLogger::LogConsole(TEXT("이미지2222222"));
+	if (InOffset + InChunk.Num() > CurrentMapImageData.Num()) { return; }
+	FFastLogger::LogConsole(TEXT("이미지333333333"));
+	FMemory::Memcpy(CurrentMapImageData.GetData() + InOffset,
+					InChunk.GetData(),
+					InChunk.Num());
+
+	RecvBytes += InChunk.Num();
+}
+
+void AClientRoomGameState::MulticastRPC_ClientEndRecvImage_Implementation()
+{
+	FFastLogger::LogConsole(TEXT("이미지44444444444"));
+	if (RecvBytes != CurrentMapImageData.Num())
+	{
+		FFastLogger::LogConsole(TEXT("Thumbnail lost! (%d/%d)"), RecvBytes, CurrentMapImageData.Num());
+		return;
+	}
+
+	// ① 바이너리 → UTexture2D
+	UTexture2D* Thumbnail = MakeTextureFromBytes(CurrentMapImageData);
+
+	// ② UI 위젯 반영
+	ClientRoomUI->CustomGameUI->UpdateCurrentMapThumbnail(Thumbnail);
+
+	// ③ 버퍼 해제
+	CurrentMapImageData.Empty();
+	RecvBytes = 0;
+}
+
+UTexture2D* AClientRoomGameState::MakeTextureFromBytes(const TArray<uint8>& FileData)
+{
+	IImageWrapperModule& ImgMod = FModuleManager::LoadModuleChecked<IImageWrapperModule>("ImageWrapper");
+	// PNG / JPEG 자동 감지
+	EImageFormat Fmt = ImgMod.DetectImageFormat(FileData.GetData(), FileData.Num());
+	TSharedPtr<IImageWrapper> Wrapper = ImgMod.CreateImageWrapper(Fmt);
+
+	if (!Wrapper.IsValid() || !Wrapper->SetCompressed(FileData.GetData(), FileData.Num()))
+		return nullptr;
+
+	TArray<uint8> RawBGRA;
+	if (!Wrapper->GetRaw(ERGBFormat::BGRA, 8, RawBGRA))
+		return nullptr;
+
+	const int32 W = Wrapper->GetWidth();
+	const int32 H = Wrapper->GetHeight();
+
+	UTexture2D* Texture = UTexture2D::CreateTransient(W, H, PF_B8G8R8A8);
+	if (!Texture) return nullptr;
+
+	// 텍스처에 데이터 복사
+	void* MipData = Texture->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
+	FMemory::Memcpy(MipData, RawBGRA.GetData(), RawBGRA.Num());
+	Texture->GetPlatformData()->Mips[0].BulkData.Unlock();
+
+	Texture->SRGB = true;
+	Texture->UpdateResource();
+
+	return Texture;
 }

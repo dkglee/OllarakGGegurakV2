@@ -10,7 +10,9 @@
 #include "Components/TextBlock.h"
 #include "JumpGame/Characters/LobbyCharacter/LobbyFrog.h"
 #include "JumpGame/Core/GameInstance/JumpGameInstance.h"
+#include "JumpGame/Core/GameState/ClientRoomGameState.h"
 #include "JumpGame/Core/GameState/LobbyGameState.h"
+#include "JumpGame/Maps/Node/NodeTutorial.h"
 #include "Kismet/GameplayStatics.h"
 #include "UICam/LobbyCameraComp.h"
 
@@ -57,15 +59,15 @@ void UCustomGameUI::OnClickGameStart()
 void UCustomGameUI::OnMapSelected(class UMapSlotUI* MapSlotUI)
 {
 	if (!MapSlotUI) return;
-
-	ALobbyGameState* LobbyGameState = Cast<ALobbyGameState>(GetWorld()->GetGameState());
-	if (!LobbyGameState) return;
+	
+	AClientRoomGameState* ClientRoomGameState = Cast<AClientRoomGameState>(GetWorld()->GetGameState());
+	if (!ClientRoomGameState) return;
 
 	TArray<uint8> ImageData = MapSlotUI->ImageData;
 	const int32 ImageSize = ImageData.Num();
 	const int32 ChunkSize = 8192; // 8KB
 	
-	LobbyGameState->MulticastRPC_ClientBeginRecvImage(MapSlotUI->GetMapName(), ImageSize);
+	ClientRoomGameState->MulticastRPC_ClientBeginRecvImage(MapSlotUI->GetMapName(), ImageSize);
 	for (int32 Offset = 0; Offset < ImageSize; Offset += ChunkSize)
 	{
 		const int32 Size = FMath::Min(ChunkSize, ImageSize - Offset);
@@ -75,13 +77,14 @@ void UCustomGameUI::OnMapSelected(class UMapSlotUI* MapSlotUI)
 		Chunk.Append(&ImageData[Offset], Size);
 
 		// Reliable 전송
-		LobbyGameState->MulticastRPC_ClientRecvImageChunk(Chunk, Offset);
+		ClientRoomGameState->MulticastRPC_ClientRecvImageChunk(Chunk, Offset);
 	}
-	LobbyGameState->MulticastRPC_ClientEndRecvImage();
+	ClientRoomGameState->MulticastRPC_ClientEndRecvImage();
 }
 
 void UCustomGameUI::UpdateCurrentMapThumbnail(UTexture2D* Texture)
 {
+	FFastLogger::LogConsole(TEXT("Loading Map Thumbnail..."));
 	if (Texture)
 	{
 		Image_Selected->SetBrushFromTexture(Texture);
@@ -98,11 +101,14 @@ void UCustomGameUI::UpdateCurrentMapThumbnail(UTexture2D* Texture)
 		CurrentMapThumbnail->MarkAsGarbage();
 	}
 	CurrentMapThumbnail = Texture;
+
+	FFastLogger::LogConsole(TEXT("UpdateCurrentMapThumbnail"));
 }
 
 void UCustomGameUI::UpdateCurrentMapName(const FString& MapName)
 {
 	Text_MapName->SetText(FText::FromString(MapName));
+	FFastLogger::LogConsole(TEXT("UpdateCurrentMapName: %s"), *MapName);
 }
 
 void UCustomGameUI::OnClickSelectMap()

@@ -98,6 +98,7 @@ void USelectRoomUI::OnClickGoBackWait()
 
 void USelectRoomUI::OnClickSelectComplete()
 {
+	FFastLogger::LogConsole(TEXT("Select Map Complete"));
 	// TODO: 맵 정보 넘겨주기
 	// 선택완료 됐으니 팝업창 지우자
 	RemoveFromParent();
@@ -120,6 +121,7 @@ void USelectRoomUI::OnClickSelectComplete()
 		GameInstance->SetMapFilePath(CurrentSelectedMapSlotUI->GetMapFullPath());
 	}
 
+	FFastLogger::LogConsole(TEXT("OnMapSelectedDelegate"));
 	OnMapSelectedDelegate.ExecuteIfBound(CurrentSelectedMapSlotUI);
 }
 

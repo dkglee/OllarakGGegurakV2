@@ -20,6 +20,7 @@
 #include "JumpGame/Core/GameInstance/JumpGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "JumpGame/Characters/LobbyCharacter/LobbyFrog.h"
+#include "JumpGame/Maps/Node/NodeTutorial.h"
 #include "JumpGame/Maps/Node/StageMapNodeComponent.h"
 #include "StageNode/NodeInfoUI.h"
 #include "UICam/LobbyCameraComp.h"
@@ -64,6 +65,7 @@ void UClientRoomUI::NativeOnInitialized()
 
 	// 초기화
 	InitRoomListPool();
+	InitTutorialNode();
 
 	// UI 만들기
 	/*StoryMenuUI = CreateWidget<UStoryMenuUI>(GetWorld(), StoryMenuUIClass);
@@ -112,6 +114,7 @@ void UClientRoomUI::OnClickGoLobby()
 	WidgetSwitcher->SetActiveWidgetIndex(0);
 	CameraComp->SetViewTarget(ECameraState::Main);
 	CanvasMain->SetVisibility(ESlateVisibility::Visible);
+	SetTutorialNode(false);
 
 	// 로비 애니메이션 전환
 	if (Frog)
@@ -119,6 +122,30 @@ void UClientRoomUI::OnClickGoLobby()
 		Frog->UpdateAnimation(ELobbyCharacterState::InLobby);
 		Frog->StageMapNodeComponent->NodeInfoUI->SetVisibility(ESlateVisibility::Collapsed);
 		Frog->SetActorRotation(FRotator(0, -10, 0));
+	}
+}
+
+void UClientRoomUI::InitTutorialNode()
+{
+	AllTutorialActors.Empty();
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANodeTutorial::StaticClass(), FoundActors);
+
+	for (AActor* Actor : FoundActors)
+	{
+		if (ANodeTutorial* Node = Cast<ANodeTutorial>(Actor))
+		{
+			AllTutorialActors.Add(Node);
+		}
+	}
+}
+
+void UClientRoomUI::SetTutorialNode(bool IsVisible)
+{
+	for (AActor* NodeActor : AllTutorialActors)
+	{
+		if (!NodeActor) continue;
+		NodeActor->SetActorHiddenInGame(!IsVisible);
 	}
 }
 
@@ -138,6 +165,7 @@ void UClientRoomUI::OnClickGoStartStageGame()
 	WidgetSwitcher->SetActiveWidgetIndex(2);
 	CameraComp->SetViewTarget(ECameraState::Stage);
 	CanvasMain->SetVisibility(ESlateVisibility::Hidden);
+	SetTutorialNode(true);
 
 	// 스테이지 애니메이션 전환
 	if (Frog)
@@ -164,6 +192,7 @@ void UClientRoomUI::OnClickGoStoryMenu()
 	{
 		CustomGameUI->AddToViewport();
 	}
+	SetTutorialNode(false);
 	
 	/*CameraComp->SetViewTarget(ECameraState::Sub);
 	CanvasMain->SetVisibility(ESlateVisibility::Hidden);
@@ -182,6 +211,8 @@ void UClientRoomUI::OnClickGoCredit()
 {
 	CameraComp->SetViewTarget(ECameraState::Sub);
 	CanvasMain->SetVisibility(ESlateVisibility::Hidden);
+	SetTutorialNode(false);
+	
 	if (CreditUI)
 	{
 		CreditUI->AddToViewport();

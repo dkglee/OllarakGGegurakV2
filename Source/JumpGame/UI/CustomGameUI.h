@@ -72,4 +72,5 @@ public:
 
 	UPROPERTY()
 	TObjectPtr<class UTexture2D> CurrentMapThumbnail;
+
 };

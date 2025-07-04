@@ -199,5 +199,12 @@ public:
 
 	UPROPERTY()
 	class ALobbyFrog* Frog;
+
+	UFUNCTION()
+	void InitTutorialNode();
+	UFUNCTION()
+	void SetTutorialNode(bool IsVisible);
+	UPROPERTY()
+	TArray<AActor*> AllTutorialActors;
 };
 

@@ -3,6 +3,7 @@
 
 #include "MapGameState.h"
 
+#include "Components/Image.h"
 #include "GameFramework/PlayerState.h"
 #include "JumpGame/Core/GameInstance/JumpGameInstance.h"
 #include "JumpGame/Core/PlayerController/InGamePlayerController.h"
@@ -13,6 +14,7 @@
 #include "JumpGame/StageSystem/StageSystemSubsystem.h"
 #include "JumpGame/UI/GameProgressBarUI.h"
 #include "JumpGame/UI/InGameSettingUI.h"
+#include "JumpGame/UI/LevelTransfer.h"
 #include "JumpGame/UI/LoadingUI.h"
 #include "JumpGame/Utils/FastLogger.h"
 #include "Kismet/GameplayStatics.h"
@@ -20,9 +22,13 @@
 AMapGameState::AMapGameState()
 {
 	SaveMapComponent = CreateDefaultSubobject<USaveMapComponent>(TEXT("SaveMapComponent"));
-	// LoadMapComponent = CreateDefaultSubobject<ULoadMapComponent>(TEXT("LoadMapComponent"));
-	//
-	// LoadMapComponent->OnMapLoaded.AddDynamic(this, &AMapGameState::RemoveLoadingUI);
+
+	ConstructorHelpers::FClassFinder<ULevelTransfer> WidgetTransferUIWidget
+	(TEXT("/Game/UI/LobbyUI/WBP_LevelTransfer.WBP_LevelTransfer_C"));
+	if (WidgetTransferUIWidget.Succeeded())
+	{
+		WidgetTransferUIClass = WidgetTransferUIWidget.Class;
+	}
 }
 
 void AMapGameState::BeginPlay()
@@ -59,7 +65,7 @@ void AMapGameState::BeginPlay()
 			LoadingUI = CreateWidget<ULoadingUI>(PC, LoadingUIClass);
 			if (LoadingUI)
 			{
-				LoadingUI->AddToViewport();
+				LoadingUI->AddToViewport(2);
 				LoadingUI->InitializeLoadingScreen();
 			}
 		}
@@ -79,6 +85,15 @@ void AMapGameState::BeginPlay()
 
 	// 시간 기록
 	StartTime = GetWorld()->GetTimeSeconds();
+
+	if (WidgetTransferUIClass)
+	{
+		WidgetTransferUI = CreateWidget<ULevelTransfer>(GetWorld(), WidgetTransferUIClass);
+		WidgetTransferUI->AddToViewport(1);
+		WidgetTransferUI->FillViewport();
+	}
+
+	RadiusValue = 3.f;
 }
 
 void AMapGameState::Tick(float DeltaTime)
@@ -114,13 +129,13 @@ void AMapGameState::OnAllClientAdded()
 {
 	Super::OnAllClientAdded();
 
-	if (HasAuthority())
-	{
-		MulticastRPC_UpdateLoadingUI(1.0f);
-		// 클라이언트에게 알리자 (2초후)
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMapGameState::MulticastRPC_AllClientAdded, 2.f,
-		                                       false);
-	}
+	// if (HasAuthority())
+	// {
+	// 	MulticastRPC_UpdateLoadingUI(1.0f);
+	// 	// 클라이언트에게 알리자 (2초후)
+	// 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMapGameState::MulticastRPC_AllClientAdded, 2.f,
+	// 	                                       false);
+	// }
 }
 
 void AMapGameState::OnClientAdded(const FString& NetID)
@@ -129,35 +144,35 @@ void AMapGameState::OnClientAdded(const FString& NetID)
 
 	if (HasAuthority())
 	{
-		UJumpGameInstance* GI{Cast<UJumpGameInstance>(GetWorld()->GetGameInstance())};
-		int32 MaxPlayer{GI->GetMaxPlayerCount()};
-		int32 CurrentPlayers{PlayerArray.Num()};
-		float Progress{0.f};
-
-		if (MaxPlayer > 0)
-		{
-			Progress = static_cast<float>(CurrentPlayers) / static_cast<float>(MaxPlayer);
-		}
-
-		Progress = FMath::Clamp(Progress, 0.0f, 1.0f);
-
-		// 0.5초 있다가 UI에 적용, 너무 바로 되면 이상할까봐
-		TWeakObjectPtr<AMapGameState> WeakThis{this};
-		FTimerDelegate LoadingDelegate{
-			FTimerDelegate::CreateLambda([WeakThis, Progress]()
-			{
-				if (WeakThis.IsValid())
-				{
-					AMapGameState* StrongThis = WeakThis.Get();
-
-					StrongThis->MulticastRPC_UpdateLoadingUI(Progress);
-
-					StrongThis->GetWorld()->GetTimerManager().ClearTimer(StrongThis->LoadingTimerHandle);
-				}
-			})
-		};
-
-		GetWorld()->GetTimerManager().SetTimer(LoadingTimerHandle, LoadingDelegate, 0.5f, false);
+		// UJumpGameInstance* GI{Cast<UJumpGameInstance>(GetWorld()->GetGameInstance())};
+		// int32 MaxPlayer{GI->GetMaxPlayerCount()};
+		// int32 CurrentPlayers{PlayerArray.Num()};
+		// float Progress{0.f};
+		//
+		// if (MaxPlayer > 0)
+		// {
+		// 	Progress = static_cast<float>(CurrentPlayers) / static_cast<float>(MaxPlayer);
+		// }
+		//
+		// Progress = FMath::Clamp(Progress, 0.0f, 1.0f);
+		//
+		// // 0.5초 있다가 UI에 적용, 너무 바로 되면 이상할까봐
+		// TWeakObjectPtr<AMapGameState> WeakThis{this};
+		// FTimerDelegate LoadingDelegate{
+		// 	FTimerDelegate::CreateLambda([WeakThis, Progress]()
+		// 	{
+		// 		if (WeakThis.IsValid())
+		// 		{
+		// 			AMapGameState* StrongThis = WeakThis.Get();
+		//
+		// 			StrongThis->MulticastRPC_UpdateLoadingUI(Progress);
+		//
+		// 			StrongThis->GetWorld()->GetTimerManager().ClearTimer(StrongThis->LoadingTimerHandle);
+		// 		}
+		// 	})
+		// };
+		//
+		// GetWorld()->GetTimerManager().SetTimer(LoadingTimerHandle, LoadingDelegate, 0.5f, false);
 	}
 }
 
@@ -178,11 +193,28 @@ void AMapGameState::RemoveLoadingUI()
 		LoadingUI->RemoveFromParent();
 		LoadingUI = nullptr;
 	}
+	
+	GetWorld()->GetTimerManager().SetTimer(TransitionTimer, this, &AMapGameState::TransitionAnimation,
+									   GetWorld()->GetDeltaSeconds(), true);
+}
 
-	AInGamePlayerController* PC{(Cast<AInGamePlayerController>(UGameplayStatics::GetPlayerController(this, 0)))};
-	if (PC)
+void AMapGameState::TransitionAnimation()
+{
+	RadiusValue -= GetWorld()->GetDeltaSeconds() * 2.f;
+
+	UMaterialInstanceDynamic* DynamicMaterial{WidgetTransferUI->Image_Circle->GetDynamicMaterial()};
+	DynamicMaterial->SetScalarParameterValue("Radius", RadiusValue);
+	
+	if (RadiusValue <= 0.f)
 	{
-		PC->ShowInGameUI();
+		GetWorld()->GetTimerManager().ClearTimer(TransitionTimer);
+		WidgetTransferUI->RemoveFromParent();
+
+		AInGamePlayerController* PC{(Cast<AInGamePlayerController>(UGameplayStatics::GetPlayerController(this, 0)))};
+		if (PC)
+		{
+			PC->ShowInGameUI();
+		}
 	}
 }
 

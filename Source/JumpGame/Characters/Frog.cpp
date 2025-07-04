@@ -1323,12 +1323,10 @@ void AFrog::MulticastRPC_SetLight_Implementation(float Alpha)
 
 void AFrog::InitJumpGaugeUIComponent()
 {
-	FFastLogger::LogConsole(TEXT("Where Am I?"));
 	if (bMapEditingPawn)
 	{
 		if (SettingPostProcessComponent)
 		{
-			FFastLogger::LogConsole(TEXT("Where Am I? 11111111111"));
 			SettingPostProcessComponent->DestroyComponent();
 			SettingPostProcessComponent = nullptr;
 		}
@@ -1337,7 +1335,6 @@ void AFrog::InitJumpGaugeUIComponent()
 	// 로컬 클라만 점프 게이지 보이게
 	if (IsLocallyControlled() || bMapEditingPawn)
 	{
-		FFastLogger::LogConsole(TEXT("Where Am I? 22222222222"));
 		SetJumpGaugeVisibility(false);
 
 		UJumpGaugeUI* JumpGaugeUI = Cast<UJumpGaugeUI>(JumpGaugeUIComponent->GetUserWidgetObject());
@@ -1348,13 +1345,11 @@ void AFrog::InitJumpGaugeUIComponent()
 		// 다른 클라에서 삭제
 		if (JumpGaugeUIComponent)
 		{
-			FFastLogger::LogConsole(TEXT("Where Am I? 33333333333"));
 			JumpGaugeUIComponent->DestroyComponent();
 			JumpGaugeUIComponent = nullptr;
 		}
 		if (SettingPostProcessComponent)
 		{
-			FFastLogger::LogConsole(TEXT("Where Am I? 4444444444444"));
 			SettingPostProcessComponent->DestroyComponent();
 			SettingPostProcessComponent = nullptr;
 		}

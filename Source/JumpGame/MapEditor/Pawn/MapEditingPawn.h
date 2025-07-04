@@ -18,6 +18,14 @@ public:
 	AMapEditingPawn();
 
 protected:
+	// 블록이랑 충돌했을 때
+	UFUNCTION()
+	void OnCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+	                             const FHitResult& SweepResult);
+	UFUNCTION()
+	void OnCollisionEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 

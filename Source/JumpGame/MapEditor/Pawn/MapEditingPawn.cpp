@@ -128,8 +128,7 @@ AMapEditingPawn::AMapEditingPawn()
 
 	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionComponentMapEditing"));
 	CollisionComponent->InitSphereRadius(35.0f);
-	CollisionComponent->SetCollisionProfileName(TEXT("EditorPawn"));
-	CollisionComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	CollisionComponent->SetCollisionProfileName(TEXT("MapEditorPreset"));
 
 	CollisionComponent->CanCharacterStepUpOn = ECB_No;
 	CollisionComponent->SetShouldUpdatePhysicsVolume(true);
@@ -163,6 +162,9 @@ void AMapEditingPawn::BeginPlay()
 		}
 	}
 	UCursorManager::SetCursor(this, ECursorName::LeafCursor);
+
+	CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &AMapEditingPawn::OnCollisionBeginOverlap);
+	CollisionComponent->OnComponentEndOverlap.AddDynamic(this, &AMapEditingPawn::OnCollisionEndOverlap);
 }
 
 // Called every frame
@@ -504,4 +506,36 @@ void AMapEditingPawn::TeleportToProp(APrimitiveProp* Prop)
 		false,                       // bForceShortestRotationPath
 		EMoveComponentAction::Move,  // 바로 이동
 		LatentInfo);
+}
+
+void AMapEditingPawn::OnCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (!OtherActor || !OtherActor->IsValidLowLevel())
+	{
+		return ;
+	}
+	// 검출이 안되게 막는다
+	APrimitiveProp* OtherProp = Cast<APrimitiveProp>(OtherActor);
+	if (!OtherProp)
+	{
+		return ;
+	}
+	// OtherProp->SetCollision(false);
+}
+
+void AMapEditingPawn::OnCollisionEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (!OtherActor || !OtherActor->IsValidLowLevel())
+	{
+		return ;
+	}
+	// 검출이 되게 한다.
+	APrimitiveProp* OtherProp = Cast<APrimitiveProp>(OtherActor);
+	if (!OtherProp)
+	{
+		return ;
+	}
+	// OtherProp->SetCollision(true);
 }

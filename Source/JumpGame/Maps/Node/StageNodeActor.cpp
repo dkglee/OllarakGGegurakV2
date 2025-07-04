@@ -7,8 +7,10 @@
 #include "JumpGame/UI/StageNode/NodeResultUI.h"
 #include "Components/WidgetComponent.h"
 #include "DynamicMesh/MeshTransforms.h"
+#include "JumpGame/StageSystem/StageSystemSubsystem.h"
 
 
+class UStageSystemSubsystem;
 // Sets default values
 AStageNodeActor::AStageNodeActor()
 {
@@ -53,6 +55,15 @@ void AStageNodeActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	const auto* SS = GetWorld()->GetGameInstance()->GetSubsystem<UStageSystemSubsystem>();
+	EFieldProgressState St = SS ? SS->GetFieldState(FieldID)
+								: EFieldProgressState::None;
+
+	int32 ColorIdx = 0; // black
+	if      (St == EFieldProgressState::InProgress) ColorIdx = 1;   // blue
+	else if (St == EFieldProgressState::Cleared)    ColorIdx = 2;   // green
+
+	UpdateColor(ColorIdx);
 }
 
 // Called every frame

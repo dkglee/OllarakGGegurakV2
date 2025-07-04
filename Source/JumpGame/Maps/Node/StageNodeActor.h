@@ -7,6 +7,13 @@
 #include "GameFramework/Actor.h"
 #include "StageNodeActor.generated.h"
 
+UENUM(BlueprintType)
+enum class EFieldProgressState : uint8
+{
+	None        UMETA(DisplayName="None"),        // 도전 기록 없음
+	InProgress  UMETA(DisplayName="InProgress"),  // 도전 진행 중
+	Cleared     UMETA(DisplayName="Cleared")      // 클리어 기록!
+};
 
 UCLASS()
 class JUMPGAME_API AStageNodeActor : public AActor

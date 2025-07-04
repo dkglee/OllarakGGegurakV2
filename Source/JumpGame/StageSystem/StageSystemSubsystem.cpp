@@ -1,6 +1,7 @@
 #include "StageSystemSubsystem.h"
 
 #include "JumpGame/Core/SaveGame/JumpSaveGame.h"
+#include "JumpGame/Maps/Node/StageNodeActor.h"
 #include "JumpGame/Utils/FastLogger.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -132,6 +133,25 @@ void UStageSystemSubsystem::SaveFieldResult(FName FieldID, int32 StarCount, floa
 	}
 }
 
+void UStageSystemSubsystem::SetFieldState(FName FieldID, EFieldProgressState NewState)
+{
+	if (!FieldCache.Contains(FieldID)) return;
+
+	const EFieldProgressState* Cur = FieldStateCache.Find(FieldID);
+	if (!Cur || *Cur != NewState)
+	{
+		FieldStateCache.Add(FieldID, NewState);
+		SaveProgressToDisk();
+	}
+}
+
+EFieldProgressState UStageSystemSubsystem::GetFieldState(FName FieldID) const
+{
+	if (const EFieldProgressState* Ptr = FieldStateCache.Find(FieldID))
+		return *Ptr;
+	return EFieldProgressState::None;
+}
+
 void UStageSystemSubsystem::SaveProgressToDisk()
 {
 	auto* SG = Cast<UJumpSaveGame>(UGameplayStatics::CreateSaveGameObject(UJumpSaveGame::StaticClass()));
@@ -144,6 +164,10 @@ void UStageSystemSubsystem::SaveProgressToDisk()
 		SG->SavedFieldStarCountMap.Add(FieldRow->FieldID, FieldRow->FieldStarCount);
 		SG->SavedFieldClearTimeMap.Add(FieldRow->FieldID, FieldRow->FieldClearTime);
 	}
+
+	SG->SavedFieldStateMap.Empty();
+	for (const auto& P : FieldStateCache)
+		SG->SavedFieldStateMap.Add(P.Key, static_cast<uint8>(P.Value));
 
 	UGameplayStatics::SaveGameToSlot(SG, TEXT("StageSaveSlot"), 0);
 }
@@ -170,6 +194,10 @@ void UStageSystemSubsystem::LoadProgressFromDisk()
 				FieldRow->FieldClearTime = SG->SavedFieldClearTimeMap[FieldRow->FieldID];
 			}
 		}
+
+		FieldStateCache.Empty();
+		for (auto& P : SG->SavedFieldStateMap)
+			FieldStateCache.Add(P.Key, static_cast<EFieldProgressState>(P.Value));
 	}
 }
 

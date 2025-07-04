@@ -93,4 +93,11 @@ public:
 	// 게임 시작 시간
 	UPROPERTY()
 	float StartTime = 0.f;
+
+	// 진행도
+	UFUNCTION()
+	void OnEnterField(FName FieldID);
+	UFUNCTION()
+	void OnFieldClear(FName FieldID);
+	
 };

@@ -27,7 +27,7 @@ void UStageResultUI::OnClickOutToMain()
 
 	if (GetWorld()->GetMapName().Contains(TEXT("Stage")))
 	{
-		UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/Levels/GameLobby"));
+		UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/Levels/GameLobby?AutoStartStage=1"));
 	}
 	else
 	{

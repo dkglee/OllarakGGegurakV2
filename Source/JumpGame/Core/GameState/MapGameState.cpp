@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerState.h"
 #include "JumpGame/Core/GameInstance/JumpGameInstance.h"
 #include "JumpGame/Core/PlayerController/InGamePlayerController.h"
+#include "JumpGame/Maps/Node/StageNodeActor.h"
 #include "JumpGame/Networks/Connection/ConnectionVerifyComponent.h"
 #include "JumpGame/Props/LogicProp/RisingWaterProp.h"
 #include "JumpGame/Props/SaveLoad/SaveMapComponent.h"
@@ -75,6 +76,11 @@ void AMapGameState::BeginPlay()
 
 	// 시간 기록
 	StartTime = GetWorld()->GetTimeSeconds();
+
+	if (UStageSystemSubsystem* SS = GetGameInstance()->GetSubsystem<UStageSystemSubsystem>())
+	{
+		SS->SetFieldState(SS->GetChosenField(), EFieldProgressState::InProgress);
+	}
 }
 
 void AMapGameState::Tick(float DeltaTime)
@@ -205,6 +211,7 @@ void AMapGameState::EndStage(bool bIsClear)
 		{
 			PC->ShowClearUIAnimation();
 		}
+		OnFieldClear(FieldID);
 	}
 }
 
@@ -260,4 +267,16 @@ void AMapGameState::MulticastRPC_RemoveLoadingUI_Implementation()
 	{
 		PC->ShowInGameUI();
 	}
+}
+
+void AMapGameState::OnEnterField(FName FieldID)
+{
+	UStageSystemSubsystem* SS = GetGameInstance()->GetSubsystem<UStageSystemSubsystem>();
+	SS->SetFieldState(FieldID, EFieldProgressState::InProgress);
+}
+
+void AMapGameState::OnFieldClear(FName FieldID)
+{
+	UStageSystemSubsystem* SS = GetGameInstance()->GetSubsystem<UStageSystemSubsystem>();
+	SS->SetFieldState(FieldID, EFieldProgressState::Cleared);
 }

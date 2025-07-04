@@ -15,6 +15,8 @@ class JUMPGAME_API UNodeInfoUI : public UUserWidget
 	GENERATED_BODY()
 	
 public:
+	UNodeInfoUI(const FObjectInitializer& InObjectInitializer);
+	
 	virtual void NativeOnInitialized() override;
 	
 	UPROPERTY(meta = (BindWidget))
@@ -49,5 +51,21 @@ public:
 	void UpdateClearTime(float ClearTime);
 	UFUNCTION()
 	void UpdateClearText(int32 StarCount, float ClearTime);
+
+	//
+	UPROPERTY(editanywhere, BlueprintReadWrite)
+	TSubclassOf<class ULevelTransfer> WidgetTransferUIClass;
+	UPROPERTY(editanywhere, BlueprintReadWrite)
+	ULevelTransfer* WidgetTransferUI;
+
+	UPROPERTY()
+	FTimerHandle TransitionTimer;
+	UPROPERTY()
+	float RadiusValue{};
+
+	UFUNCTION()
+	void TransitionAnimation();
+	UFUNCTION()
+	void MoveToField();
 };
 

@@ -7,22 +7,62 @@
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "JumpGame/StageSystem/StageSystemSubsystem.h"
+#include "JumpGame/UI/LevelTransfer.h"
 #include "JumpGame/Utils/FastLogger.h"
 #include "Kismet/GameplayStatics.h"
+
+UNodeInfoUI::UNodeInfoUI(const FObjectInitializer& InObjectInitializer) : Super(InObjectInitializer)
+{
+	ConstructorHelpers::FClassFinder<ULevelTransfer> WidgetTransferUIWidget
+		(TEXT("/Game/UI/LobbyUI/WBP_LevelTransfer.WBP_LevelTransfer_C"));
+	if (WidgetTransferUIWidget.Succeeded())
+	{
+		WidgetTransferUIClass = WidgetTransferUIWidget.Class;
+	}
+}
 
 void UNodeInfoUI::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
+
+	if (WidgetTransferUIClass)
+	{
+		WidgetTransferUI = CreateWidget<ULevelTransfer>(GetWorld(), WidgetTransferUIClass);
+	}
 }
 
 void UNodeInfoUI::OnClickGameStart()
 {
+	WidgetTransferUI->SetVisibility(ESlateVisibility::HitTestInvisible);
+	WidgetTransferUI->AddToViewport(999);
+
+	GetWorld()->GetTimerManager().SetTimer(TransitionTimer, this, &UNodeInfoUI::TransitionAnimation,
+	                                       GetWorld()->GetDeltaSeconds(), true);
+}
+
+void UNodeInfoUI::TransitionAnimation()
+{
+	RadiusValue += GetWorld()->GetDeltaSeconds() * 2.f;
+
+	UMaterialInstanceDynamic* DynamicMaterial{WidgetTransferUI->Image_Circle->GetDynamicMaterial()};
+	DynamicMaterial->SetScalarParameterValue("Radius", RadiusValue);
+
+	//FLog::Log("", RadiusValue);
+	if (RadiusValue >= 3.f)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(TransitionTimer);
+		MoveToField();
+	}
+}
+
+void UNodeInfoUI::MoveToField()
+{
 	// 필드 이름받아서 이동
 	UStageSystemSubsystem* SGI = GetWorld()->GetGameInstance()->GetSubsystem<UStageSystemSubsystem>();
-	
+
 	SGI->SetChosenField(SelectFieldLevel);
 	FFastLogger::LogConsole(TEXT("SelectedFieldLevel : %s"), *SelectFieldLevel.ToString());
-	
+
 	const FStageTableRow* StageInfo = SGI->GetStage(SGI->GetChosenStage());
 	if (StageInfo)
 	{
@@ -41,7 +81,7 @@ void UNodeInfoUI::SetFieldInfo(FText CurrentFieldName, int32 StarCount, float Cl
 void UNodeInfoUI::UpdateStarImages(int32 StarCount)
 {
 	StarCount = FMath::Clamp(StarCount, 0, 3);
-	TArray<UImage*> StarImages = { Image_Star1, Image_Star2, Image_Star3 };
+	TArray<UImage*> StarImages = {Image_Star1, Image_Star2, Image_Star3};
 
 	for (int32 i = 0; i < 3; ++i)
 	{
@@ -50,7 +90,7 @@ void UNodeInfoUI::UpdateStarImages(int32 StarCount)
 			if (i < StarCount)
 			{
 				// 노란 별 텍스처 세팅
-				StarImages[i]->SetBrushFromTexture(StarYellowTex); 
+				StarImages[i]->SetBrushFromTexture(StarYellowTex);
 			}
 			else
 			{

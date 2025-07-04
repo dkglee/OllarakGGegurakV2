@@ -171,7 +171,7 @@ AFrog::AFrog()
 		JumpGaugeUIComponent->SetPivot(FVector2D(3.0, 0.3));
 		JumpGaugeUIComponent->SetDrawAtDesiredSize(true);
 	}
-
+	
 	ConstructorHelpers::FObjectFinder<UMaterial> WaterPostProcessFinder
 		(TEXT("/Game/PostProcess/MPP_InWater.MPP_InWater"));
 	if (WaterPostProcessFinder.Succeeded())
@@ -363,6 +363,51 @@ void AFrog::NotifyControllerChanged()
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
+
+		if (HasAuthority() && IsLocallyControlled() && GetWorld()->GetMapName().Contains("InGame"))
+		{
+			FFastLogger::LogScreen(FColor::Red, TEXT("This Character: %p"), this);
+		}
+
+		if (WaterPostProcessComponent && WaterPostProcessMaterial)
+		{
+			WaterPostProcessDynamicMaterial = UMaterialInstanceDynamic::Create(
+				WaterPostProcessMaterial, this);
+
+			WaterPostProcessComponent->Settings.AddBlendable(WaterPostProcessDynamicMaterial, 1.f);
+			//WaterPostProcessComponent->Settings.Blendables.Add(WaterPostProcessDynamicMaterial);
+		}
+	
+		// 로컬 플레이어만 카메라 오버랩 이벤트 바인딩
+		if (IsLocallyControlled() && CameraCollision != nullptr)
+		{
+			CameraCollision->OnComponentBeginOverlap.AddDynamic(this, &AFrog::OnCameraBeginOverlapWater);
+			CameraCollision->OnComponentEndOverlap.AddDynamic(this, &AFrog::OnCameraEndOverlapWater);
+		}
+
+		if (TongueCollision != nullptr && HasAuthority())
+		{
+			TongueCollision->OnComponentBeginOverlap.AddDynamic(this, &AFrog::OnTongueBeginOverlap);
+		}
+
+		// 감정표현 UI
+		EmotionUI = CreateWidget<class UEmotionUI>(GetWorld(), EmotionUIClass);
+		if (EmotionUI && IsLocallyControlled())
+		{
+			EmotionUI->AddToViewport();
+		}
+
+		// 설정 UI
+		GameSettingUI = CreateWidget<class UGameSettingUI>(GetWorld(), GameSettingUIClass);
+		if (GameSettingUI && IsLocallyControlled())
+		{
+			GameSettingUI->AddToViewport();
+			GameSettingUI->SetVisibility(ESlateVisibility::Collapsed);
+		}
+
+		// InitJumpGaugeUIComponent();
+		InitJumpGaugeUIComponent();
+		InitFrogState();
 	}
 }
 
@@ -371,49 +416,49 @@ void AFrog::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (HasAuthority() && IsLocallyControlled() && GetWorld()->GetMapName().Contains("InGame"))
-	{
-		FFastLogger::LogScreen(FColor::Red, TEXT("This Character: %p"), this);
-	}
-
-	if (WaterPostProcessComponent && WaterPostProcessMaterial)
-	{
-		WaterPostProcessDynamicMaterial = UMaterialInstanceDynamic::Create(
-			WaterPostProcessMaterial, this);
-
-		WaterPostProcessComponent->Settings.AddBlendable(WaterPostProcessDynamicMaterial, 1.f);
-		//WaterPostProcessComponent->Settings.Blendables.Add(WaterPostProcessDynamicMaterial);
-	}
-	
-	// 로컬 플레이어만 카메라 오버랩 이벤트 바인딩
-	if (IsLocallyControlled() && CameraCollision != nullptr)
-	{
-		CameraCollision->OnComponentBeginOverlap.AddDynamic(this, &AFrog::OnCameraBeginOverlapWater);
-		CameraCollision->OnComponentEndOverlap.AddDynamic(this, &AFrog::OnCameraEndOverlapWater);
-	}
-
-	if (TongueCollision != nullptr && HasAuthority())
-	{
-		TongueCollision->OnComponentBeginOverlap.AddDynamic(this, &AFrog::OnTongueBeginOverlap);
-	}
-
-	// 감정표현 UI
-	EmotionUI = CreateWidget<class UEmotionUI>(GetWorld(), EmotionUIClass);
-	if (EmotionUI && IsLocallyControlled())
-	{
-		EmotionUI->AddToViewport();
-	}
-
-	// 설정 UI
-	GameSettingUI = CreateWidget<class UGameSettingUI>(GetWorld(), GameSettingUIClass);
-	if (GameSettingUI && IsLocallyControlled())
-	{
-		GameSettingUI->AddToViewport();
-		GameSettingUI->SetVisibility(ESlateVisibility::Collapsed);
-	}
-
-	InitJumpGaugeUIComponent();
-	InitFrogState();
+	// if (HasAuthority() && IsLocallyControlled() && GetWorld()->GetMapName().Contains("InGame"))
+	// {
+	// 	FFastLogger::LogScreen(FColor::Red, TEXT("This Character: %p"), this);
+	// }
+	//
+	// if (WaterPostProcessComponent && WaterPostProcessMaterial)
+	// {
+	// 	WaterPostProcessDynamicMaterial = UMaterialInstanceDynamic::Create(
+	// 		WaterPostProcessMaterial, this);
+	//
+	// 	WaterPostProcessComponent->Settings.AddBlendable(WaterPostProcessDynamicMaterial, 1.f);
+	// 	//WaterPostProcessComponent->Settings.Blendables.Add(WaterPostProcessDynamicMaterial);
+	// }
+	//
+	// // 로컬 플레이어만 카메라 오버랩 이벤트 바인딩
+	// if (IsLocallyControlled() && CameraCollision != nullptr)
+	// {
+	// 	CameraCollision->OnComponentBeginOverlap.AddDynamic(this, &AFrog::OnCameraBeginOverlapWater);
+	// 	CameraCollision->OnComponentEndOverlap.AddDynamic(this, &AFrog::OnCameraEndOverlapWater);
+	// }
+	//
+	// if (TongueCollision != nullptr && HasAuthority())
+	// {
+	// 	TongueCollision->OnComponentBeginOverlap.AddDynamic(this, &AFrog::OnTongueBeginOverlap);
+	// }
+	//
+	// // 감정표현 UI
+	// EmotionUI = CreateWidget<class UEmotionUI>(GetWorld(), EmotionUIClass);
+	// if (EmotionUI && IsLocallyControlled())
+	// {
+	// 	EmotionUI->AddToViewport();
+	// }
+	//
+	// // 설정 UI
+	// GameSettingUI = CreateWidget<class UGameSettingUI>(GetWorld(), GameSettingUIClass);
+	// if (GameSettingUI && IsLocallyControlled())
+	// {
+	// 	GameSettingUI->AddToViewport();
+	// 	GameSettingUI->SetVisibility(ESlateVisibility::Collapsed);
+	// }
+	//
+	// // InitJumpGaugeUIComponent();
+	// InitFrogState();
 }
 
 void AFrog::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -436,7 +481,7 @@ void AFrog::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	InitJumpGaugeUIComponent();
+	// InitJumpGaugeUIComponent();
 }
 
 // Called every frame
@@ -1278,10 +1323,12 @@ void AFrog::MulticastRPC_SetLight_Implementation(float Alpha)
 
 void AFrog::InitJumpGaugeUIComponent()
 {
+	FFastLogger::LogConsole(TEXT("Where Am I?"));
 	if (bMapEditingPawn)
 	{
 		if (SettingPostProcessComponent)
 		{
+			FFastLogger::LogConsole(TEXT("Where Am I? 11111111111"));
 			SettingPostProcessComponent->DestroyComponent();
 			SettingPostProcessComponent = nullptr;
 		}
@@ -1290,18 +1337,24 @@ void AFrog::InitJumpGaugeUIComponent()
 	// 로컬 클라만 점프 게이지 보이게
 	if (IsLocallyControlled() || bMapEditingPawn)
 	{
+		FFastLogger::LogConsole(TEXT("Where Am I? 22222222222"));
 		SetJumpGaugeVisibility(false);
+
+		UJumpGaugeUI* JumpGaugeUI = Cast<UJumpGaugeUI>(JumpGaugeUIComponent->GetUserWidgetObject());
+		if (JumpGaugeUI) JumpGaugeUI->DelegateBind(this);
 	}
 	else
 	{
 		// 다른 클라에서 삭제
 		if (JumpGaugeUIComponent)
 		{
+			FFastLogger::LogConsole(TEXT("Where Am I? 33333333333"));
 			JumpGaugeUIComponent->DestroyComponent();
 			JumpGaugeUIComponent = nullptr;
 		}
 		if (SettingPostProcessComponent)
 		{
+			FFastLogger::LogConsole(TEXT("Where Am I? 4444444444444"));
 			SettingPostProcessComponent->DestroyComponent();
 			SettingPostProcessComponent = nullptr;
 		}

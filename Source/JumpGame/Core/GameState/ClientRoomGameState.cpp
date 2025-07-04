@@ -50,6 +50,14 @@ void AClientRoomGameState::BeginPlay()
 			ClientRoomUI->AddToViewport();
 		}
 	}
+	
+	const TCHAR* Value =
+	GetWorld()->URL.GetOption(TEXT("AutoStartStage="), /*Default*/ nullptr);
+
+	if (Value && ClientRoomUI)
+	{
+		ClientRoomUI->OnClickGoStartStageGame();
+	}
 }
 
 void AClientRoomGameState::Tick(float DeltaSeconds)

@@ -40,6 +40,12 @@ AStageNodeActor::AStageNodeActor()
 		NodeResultUIComponent->SetRelativeScale3D(FVector(1.5,1.5,1.7));
 		NodeResultUIComponent->SetWidgetClass(NodeResultUIClass);
 	}
+
+	InitColorMat();
+	if (ColorTextures.IsValidIndex(0))
+	{
+		StaticMesh->SetMaterial(1, ColorTextures[0]);   // 기본값 적용
+	}
 }
 
 // Called when the game starts or when spawned
@@ -84,5 +90,27 @@ void AStageNodeActor::UpdateInfo(int32 Star)
 	if (!UI) return;
 
 	UI->UpdateNodeStarImages(Star);
+}
+
+void AStageNodeActor::UpdateColor(int32 NewIndex)
+{
+	if (!ColorTextures.IsValidIndex(NewIndex)) return;
+
+	ColorIndex = NewIndex;
+	StaticMesh->SetMaterial(1, ColorTextures[ColorIndex]);
+}
+
+void AStageNodeActor::InitColorMat()
+{
+	static ConstructorHelpers::FObjectFinder<UMaterialInstance> M0(
+		TEXT("/Game/Fantastic_Village_Pack/Fantastic_Village_Pack/Materials/MI_CLR_black.MI_CLR_black"));
+	static ConstructorHelpers::FObjectFinder<UMaterialInstance> M1(
+		TEXT("/Game/Fantastic_Village_Pack/Fantastic_Village_Pack/Materials/MI_CLR_Blueg.MI_CLR_Blueg"));
+	static ConstructorHelpers::FObjectFinder<UMaterialInstance> M2(
+		TEXT("/Game/Fantastic_Village_Pack/Fantastic_Village_Pack/Materials/MI_CLR_Green.MI_CLR_Green"));
+
+	if (M0.Succeeded()) ColorTextures.Add(M0.Object);
+	if (M1.Succeeded()) ColorTextures.Add(M1.Object);
+	if (M2.Succeeded()) ColorTextures.Add(M2.Object);
 }
 

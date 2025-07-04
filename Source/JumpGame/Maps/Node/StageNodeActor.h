@@ -45,18 +45,27 @@ public:
 	FStageNodeInfo ToNodeInfo();
 
 public:
+	// 외관
 	UPROPERTY()
 	class USceneComponent* Root;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UStaticMeshComponent* StaticMesh;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<class UNodeResultUI> NodeResultUIClass;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UWidgetComponent* NodeResultUIComponent;
 
 	UFUNCTION()
 	void UpdateInfo(int32 Star);
+
+	// 클리어에 따른 색깔 변동
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TArray<UMaterialInstance*> ColorTextures;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	int32 ColorIndex{};
+
+	UFUNCTION()
+	void UpdateColor(int32 NewIndex);
+	UFUNCTION()
+	void InitColorMat();
 };

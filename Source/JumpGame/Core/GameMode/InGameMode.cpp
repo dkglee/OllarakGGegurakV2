@@ -5,6 +5,7 @@
 
 #include "JumpGame/Characters/Frog.h"
 #include "JumpGame/Core/GameInstance/JumpGameInstance.h"
+#include "JumpGame/Core/GameState/MapGameState.h"
 #include "JumpGame/Core/PlayerController/InGamePlayerController.h"
 #include "JumpGame/Props/SaveLoad/LoadMapComponent.h"
 #include "JumpGame/Props/SaveLoad/SaveMapComponent.h"
@@ -30,6 +31,11 @@ void AInGameMode::OnMapLoaded()
 	}
 	
 	PendingPlayers.Empty();
+
+	AMapGameState* GS{Cast<AMapGameState>(GetWorld()->GetGameState())};
+	if (!GS) return;
+
+	GS->RemoveLoadingUI();
 }
 
 void AInGameMode::BeginPlay()

@@ -8,6 +8,7 @@
 #include "JumpGame/Core/PlayerController/InGamePlayerController.h"
 #include "JumpGame/Networks/Connection/ConnectionVerifyComponent.h"
 #include "JumpGame/Props/LogicProp/RisingWaterProp.h"
+#include "JumpGame/Props/SaveLoad/LoadMapComponent.h"
 #include "JumpGame/Props/SaveLoad/SaveMapComponent.h"
 #include "JumpGame/StageSystem/StageSystemSubsystem.h"
 #include "JumpGame/UI/GameProgressBarUI.h"
@@ -19,6 +20,9 @@
 AMapGameState::AMapGameState()
 {
 	SaveMapComponent = CreateDefaultSubobject<USaveMapComponent>(TEXT("SaveMapComponent"));
+	// LoadMapComponent = CreateDefaultSubobject<ULoadMapComponent>(TEXT("LoadMapComponent"));
+	//
+	// LoadMapComponent->OnMapLoaded.AddDynamic(this, &AMapGameState::RemoveLoadingUI);
 }
 
 void AMapGameState::BeginPlay()
@@ -167,6 +171,21 @@ void AMapGameState::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
+void AMapGameState::RemoveLoadingUI()
+{
+	if (LoadingUI)
+	{
+		LoadingUI->RemoveFromParent();
+		LoadingUI = nullptr;
+	}
+
+	AInGamePlayerController* PC{(Cast<AInGamePlayerController>(UGameplayStatics::GetPlayerController(this, 0)))};
+	if (PC)
+	{
+		PC->ShowInGameUI();
+	}
+}
+
 void AMapGameState::AddStar()
 {
 	StarCount++;
@@ -229,7 +248,7 @@ void AMapGameState::MulticastRPC_AllClientAdded_Implementation()
 	OnAllClientAddedDelegate.Broadcast();
 
 	// 로딩 UI 제거
-	MulticastRPC_RemoveLoadingUI();
+	//MulticastRPC_RemoveLoadingUI();
 
 	//RisingWaterProp->StartRising();
 }

@@ -57,6 +57,8 @@ public:
 	class ULoadingUI* LoadingUI{nullptr};
 
 	// 로딩 UI 제거
+	UFUNCTION()
+	void RemoveLoadingUI();
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPC_RemoveLoadingUI();
 

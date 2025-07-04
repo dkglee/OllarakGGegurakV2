@@ -160,12 +160,12 @@ void UClickHandlerManager::OnPropDragCancelled()
 			AMapEditorState* GameState = GetWorld()->GetGameState<AMapEditorState>();
 			if (GameState)
 			{
-				GameState->GetWarningPropManager()->RegisterNecessaryProp(Cast<APrimitiveProp>(LastSelected));
+				GameState->GetWarningPropManager()->UnRegister(Cast<APrimitiveProp>(LastSelected));
 			}
 			LastSelected->Destroy();
+			OnPropDragCancelledDelegate.Execute();
 		}
 		ControlledClickResponse = FClickResponse();
-		OnPropDragCancelledDelegate.Execute();
 	}
 
 	ControlledClickResponse.Result = EClickHandlingResult::None;

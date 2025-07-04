@@ -84,7 +84,6 @@ void UCustomGameUI::OnMapSelected(class UMapSlotUI* MapSlotUI)
 
 void UCustomGameUI::UpdateCurrentMapThumbnail(UTexture2D* Texture)
 {
-	FFastLogger::LogConsole(TEXT("Loading Map Thumbnail..."));
 	if (Texture)
 	{
 		Image_Selected->SetBrushFromTexture(Texture);
@@ -101,14 +100,11 @@ void UCustomGameUI::UpdateCurrentMapThumbnail(UTexture2D* Texture)
 		CurrentMapThumbnail->MarkAsGarbage();
 	}
 	CurrentMapThumbnail = Texture;
-
-	FFastLogger::LogConsole(TEXT("UpdateCurrentMapThumbnail"));
 }
 
 void UCustomGameUI::UpdateCurrentMapName(const FString& MapName)
 {
 	Text_MapName->SetText(FText::FromString(MapName));
-	FFastLogger::LogConsole(TEXT("UpdateCurrentMapName: %s"), *MapName);
 }
 
 void UCustomGameUI::OnClickSelectMap()

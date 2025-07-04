@@ -1935,16 +1935,19 @@ void AFrog::CalculateWaterCameraOverlapRatio(float dt)
 void AFrog::ServerRPC_SetSkin_Implementation(int32 NewIndex)
 {
 	SkinIndex = NewIndex;
+	FFastLogger::LogConsole(TEXT("HI!!!!666666666666666"));
 	OnRep_SkinIndex();
 }
 
 void AFrog::OnRep_SkinIndex_Implementation()
 {
+	FFastLogger::LogConsole(TEXT("HI!!!!777777777777"));
 	if (GetMesh())
 	{
 		UMaterialInstanceDynamic* DynMat{GetMesh()->CreateAndSetMaterialInstanceDynamic(0)};
 		if (DynMat && SkinTextures.IsValidIndex(SkinIndex))
 		{
+			FFastLogger::LogConsole(TEXT("HI!!!!788888888888888888"));
 			DynMat->SetTextureParameterValue("Skin", SkinTextures[SkinIndex]);
 		}
 	}

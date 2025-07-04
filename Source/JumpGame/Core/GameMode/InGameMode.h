@@ -21,8 +21,14 @@ protected:
 	virtual void BeginPlay() override;
 	
 	virtual void PostLogin(APlayerController* NewPlayer) override;
-
+	virtual APawn* SpawnDefaultPawnFor_Implementation(AController* NewPlayer, AActor* StartSpot) override;
+	virtual void RestartPlayerAtPlayerStart(AController* NewPlayer, AActor* StartSpot) override;
+	UFUNCTION()
+	void OnMapLoaded();
+	
 public:
 	UPROPERTY()
 	TArray<int32> AvailableSkinIndices;
+	UPROPERTY()
+	TArray<class AController*> PendingPlayers;
 };

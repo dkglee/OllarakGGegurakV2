@@ -86,6 +86,7 @@ void AMapGameMode::PostLogin(APlayerController* NewPlayer)
 
 AActor* AMapGameMode::ChoosePlayerStart_Implementation(AController* Player)
 {
+	if (!bIsMapReady) return nullptr;
 	// 태그로 찾기
 	TArray<AActor*> FoundProps;
 	UGameplayStatics::GetAllActorsWithTag(this, FName("GameStart"), FoundProps);

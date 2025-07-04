@@ -125,7 +125,7 @@ void ULoadMapComponent::LoadMapWithString(const FString& FileName)
 	}
 	bIsLoading = true;
 	//
-	// BuildMapFromSaveData();
+	// BuildMapFromSaveDataV2();
 }
 
 void ULoadMapComponent::PickFile(const FString& Suffix, bool bBindFunction)

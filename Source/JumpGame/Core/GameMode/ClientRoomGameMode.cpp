@@ -8,6 +8,7 @@
 #include "JumpGame/Core/GameInstance/JumpGameInstance.h"
 #include "JumpGame/Core/GameState/ClientRoomGameState.h"
 #include "JumpGame/Core/PlayerController/LobbyPlayerController.h"
+#include "JumpGame/StageSystem/StageSystemSubsystem.h"
 #include "JumpGame/UI/ClientRoomLogoUI.h"
 #include "JumpGame/UI/Cinematic/IntroCinematic.h"
 #include "JumpGame/Utils/FastLogger.h"
@@ -16,12 +17,13 @@
 void AClientRoomGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-
-
+	
 	PlayerControllerClass = ALobbyPlayerController::StaticClass();
 
 	// 게임 인스턴스 가져오기
 	GI = Cast<UJumpGameInstance>(GetWorld()->GetGameInstance());
+	UStageSystemSubsystem* SubGI = GI->GetSubsystem<UStageSystemSubsystem>();
+	SubGI->SetChosenStage(TEXT("Stage_01"));		
 	
 	// TODO: GI 초기화
 	GI->GetPlayerInfo().Empty();

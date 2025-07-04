@@ -89,7 +89,7 @@ void UStageMapNodeComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 					FieldData->FieldStarCount,
 					FieldData->FieldClearTime);
 
-				NodeInfoUI->SelectFieldLevel = FieldData->FieldLevel;
+				NodeInfoUI->SelectFieldLevel = FieldData->FieldID;
 				NodeInfoUI->SetFieldInfo(
 					NodeInfo->FieldName,
 					FieldData->FieldStarCount,
@@ -232,7 +232,7 @@ void UStageMapNodeComponent::HandleMouseInput(FVector2D ScreenPos)
 			
 			if (const FFieldTableRow* FieldData = StageSystem->GetField(NodeInfo->FieldID))
 			{
-				NodeInfoUI->SelectFieldLevel = FieldData->FieldLevel;
+				NodeInfoUI->SelectFieldLevel = FieldData->FieldID;
 				NodeInfoUI->SetFieldInfo(NodeInfo->FieldName, FieldData->FieldStarCount, FieldData->FieldClearTime);
 			}
 		}

@@ -6,6 +6,8 @@
 #include "Components/Button.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
+#include "JumpGame/StageSystem/StageSystemSubsystem.h"
+#include "JumpGame/Utils/FastLogger.h"
 #include "Kismet/GameplayStatics.h"
 
 void UNodeInfoUI::NativeOnInitialized()
@@ -16,7 +18,16 @@ void UNodeInfoUI::NativeOnInitialized()
 void UNodeInfoUI::OnClickGameStart()
 {
 	// 필드 이름받아서 이동
-	UGameplayStatics::OpenLevel(GetWorld(), SelectFieldLevel);
+	UStageSystemSubsystem* SGI = GetWorld()->GetGameInstance()->GetSubsystem<UStageSystemSubsystem>();
+	
+	SGI->SetChosenField(SelectFieldLevel);
+	FFastLogger::LogConsole(TEXT("SelectedFieldLevel : %s"), *SelectFieldLevel.ToString());
+	
+	const FStageTableRow* StageInfo = SGI->GetStage(SGI->GetChosenStage());
+	if (StageInfo)
+	{
+		UGameplayStatics::OpenLevel(GetWorld(), StageInfo->StageWorld);
+	}
 }
 
 void UNodeInfoUI::SetFieldInfo(FText CurrentFieldName, int32 StarCount, float ClearTime)

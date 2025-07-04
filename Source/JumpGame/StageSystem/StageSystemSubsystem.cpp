@@ -32,10 +32,11 @@ void UStageSystemSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 void UStageSystemSubsystem::Deinitialize()
 {
+	SaveProgressToDisk();
 	StageCache.Empty();
 	FieldCache.Empty();
 	StageToFields.Empty();
-	SaveProgressToDisk();
+	FieldStateCache.Empty();
 	
 	Super::Deinitialize();
 }
@@ -156,18 +157,28 @@ void UStageSystemSubsystem::SaveProgressToDisk()
 {
 	auto* SG = Cast<UJumpSaveGame>(UGameplayStatics::CreateSaveGameObject(UJumpSaveGame::StaticClass()));
 
-	for (const auto& Pair : FieldCache)
+	/*for (const auto& Pair : FieldCache)
 	{
 		FFieldTableRow* FieldRow = Pair.Value;
 		if (!FieldRow) continue;
 
 		SG->SavedFieldStarCountMap.Add(FieldRow->FieldID, FieldRow->FieldStarCount);
 		SG->SavedFieldClearTimeMap.Add(FieldRow->FieldID, FieldRow->FieldClearTime);
+	}*/
+	SG->SavedFieldStarCountMap.Empty();
+	SG->SavedFieldClearTimeMap.Empty();
+	for (const auto& P : FieldCache)
+	{
+		const FFieldTableRow* Row = P.Value;
+		SG->SavedFieldStarCountMap.Add(Row->FieldID, Row->FieldStarCount);
+		SG->SavedFieldClearTimeMap.Add(Row->FieldID, Row->FieldClearTime);
 	}
 
 	SG->SavedFieldStateMap.Empty();
 	for (const auto& P : FieldStateCache)
+	{
 		SG->SavedFieldStateMap.Add(P.Key, static_cast<uint8>(P.Value));
+	}
 
 	UGameplayStatics::SaveGameToSlot(SG, TEXT("StageSaveSlot"), 0);
 }
@@ -179,7 +190,7 @@ void UStageSystemSubsystem::LoadProgressFromDisk()
 		UJumpSaveGame* SG = Cast<UJumpSaveGame>(Loaded);
 		if (!SG) return;
 
-		for (auto& Pair : FieldCache)
+		/*for (auto& Pair : FieldCache)
 		{
 			FFieldTableRow* FieldRow = Pair.Value;
 			if (!FieldRow) continue;
@@ -193,11 +204,21 @@ void UStageSystemSubsystem::LoadProgressFromDisk()
 			{
 				FieldRow->FieldClearTime = SG->SavedFieldClearTimeMap[FieldRow->FieldID];
 			}
+		}*/
+		// 별·시간 복원
+		for (auto& P : FieldCache)
+		{
+			FFieldTableRow* Row = P.Value;
+			if (!Row) continue;
+			Row->FieldStarCount = SG->SavedFieldStarCountMap.FindRef(Row->FieldID);
+			Row->FieldClearTime = SG->SavedFieldClearTimeMap.FindRef(Row->FieldID);
 		}
 
 		FieldStateCache.Empty();
 		for (auto& P : SG->SavedFieldStateMap)
+		{
 			FieldStateCache.Add(P.Key, static_cast<EFieldProgressState>(P.Value));
+		}
 	}
 }
 

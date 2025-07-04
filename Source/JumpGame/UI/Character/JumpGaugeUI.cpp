@@ -11,9 +11,9 @@ void UJumpGaugeUI::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
-	Frog = Cast<AFrog>(GetWorld()->GetFirstPlayerController()->GetPawn());
-
-	DelegateBind(Frog);
+	// Frog = Cast<AFrog>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	//
+	// DelegateBind(Frog);
 }
 
 void UJumpGaugeUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)

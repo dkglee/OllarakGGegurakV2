@@ -38,6 +38,7 @@ void ALobbyFrog::BeginPlay()
 	Super::BeginPlay();
 
 	// SetJumpGaugeVisibility(false);
+	InitJumpGaugeUIComponent();
 }
 
 // Called every frame

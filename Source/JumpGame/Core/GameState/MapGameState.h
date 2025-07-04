@@ -57,6 +57,8 @@ public:
 	class ULoadingUI* LoadingUI{nullptr};
 
 	// 로딩 UI 제거
+	UFUNCTION()
+	void RemoveLoadingUI();
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPC_RemoveLoadingUI();
 
@@ -93,4 +95,18 @@ public:
 	// 게임 시작 시간
 	UPROPERTY()
 	float StartTime = 0.f;
+
+	// 레벨 트랜지션
+	UPROPERTY(editanywhere, BlueprintReadWrite)
+	TSubclassOf<class ULevelTransfer> WidgetTransferUIClass;
+	UPROPERTY(editanywhere, BlueprintReadWrite)
+	ULevelTransfer* WidgetTransferUI;
+
+	UPROPERTY()
+	FTimerHandle TransitionTimer;
+	UPROPERTY()
+	float RadiusValue{};
+
+	UFUNCTION()
+	void TransitionAnimation();
 };

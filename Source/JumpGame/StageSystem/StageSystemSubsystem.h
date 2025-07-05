@@ -40,7 +40,9 @@ public:
 	// Save/Load 함수
 	void SaveProgressToDisk();
 	void LoadProgressFromDisk();
-	
+	int32 GetTotalStarCountByStageID(FName StageID) const;
+	int32 GetTotalFieldCountByStageID(FName StageID) const;
+
 #pragma region GETTERSETTER
 	void SetChosenStage(const FName& StageID) { ChosenStageID = StageID; }
 	FName GetChosenStage() const { return ChosenStageID; }

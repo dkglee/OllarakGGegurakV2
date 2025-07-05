@@ -7,6 +7,7 @@
 #include "CustomGameUI.h"
 #include "GameQuitUI.h"
 #include "GameSettingUI.h"
+#include "ScoreCollectUI.h"
 #include "SessionListItemWidget.h"
 #include "SessionListItemDouble.h"
 #include "Components/Button.h"
@@ -22,6 +23,7 @@
 #include "JumpGame/Characters/LobbyCharacter/LobbyFrog.h"
 #include "JumpGame/Maps/Node/NodeTutorial.h"
 #include "JumpGame/Maps/Node/StageMapNodeComponent.h"
+#include "JumpGame/StageSystem/StageSystemSubsystem.h"
 #include "StageNode/NodeInfoUI.h"
 #include "UICam/LobbyCameraComp.h"
 
@@ -176,6 +178,14 @@ void UClientRoomUI::OnClickGoStartStageGame()
 			Frog->StageMapNodeComponent->NodeInfoUI->SetVisibility(ESlateVisibility::Visible);
 		}
 	}
+
+	UJumpGameInstance* JumpGI = Cast<UJumpGameInstance>(GetWorld()->GetGameInstance());
+	if (!JumpGI) return;
+	UStageSystemSubsystem* StageSystem = JumpGI->GetSubsystem<UStageSystemSubsystem>();
+	if (!StageSystem) return;
+	
+	GameScoreUI->UpdateCurrentScore(StageSystem->GetTotalStarCountByStageID(StageSystem->GetChosenStage()));
+	GameScoreUI->UpdateTotalScore(StageSystem->GetTotalFieldCountByStageID(StageSystem->GetChosenStage()) * 3);
 }
 
 void UClientRoomUI::OnClickGoCreateMap()

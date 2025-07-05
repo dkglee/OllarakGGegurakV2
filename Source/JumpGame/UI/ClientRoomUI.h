@@ -92,6 +92,8 @@ public:
 	class UCheckBox* CheckBox_Lock;
 	UPROPERTY(meta = (BindWidget))
 	class UEditableTextBox* Edit_Password;
+	UPROPERTY(meta = (BindWidget))
+	class UScoreCollectUI* GameScoreUI;
 	
 	// 버튼 눌렀을 때 호출될 함수
 	UFUNCTION()

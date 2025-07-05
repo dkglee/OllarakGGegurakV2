@@ -222,3 +222,29 @@ void UStageSystemSubsystem::LoadProgressFromDisk()
 	}
 }
 
+int32 UStageSystemSubsystem::GetTotalStarCountByStageID(FName StageID) const
+{
+	int32 TotalStars = 0;
+	const TArray<FName>* Fields = StageToFields.Find(StageID);
+	if (Fields)
+	{
+		for (const FName& FieldID : *Fields)
+		{
+			if (const FFieldTableRow* FieldRow = GetField(FieldID))
+			{
+				TotalStars += FieldRow->FieldStarCount;
+			}
+		}
+	}
+	return TotalStars;
+}
+
+int32 UStageSystemSubsystem::GetTotalFieldCountByStageID(FName StageID) const
+{
+	const TArray<FName>* Fields = StageToFields.Find(StageID);
+	if (Fields)
+	{
+		return Fields->Num();
+	}
+	return 0;
+}

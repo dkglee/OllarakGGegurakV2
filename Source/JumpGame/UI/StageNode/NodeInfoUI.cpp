@@ -37,12 +37,12 @@ void UNodeInfoUI::OnClickGameStart()
 	WidgetTransferUI->AddToViewport(999);
 
 	GetWorld()->GetTimerManager().SetTimer(TransitionTimer, this, &UNodeInfoUI::TransitionAnimation,
-	                                       GetWorld()->GetDeltaSeconds(), true);
+	                                       0.016f, true);
 }
 
 void UNodeInfoUI::TransitionAnimation()
 {
-	RadiusValue += GetWorld()->GetDeltaSeconds() * 2.f;
+	RadiusValue += 0.02f * 2.f;
 
 	UMaterialInstanceDynamic* DynamicMaterial{WidgetTransferUI->Image_Circle->GetDynamicMaterial()};
 	DynamicMaterial->SetScalarParameterValue("Radius", RadiusValue);

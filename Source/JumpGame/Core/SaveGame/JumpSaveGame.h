@@ -20,4 +20,7 @@ public:
 
 	UPROPERTY()
 	TMap<FName, float> SavedFieldClearTimeMap;
+
+	UPROPERTY()
+	TMap<FName, uint8> SavedFieldStateMap; // EFieldProgressState
 };

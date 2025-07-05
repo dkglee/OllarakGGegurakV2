@@ -35,6 +35,13 @@ void UOutToMainUI::NativeConstruct()
 	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
 	PC->SetInputMode(InputMode);
 	PC->bShowMouseCursor = true;
+
+	// 감정표현 UI
+	/*ClientRoomUI = CreateWidget<class UClientRoomUI>(GetWorld(), ClientRoomUIClass);
+	if (ClientRoomUI)
+	{
+		ClientRoomUI->AddToViewport();
+	}*/
 }
 
 void UOutToMainUI::OnClickOutToMain()
@@ -49,7 +56,8 @@ void UOutToMainUI::OnClickOutToMain()
 			GS->EndStage(false);
 		}
 		
-		UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/Levels/GameLobby"));
+		UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/Levels/GameLobby?AutoStartStage=1"));
+		
 	}
 	else
 	{

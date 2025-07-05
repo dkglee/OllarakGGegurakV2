@@ -140,10 +140,18 @@ void UStageMapNodeComponent::AddAllNodesFromWorld()
 		FStageNodeInfo NodeInfo = NodeActor->ToNodeInfo();
 
 		AddNode(NodeInfo);
+
+		// FieldID → NodeActor 연결
+		if (NodeInfo.FieldID != NAME_None)
+		{
+			FieldIDToNodeActorMap.Add(NodeInfo.FieldID, NodeActor);
+		}
 	}
 	
 	InitCurrentNode();
 	UE_LOG(LogTemp, Warning, TEXT("총 %d개 노드 등록"), NodeMap.Num());
+
+	InitAllFieldStars();
 }
 
 void UStageMapNodeComponent::InitCurrentNode()
@@ -172,6 +180,23 @@ void UStageMapNodeComponent::InitCurrentNode()
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("서있는 곳 노드 번호: %d"), CurrentNodeID);
+}
+
+void UStageMapNodeComponent::InitAllFieldStars()
+{
+	if (UStageSystemSubsystem* Subsystem = GetWorld()->GetGameInstance()->GetSubsystem<UStageSystemSubsystem>())
+	{
+		for (const auto& Pair : FieldIDToNodeActorMap)
+		{
+			const FName& FieldID = Pair.Key;
+			AStageNodeActor* NodeActor = Pair.Value;
+
+			if (const FFieldTableRow* FieldRow = Subsystem->GetField(FieldID))
+			{
+				NodeActor->UpdateInfo(FieldRow->FieldStarCount);
+			}
+		}
+	}
 }
 
 void UStageMapNodeComponent::UpdateStageSign(int32 CurrentNode, int32 DestinationNode)
@@ -285,6 +310,18 @@ void UStageMapNodeComponent::RequestMoveTo(int32 TargetNodeID)
 	UAIBlueprintHelperLibrary::SimpleMoveToLocation(AICon, AdjustedTarget); 
 	bIsMoving = true;
 	DestinationNodeID = TargetNodeID; // 도착 후 갱신
+}
+
+UStageMapNodeComponent* UStageMapNodeComponent::Get(UWorld* World)
+{
+	for (TObjectIterator<UStageMapNodeComponent> It; It; ++It)
+	{
+		if (It->GetWorld() == World)
+		{
+			return *It;
+		}
+	}
+	return nullptr;
 }
 
 /*bool UStageMapNodeComponent::IsValidNodeID(int32 FromNodeID, int32 ToNodeID)

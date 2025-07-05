@@ -171,7 +171,7 @@ AFrog::AFrog()
 		JumpGaugeUIComponent->SetPivot(FVector2D(3.0, 0.3));
 		JumpGaugeUIComponent->SetDrawAtDesiredSize(true);
 	}
-
+	
 	ConstructorHelpers::FObjectFinder<UMaterial> WaterPostProcessFinder
 		(TEXT("/Game/PostProcess/MPP_InWater.MPP_InWater"));
 	if (WaterPostProcessFinder.Succeeded())

@@ -33,4 +33,10 @@ public:
 	class UButton* OutToMainButton;
  	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UButton* ReturnToGameButton;
+
+	// 테스트
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class UClientRoomUI> ClientRoomUIClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UClientRoomUI* ClientRoomUI;
 };

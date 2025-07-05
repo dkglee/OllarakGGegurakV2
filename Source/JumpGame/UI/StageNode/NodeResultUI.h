@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "NodeResultUI.generated.h"
 
+struct FFieldTableRow;
 /**
  * 
  */

@@ -36,9 +36,12 @@ public:
 	UPROPERTY()
 	int32 DestinationNodeID = -1;
 
+	// 필드 -> 노드 접근용
+	UPROPERTY()
+	TMap<FName, class AStageNodeActor*> FieldIDToNodeActorMap;
+
 	UPROPERTY()
 	bool bIsMoving = false;
-
 	UPROPERTY()
 	bool bHasData = false;
 
@@ -48,6 +51,8 @@ public:
 	ACharacter* OwnerChar = nullptr;
 	UFUNCTION()
 	void InitCurrentNode();
+	UFUNCTION()
+	void InitAllFieldStars(); // 전체 노드 갱신
 	
 	// 노드 추가
 	UFUNCTION()
@@ -70,6 +75,9 @@ public:
 	// 이동 요청
 	UFUNCTION()
 	void RequestMoveTo(int32 TargetNodeID);
+
+	// 반환
+	static UStageMapNodeComponent* Get(UWorld* World);
 
 	// 앞을 보자
 	UPROPERTY()

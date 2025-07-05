@@ -7,6 +7,14 @@
 #include "GameFramework/Actor.h"
 #include "StageNodeActor.generated.h"
 
+UENUM(BlueprintType)
+enum class EFieldProgressState : uint8
+{
+	None        UMETA(DisplayName="None"),        // 도전 기록 없음
+	InProgress  UMETA(DisplayName="InProgress"),  // 도전 진행 중
+	Cleared     UMETA(DisplayName="Cleared")      // 클리어 기록!
+};
+
 UCLASS()
 class JUMPGAME_API AStageNodeActor : public AActor
 {
@@ -42,4 +50,29 @@ public:
 
 	// 런타임 등록용
 	FStageNodeInfo ToNodeInfo();
+
+public:
+	// 외관
+	UPROPERTY()
+	class USceneComponent* Root;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UStaticMeshComponent* StaticMesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class UNodeResultUI> NodeResultUIClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UWidgetComponent* NodeResultUIComponent;
+
+	UFUNCTION()
+	void UpdateInfo(int32 Star);
+
+	// 클리어에 따른 색깔 변동
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TArray<UMaterialInstance*> ColorTextures;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	int32 ColorIndex{};
+
+	UFUNCTION()
+	void UpdateColor(int32 NewIndex);
+	UFUNCTION()
+	void InitColorMat();
 };

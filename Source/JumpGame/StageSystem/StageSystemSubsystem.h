@@ -8,6 +8,7 @@
 
 #define DEFAULT_STAGE_PREFIX TEXT("Maps/Stages/") 
 
+enum class EFieldProgressState : uint8;
 
 UCLASS()
 class JUMPGAME_API UStageSystemSubsystem : public UGameInstanceSubsystem
@@ -28,10 +29,18 @@ public:
 	// 게임 저장
 	void SaveFieldResult(FName FieldID, int32 StarCount, float ClearTime);
 
+	// 진행 상태 저장
+	TMap<FName, EFieldProgressState> FieldStateCache;
+	UFUNCTION(BlueprintCallable)
+	void SetFieldState(FName FieldID, EFieldProgressState NewState);
+
+	UFUNCTION(BlueprintCallable)
+	EFieldProgressState GetFieldState(FName FieldID) const;
+
 	// Save/Load 함수
 	void SaveProgressToDisk();
 	void LoadProgressFromDisk();
-
+	
 #pragma region GETTERSETTER
 	void SetChosenStage(const FName& StageID) { ChosenStageID = StageID; }
 	FName GetChosenStage() const { return ChosenStageID; }

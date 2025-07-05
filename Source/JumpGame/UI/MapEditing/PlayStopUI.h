@@ -16,6 +16,7 @@ class JUMPGAME_API UPlayStopUI : public UUserWidget
 
 public:
 	virtual void NativeOnInitialized() override;
+	virtual void NativeConstruct() override;
 
 private:
 	void ChangeToFrog();

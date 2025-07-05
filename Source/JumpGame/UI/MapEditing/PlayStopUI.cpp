@@ -16,7 +16,7 @@
 void UPlayStopUI::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
-
+	
 	FTransform SpawnTransform;
 	SpawnTransform.SetScale3D({1.f, 1.f, 1.f});
 	SpawnTransform.SetTranslation({-1000,-1000,-1000});
@@ -34,6 +34,11 @@ void UPlayStopUI::NativeOnInitialized()
 	PlayStopButton->OnClicked.AddDynamic(this, &UPlayStopUI::OnPlayStopButtonClicked);
 
 	IMG_PlayStop->SetBrushFromTexture(PlayIcon);
+}
+
+void UPlayStopUI::NativeConstruct()
+{
+	Super::NativeConstruct();
 }
 
 void UPlayStopUI::OnPlayStopButtonClicked()

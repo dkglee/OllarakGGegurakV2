@@ -12,8 +12,6 @@ void UNodeResultUI::UpdateNodeStarImages(int32 StarCount)
 {
 	StarCount = FMath::Clamp(StarCount, 0, 3);
 	TArray<UImage*> StarImages = { Image_Star1, Image_Star2, Image_Star3 };
-
-	
 	
 	for (int32 i = 0; i < 3; ++i)
 	{

@@ -33,10 +33,10 @@ void UStageSystemSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 void UStageSystemSubsystem::Deinitialize()
 {
 	SaveProgressToDisk();
+	FieldStateCache.Empty();
 	StageCache.Empty();
 	FieldCache.Empty();
 	StageToFields.Empty();
-	FieldStateCache.Empty();
 	
 	Super::Deinitialize();
 }

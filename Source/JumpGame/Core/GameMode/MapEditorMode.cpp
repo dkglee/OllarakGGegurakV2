@@ -15,3 +15,12 @@ AMapEditorMode::AMapEditorMode()
 	GameStateClass = AMapEditorState::StaticClass();
 	PlayerControllerClass = AMapEditingPlayerController::StaticClass();
 }
+
+void AMapEditorMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	UJumpGameInstance* GI = Cast<UJumpGameInstance>(GetWorld()->GetGameInstance());
+	GI->CurrentMap = EMapKind::Editor;
+	UE_LOG(LogTemp, Warning, TEXT("CurrentMap: %d"), GI->CurrentMap);
+}

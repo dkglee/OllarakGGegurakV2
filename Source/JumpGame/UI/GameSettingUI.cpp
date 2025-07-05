@@ -4,18 +4,30 @@
 #include "GameSettingUI.h"
 
 #include "GameQuitUI.h"
+#include "LevelTransfer.h"
 #include "Animation/UMGSequencePlayer.h"
-#include "Animation/WidgetAnimation.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Components/Button.h"
 #include "Components/ComboBoxString.h"
+#include "Components/Image.h"
 #include "Components/Slider.h"
+#include "Components/TextBlock.h"
 #include "Components/WidgetSwitcher.h"
 #include "JumpGame/Characters/Frog.h"
+#include "JumpGame/Core/GameInstance/JumpGameInstance.h"
 #include "JumpGame/Utils/FastLogger.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMathLibrary.h"
 
+
+UGameSettingUI::UGameSettingUI(const FObjectInitializer& InObjectInitializer) : Super(InObjectInitializer)
+{
+	ConstructorHelpers::FClassFinder<ULevelTransfer> WidgetTransferUIWidget
+		(TEXT("/Game/UI/LobbyUI/WBP_LevelTransfer.WBP_LevelTransfer_C"));
+	if (WidgetTransferUIWidget.Succeeded())
+	{
+		WidgetTransferUIClass = WidgetTransferUIWidget.Class;
+	}
+}
 
 void UGameSettingUI::NativeOnInitialized()
 {
@@ -74,6 +86,7 @@ void UGameSettingUI::NativeOnInitialized()
 	// 뒤로가기
 	Btn_QuitGame->OnClicked.AddDynamic(this, &UGameSettingUI::OnClickQuitGame);
 	Btn_GoBack->OnClicked.AddDynamic(this, &UGameSettingUI::OnClickGoBack);
+	Btn_X->OnClicked.AddDynamic(this, &UGameSettingUI::OnClickX);
 
 	GameQuitUI = CreateWidget<UGameQuitUI>(GetWorld(), GameQuitUIClass);
 	if (GameQuitUI)
@@ -97,6 +110,11 @@ void UGameSettingUI::NativeOnInitialized()
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("[InitUISettings] Settings is null"));
+	}
+
+	if (WidgetTransferUIClass)
+	{
+		WidgetTransferUI = CreateWidget<ULevelTransfer>(GetWorld(), WidgetTransferUIClass);
 	}
 }
 
@@ -139,6 +157,17 @@ void UGameSettingUI::PlaySettingAnim(bool bIsForward)
 		UE_LOG(LogTemp, Warning, TEXT("Animation is already playing. Ignored."));
 		return;
 	}*/
+	UJumpGameInstance* GI = Cast<UJumpGameInstance>(GetWorld()->GetGameInstance());
+	if (GI->CurrentMap == EMapKind::Lobby)
+	{
+		// 1. 게임 종료하기 (게임중 아니면)
+		Text_QuitGame->SetText(FText::FromString(TEXT("게임 종료")));
+	}
+	else
+	{
+		// 2. 로비로 (게임 중이면)
+		Text_QuitGame->SetText(FText::FromString(TEXT("로비로 돌아가기")));
+	}
 	
 	if (bIsForward)
 	{
@@ -379,9 +408,33 @@ void UGameSettingUI::OnColorModeChanged(FString SelectedItem, ESelectInfo::Type 
 
 void UGameSettingUI::OnClickQuitGame()
 {
-	if (GameQuitUI)
+	WidgetTransferUI->SetVisibility(ESlateVisibility::HitTestInvisible);
+	WidgetTransferUI->AddToViewport(999);
+
+	GetWorld()->GetTimerManager().SetTimer(TransitionTimer, this, &UGameSettingUI::TransitionAnimation,
+										   0.016f, true);
+}
+
+void UGameSettingUI::MapKind()
+{
+	UJumpGameInstance* GI = Cast<UJumpGameInstance>(GetWorld()->GetGameInstance());
+	if (GI->CurrentMap == EMapKind::Lobby)
 	{
-		GameQuitUI->PlayQuitAnim(true);
+		// 1. 게임 종료하기 (게임중 아니면)
+		if (GameQuitUI)
+		{
+			GameQuitUI->PlayQuitAnim(true);
+		}
+	}
+	else if (GI->CurrentMap == EMapKind::Stage)
+	{
+		// 2. 게임 중이면 - 스테이지 화면 로비로 나가기
+		UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/Levels/GameLobby?AutoStartStage=1"));
+	}
+	else if (GI->CurrentMap == EMapKind::Editor)
+	{
+		// 3. 에디터라면 - 메인 화면으로 나가기
+		UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/Levels/GameLobby"));
 	}
 }
 
@@ -410,5 +463,25 @@ void UGameSettingUI::OnClickGoBack()
 		PC->bShowMouseCursor = false;
 
 		Character->bIsPress = false;
+	}
+}
+
+void UGameSettingUI::OnClickX()
+{
+	PlaySettingAnim(false);
+}
+
+void UGameSettingUI::TransitionAnimation()
+{
+	RadiusValue += 0.02f * 2.f;
+
+	UMaterialInstanceDynamic* DynamicMaterial{WidgetTransferUI->Image_Circle->GetDynamicMaterial()};
+	DynamicMaterial->SetScalarParameterValue("Radius", RadiusValue);
+
+	//FLog::Log("", RadiusValue);
+	if (RadiusValue >= 3.f)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(TransitionTimer);
+		MapKind();
 	}
 }

@@ -3,11 +3,13 @@
 
 #include "LobbyFrog.h"
 
-#include "EnhancedInputComponent.h"
-#include "InputState.h"
-#include "Components/WidgetComponent.h"
+#include <ThirdParty/ShaderConductor/ShaderConductor/External/DirectXShaderCompiler/include/dxc/DXIL/DxilConstants.h>
+
+#include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "Components/CapsuleComponent.h"
 #include "JumpGame/Core/PlayerController/LobbyPlayerController.h"
 #include "JumpGame/Maps/Node/StageMapNodeComponent.h"
+#include "JumpGame/StageSystem/StageSystemSubsystem.h"
 #include "JumpGame/UI/StageNode/NodeInfoUI.h"
 #include "JumpGame/UI/UICam/LobbyCameraComp.h"
 
@@ -123,6 +125,32 @@ void ALobbyFrog::UpdateAnimation(ELobbyCharacterState NewState)
 		GetMesh()->SetAnimInstanceClass(StageMapAnimBP);
 		break;
 	}
+}
+
+void ALobbyFrog::RestoreNodePosition()
+{
+	UStageSystemSubsystem* SGI = GetWorld()->GetGameInstance()->GetSubsystem<UStageSystemSubsystem>();
+	if (!SGI || !SGI->bNodeRestore) return;
+	SGI-> bNodeRestore = false;
+	
+	if (!StageMapNodeComponent) return;
+	
+	const FName FieldID = SGI->GetChosenField();
+	SGI->SetChosenField(NAME_None); // 리셋
+	if (FieldID.IsNone()) return;
+	
+	// FieldID → NodeID 변환
+	const int32 NodeID = StageMapNodeComponent->GetNodeIDByFieldID(FieldID);
+	if (NodeID == INDEX_NONE) return; // 테이블엔 있는데 노드가 없을 경우 대비
+
+	// 실제 이동 + 상태 세팅
+	const FStageNodeInfo* NodeInfo = StageMapNodeComponent->NodeMap.Find(NodeID);
+	if (!NodeInfo) return;
+	
+	this->SetActorLocation(NodeInfo->WorldPosition + FVector(0, 0, 100));
+	StageMapNodeComponent->CurrentNodeID = NodeID;
+	StageMapNodeComponent->DestinationNodeID = INDEX_NONE;
+	StageMapNodeComponent->bIsMoving = false;
 }
 
 

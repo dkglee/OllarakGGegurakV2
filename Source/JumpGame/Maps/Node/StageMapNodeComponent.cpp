@@ -176,7 +176,7 @@ void UStageMapNodeComponent::InitCurrentNode()
 	if (ClosestID != -1)
 	{
 		CurrentNodeID = ClosestID;
-		// DestinationNodeID = ClosestID;
+		DestinationNodeID = INDEX_NONE;
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("서있는 곳 노드 번호: %d"), CurrentNodeID);
@@ -218,6 +218,19 @@ void UStageMapNodeComponent::UpdateStageSign(int32 CurrentNode, int32 Destinatio
 	{
 		UE_LOG(LogTemp, Warning, TEXT("간판 변화 없음"));
 	}
+}
+
+int32 UStageMapNodeComponent::GetNodeIDByFieldID(const FName& InFieldID) const
+{
+	// 굳이 성능 최적화를 원한다면 FieldID→NodeID 캐시(TMap) 만들어도 되지만, 대부분 노드 수가 수십 개라 한 번 순회해도 부담 없다 - GPT
+	for (const auto& Pair : NodeMap)
+	{
+		if (Pair.Value.FieldID == InFieldID)
+		{
+			return Pair.Key;
+		}
+	}
+	return INDEX_NONE; // 못찾았으면 -1
 }
 
 void UStageMapNodeComponent::HandleKeyBoardInput(int32 Direction)

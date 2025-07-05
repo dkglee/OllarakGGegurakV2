@@ -6,6 +6,9 @@
 #include "IImageWrapper.h"
 #include "IImageWrapperModule.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
+#include "JumpGame/Characters/LobbyCharacter/LobbyFrog.h"
+#include "JumpGame/Maps/Node/StageMapNodeComponent.h"
+#include "JumpGame/StageSystem/StageSystemSubsystem.h"
 #include "JumpGame/UI/ClientRoomUI.h"
 #include "JumpGame/UI/CustomGameUI.h"
 #include "JumpGame/UI/FriendsList.h"
@@ -53,11 +56,15 @@ void AClientRoomGameState::BeginPlay()
 	
 	const TCHAR* Value =
 	GetWorld()->URL.GetOption(TEXT("AutoStartStage="), /*Default*/ nullptr);
-
 	if (Value && ClientRoomUI)
 	{
 		ClientRoomUI->OnClickGoStartStageGame();
 	}
+	UStageSystemSubsystem* SGI = GetWorld()->GetGameInstance()->GetSubsystem<UStageSystemSubsystem>();
+	ALobbyFrog* Frog = Cast<ALobbyFrog>(UGameplayStatics::GetActorOfClass(GetWorld(),ALobbyFrog::StaticClass()));
+	if (!SGI->bNodeRestore) return;
+
+	Frog->RestoreNodePosition();
 }
 
 void AClientRoomGameState::Tick(float DeltaSeconds)

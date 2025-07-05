@@ -61,8 +61,9 @@ void UNodeInfoUI::MoveToField()
 	UStageSystemSubsystem* SGI = GetWorld()->GetGameInstance()->GetSubsystem<UStageSystemSubsystem>();
 
 	SGI->SetChosenField(SelectFieldLevel);
+	SGI->bNodeRestore = true;
 	FFastLogger::LogConsole(TEXT("SelectedFieldLevel : %s"), *SelectFieldLevel.ToString());
-
+	
 	const FStageTableRow* StageInfo = SGI->GetStage(SGI->GetChosenStage());
 	if (StageInfo)
 	{

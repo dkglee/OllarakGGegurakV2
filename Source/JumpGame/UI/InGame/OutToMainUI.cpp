@@ -57,7 +57,6 @@ void UOutToMainUI::OnClickOutToMain()
 		}
 		
 		UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/Levels/GameLobby?AutoStartStage=1"));
-		
 	}
 	else
 	{

@@ -364,6 +364,12 @@ void AFrog::NotifyControllerChanged()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 
+		if (bInitialized)
+		{
+			return ;
+		}
+		bInitialized = true;
+		
 		if (HasAuthority() && IsLocallyControlled() && GetWorld()->GetMapName().Contains("InGame"))
 		{
 			FFastLogger::LogScreen(FColor::Red, TEXT("This Character: %p"), this);
@@ -1327,6 +1333,7 @@ void AFrog::InitJumpGaugeUIComponent()
 	{
 		if (SettingPostProcessComponent)
 		{
+			FFastLogger::LogConsole(TEXT("Hello"));
 			SettingPostProcessComponent->DestroyComponent();
 			SettingPostProcessComponent = nullptr;
 		}
@@ -1335,6 +1342,7 @@ void AFrog::InitJumpGaugeUIComponent()
 	// 로컬 클라만 점프 게이지 보이게
 	if (IsLocallyControlled() || bMapEditingPawn)
 	{
+		FFastLogger::LogConsole(TEXT("Hello   111111111"));
 		SetJumpGaugeVisibility(false);
 
 		UJumpGaugeUI* JumpGaugeUI = Cast<UJumpGaugeUI>(JumpGaugeUIComponent->GetUserWidgetObject());
@@ -1345,11 +1353,13 @@ void AFrog::InitJumpGaugeUIComponent()
 		// 다른 클라에서 삭제
 		if (JumpGaugeUIComponent)
 		{
+			FFastLogger::LogConsole(TEXT("Hello   222222222222222"));
 			JumpGaugeUIComponent->DestroyComponent();
 			JumpGaugeUIComponent = nullptr;
 		}
 		if (SettingPostProcessComponent)
 		{
+			FFastLogger::LogConsole(TEXT("Hello   3333333333333"));
 			SettingPostProcessComponent->DestroyComponent();
 			SettingPostProcessComponent = nullptr;
 		}

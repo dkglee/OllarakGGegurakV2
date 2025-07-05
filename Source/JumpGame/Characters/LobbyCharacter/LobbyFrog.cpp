@@ -108,7 +108,6 @@ void ALobbyFrog::Tick(float DeltaTime)
 void ALobbyFrog::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 
 void ALobbyFrog::UpdateAnimation(ELobbyCharacterState NewState)

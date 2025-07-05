@@ -8,6 +8,7 @@
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "JumpGame/Characters/LobbyCharacter/LobbyFrog.h"
 #include "JumpGame/Maps/Node/StageMapNodeComponent.h"
+#include "JumpGame/Maps/Node/StageOutSign.h"
 #include "JumpGame/StageSystem/StageSystemSubsystem.h"
 #include "JumpGame/UI/ClientRoomUI.h"
 #include "JumpGame/UI/CustomGameUI.h"
@@ -65,6 +66,7 @@ void AClientRoomGameState::BeginPlay()
 	if (!SGI->bNodeRestore) return;
 
 	Frog->RestoreNodePosition();
+	Frog->StageMapNodeComponent->StageOutSign->SpawnSign(false);
 }
 
 void AClientRoomGameState::Tick(float DeltaSeconds)

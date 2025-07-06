@@ -47,26 +47,34 @@ void AInGameMode::BeginPlay()
 	{
 		return;
 	}
-	// FString FileName = JumpGameInstance->GetMapFilePath();
-	// if (FileName.IsEmpty())
-	// {
-	// 	return;
-	// }
-	
-	JumpGameInstance->CurrentMap = EMapKind::Stage;
-	UE_LOG(LogTemp, Warning, TEXT("CurrentMap: %d"), JumpGameInstance->CurrentMap);
-	
-	// Stage System Subsystem을 가져와서 선택된 필드 ID를 가져옵니다. 
-	UStageSystemSubsystem* StageSystem = JumpGameInstance->GetSubsystem<UStageSystemSubsystem>();
-	if (!StageSystem)
+	if (JumpGameInstance->bCustomGameMode == false)
 	{
-		FFastLogger::LogConsole(TEXT("StageSystemSubsystem not found!"));
-		return;
+		JumpGameInstance->CurrentMap = EMapKind::Stage;
+		UE_LOG(LogTemp, Warning, TEXT("CurrentMap: %d"), JumpGameInstance->CurrentMap);
+		
+		// Stage System Subsystem을 가져와서 선택된 필드 ID를 가져옵니다. 
+		UStageSystemSubsystem* StageSystem = JumpGameInstance->GetSubsystem<UStageSystemSubsystem>();
+		if (!StageSystem)
+		{
+			FFastLogger::LogConsole(TEXT("StageSystemSubsystem not found!"));
+			return;
+		}
+		FName FieldID = StageSystem->GetChosenField();
+		FString FileName = StageSystem->ConvertFiledIDToPath(FieldID);
+		
+		LoadMapComponent->LoadMapWithString(FileName);
 	}
-	FName FieldID = StageSystem->GetChosenField();
-	FString FileName = StageSystem->ConvertFiledIDToPath(FieldID);
-	
-	LoadMapComponent->LoadMapWithString(FileName);
+	else
+	{
+		FString FileName = JumpGameInstance->GetMapFilePath();
+		if (FileName.IsEmpty())
+		{
+			FFastLogger::LogConsole(TEXT("No map file found!"));
+			return;
+		}
+		FFastLogger::LogConsole(TEXT("Loading map: %s"), *FileName);
+		LoadMapComponent->LoadMapWithString(FileName);
+	}
 }
 
 void AInGameMode::PostLogin(APlayerController* NewPlayer)

@@ -33,6 +33,9 @@ public:
 	FVector2D PrevMousePos{FVector2D::ZeroVector};
 	float AngleVelocity{};
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LoadMap")
+	class ULoadMapComponent* LoadMapComponent;
+
 public:
 	// LobbyGS -> ClientRoomGS
 	// 업데이트 될 UI

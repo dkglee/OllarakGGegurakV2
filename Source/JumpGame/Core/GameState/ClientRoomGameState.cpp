@@ -9,6 +9,7 @@
 #include "JumpGame/Characters/LobbyCharacter/LobbyFrog.h"
 #include "JumpGame/Maps/Node/StageMapNodeComponent.h"
 #include "JumpGame/Maps/Node/StageOutSign.h"
+#include "JumpGame/Props/SaveLoad/LoadMapComponent.h"
 #include "JumpGame/StageSystem/StageSystemSubsystem.h"
 #include "JumpGame/UI/ClientRoomUI.h"
 #include "JumpGame/UI/CustomGameUI.h"
@@ -31,6 +32,8 @@ AClientRoomGameState::AClientRoomGameState()
 	{
 		ClientRoomUIClass = TempClientUI.Class;
 	}
+
+	LoadMapComponent = CreateDefaultSubobject<ULoadMapComponent>(TEXT("LoadMapComponent"));
 }
 
 void AClientRoomGameState::BeginPlay()
@@ -61,6 +64,10 @@ void AClientRoomGameState::BeginPlay()
 	{
 		ClientRoomUI->OnClickGoStartStageGame();
 	}
+	UJumpGameInstance* GI = Cast<UJumpGameInstance>(GetGameInstance());
+	if (!GI) return;
+	GI->bCustomGameMode = false;
+	
 	UStageSystemSubsystem* SGI = GetWorld()->GetGameInstance()->GetSubsystem<UStageSystemSubsystem>();
 	ALobbyFrog* Frog = Cast<ALobbyFrog>(UGameplayStatics::GetActorOfClass(GetWorld(),ALobbyFrog::StaticClass()));
 	if (!SGI->bNodeRestore) return;

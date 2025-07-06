@@ -9,7 +9,7 @@ void UNodeTutorialUI::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 	
-	GetWorld()->GetTimerManager().SetTimer(TutorialAnimTimer, this, &UNodeTutorialUI::PlayTutorialAnim, 2.0f, true);
+	GetWorld()->GetTimerManager().SetTimer(TutorialAnimTimer, this, &UNodeTutorialUI::PlayTutorialAnim, 1.7f, true);
 }
 
 void UNodeTutorialUI::NativeTick(const FGeometry& MyGeometry, float DeltaTime)

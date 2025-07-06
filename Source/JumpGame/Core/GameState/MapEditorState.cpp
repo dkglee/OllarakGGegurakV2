@@ -5,6 +5,7 @@
 
 #include "Blueprint/UserWidget.h"
 #include "JumpGame/AIServices/Shared/HttpManagerComponent.h"
+#include "JumpGame/Core/GameInstance/JumpGameInstance.h"
 #include "JumpGame/MapEditor/CategorySystem/CategorySystem.h"
 #include "JumpGame/MapEditor/WarningPropManager/WarningPropManager.h"
 #include "JumpGame/Props/SaveLoad/LoadMapComponent.h"

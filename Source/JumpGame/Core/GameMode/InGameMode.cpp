@@ -53,6 +53,9 @@ void AInGameMode::BeginPlay()
 	// 	return;
 	// }
 	
+	JumpGameInstance->CurrentMap = EMapKind::Stage;
+	UE_LOG(LogTemp, Warning, TEXT("CurrentMap: %d"), JumpGameInstance->CurrentMap);
+	
 	// Stage System Subsystem을 가져와서 선택된 필드 ID를 가져옵니다. 
 	UStageSystemSubsystem* StageSystem = JumpGameInstance->GetSubsystem<UStageSystemSubsystem>();
 	if (!StageSystem)

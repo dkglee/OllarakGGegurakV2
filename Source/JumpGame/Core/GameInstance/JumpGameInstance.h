@@ -15,6 +15,14 @@
 DECLARE_DELEGATE_OneParam(FFindComplete, const FRoomData&);
 DECLARE_DELEGATE_OneParam(FFriendListUpdated, const FSteamFriendData&);
 
+UENUM()
+enum class EMapKind : uint8
+{
+	Unknown,
+	Lobby,
+	Stage,
+	Editor
+};
 /**
  * 
  */
@@ -25,6 +33,11 @@ class JUMPGAME_API UJumpGameInstance : public UGameInstance
 	
 public:
 	virtual void Init() override;
+
+	// 현재 어떤 맵?
+	UPROPERTY()
+	EMapKind CurrentMap = EMapKind::Lobby;
+	
 	// 세션 이름
 	UPROPERTY()
 	FName CurrentSessionName;

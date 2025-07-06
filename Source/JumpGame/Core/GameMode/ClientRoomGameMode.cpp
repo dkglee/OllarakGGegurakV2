@@ -29,6 +29,9 @@ void AClientRoomGameMode::BeginPlay()
 	// TODO: GI 초기화
 	GI->GetPlayerInfo().Empty();
 
+	GI->CurrentMap = EMapKind::Lobby;
+	UE_LOG(LogTemp, Warning, TEXT("CurrentMap: %d"), GI->CurrentMap);
+
 	if (GI->bIsGameStart)
 	{
 		return;

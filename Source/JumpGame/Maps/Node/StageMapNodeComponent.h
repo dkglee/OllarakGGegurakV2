@@ -87,6 +87,9 @@ public:
 	class AStageOutSign* StageOutSign = nullptr; // 외출중 표지판
 	UFUNCTION()
 	void UpdateStageSign(int32 CurrentNode, int32 DestinationNode);
+
+	UFUNCTION()
+	int32 GetNodeIDByFieldID(const FName& InFieldID) const;
 	
 	// 이동 가능한 노드인가?
 	// bool IsValidNodeID(int32 FromNodeID, int32 ToNodeID);

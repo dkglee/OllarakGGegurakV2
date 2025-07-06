@@ -33,10 +33,12 @@ public:
 	TMap<FName, EFieldProgressState> FieldStateCache;
 	UFUNCTION(BlueprintCallable)
 	void SetFieldState(FName FieldID, EFieldProgressState NewState);
-
 	UFUNCTION(BlueprintCallable)
 	EFieldProgressState GetFieldState(FName FieldID) const;
 
+	// 들어갔던 곳에 서있어야하는지 판단
+	bool bNodeRestore = false;
+	
 	// Save/Load 함수
 	void SaveProgressToDisk();
 	void LoadProgressFromDisk();

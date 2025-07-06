@@ -59,5 +59,8 @@ public:
 	UPROPERTY(EditAnywhere, Category="Animation")
 	TSubclassOf<class UAnimInstance> StageMapAnimBP;
 	void UpdateAnimation(ELobbyCharacterState NewState);
+
+	UFUNCTION()
+	void RestoreNodePosition(); // 들어갔던 노드로 복귀하자
 };
 

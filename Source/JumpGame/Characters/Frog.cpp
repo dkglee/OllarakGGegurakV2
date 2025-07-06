@@ -2048,8 +2048,6 @@ void AFrog::OnSelectionEmotionIndex(int32 EmotionIndex)
 	{
 		PlayEmotion(EmotionIndex);
 	}
-
-	FFastLogger::LogScreen(FColor::Red, TEXT("선택인덱스: %d"), EmotionIndex);
 }
 
 void AFrog::ShowEmotionUI(bool bIsShow)
@@ -2245,8 +2243,7 @@ void AFrog::SetFrogGlobalGain_PP(float Value)
 	Value *= 2;
 	Value = FMath::Clamp(Value, 0.1f, 1.8f);
 
-	SettingPostProcessComponent->Settings.ColorGain.Set(1, 1, 1, Value);
-	FLog::Log(TEXT("SetFrogGlobalGain_PP: Value"), Value);
+SettingPostProcessComponent->Settings.ColorGain.Set(1, 1, 1, Value);
 
 	//SettingPostProcessComponent->Settings.ColorGainMidtones.Set(1, 1, 1, Value);
 	//SettingPostProcessComponent->Settings.ColorGainHighlights.Set(1, 1, 1, Value);

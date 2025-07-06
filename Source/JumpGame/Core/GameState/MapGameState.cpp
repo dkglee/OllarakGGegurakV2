@@ -249,7 +249,7 @@ void AMapGameState::EndStage(bool bIsClear)
 	bIsGameClear = bIsClear;
 
 	// 도중에 나가던지 완주했던지 모두 기록은 저장
-	const float ClearTime = GetWorld()->GetTimeSeconds() - StartTime;
+	ClearTime = GetWorld()->GetTimeSeconds() - StartTime;
 	const FName FieldID = GetGameInstance<UJumpGameInstance>()->GetSubsystem<UStageSystemSubsystem>()->GetChosenField();
 
 	if (auto* Subsystem = GetGameInstance()->GetSubsystem<UStageSystemSubsystem>())

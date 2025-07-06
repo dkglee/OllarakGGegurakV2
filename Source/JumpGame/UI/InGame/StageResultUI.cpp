@@ -4,6 +4,8 @@
 #include "StageResultUI.h"
 
 #include "Components/Button.h"
+#include "Components/TextBlock.h"
+#include "JumpGame/Core/GameState/MapGameState.h"
 #include "JumpGame/Utils/FastLogger.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -18,6 +20,18 @@ void UStageResultUI::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	AMapGameState* MapGameState = Cast<AMapGameState>(GetWorld()->GetGameState());
+	if (!MapGameState)
+	{
+		FFastLogger::LogConsole(TEXT("StageResultUI::NativeConstruct - MapGameState is nullptr"));
+		return;
+	}
+
+	int32 Min = static_cast<int32>(MapGameState->ClearTime / 60);
+	int32 Sec = static_cast<int32>(MapGameState->ClearTime) % 60;
+	FString ClearTimeText = FString::Printf(TEXT("%02d:%02d"), Min, Sec);
+	Text_ClearTime->SetText(FText::FromString(ClearTimeText));
+	
 	PlayAnimation(ClearAnimation, 0.f, 1, EUMGSequencePlayMode::Forward, 1.f);
 }
 

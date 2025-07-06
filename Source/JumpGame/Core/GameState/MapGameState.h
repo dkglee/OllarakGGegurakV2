@@ -95,6 +95,8 @@ public:
 	// 게임 시작 시간
 	UPROPERTY()
 	float StartTime = 0.f;
+	UPROPERTY()
+	float ClearTime = 0.f;
 
 	// 진행도
 	UFUNCTION()

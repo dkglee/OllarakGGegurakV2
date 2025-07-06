@@ -6,7 +6,6 @@
 #include "Components/Button.h"
 #include "Components/WidgetSwitcher.h"
 #include "JumpGame/Core/GameInstance/JumpGameInstance.h"
-#include "JumpGame/Core/GameState/LobbyGameState.h"
 #include "JumpGame/Props/SaveLoad/LoadMapComponent.h"
 #include "Components/ScrollBox.h"
 #include "Components/TextBlock.h"
@@ -15,6 +14,7 @@
 #include "Components/Image.h"
 #include "Components/SizeBox.h"
 #include "FileBrowser/FileBrowserUI.h"
+#include "JumpGame/Core/GameState/ClientRoomGameState.h"
 #include "JumpGame/Utils/FastLogger.h"
 
 void USelectRoomUI::NativeOnInitialized()
@@ -148,7 +148,7 @@ void USelectRoomUI::OnPickCustomMap()
 	{
 		return ;
 	}
-	ALobbyGameState* GameState = Cast<ALobbyGameState>(GetWorld()->GetGameState());
+	AClientRoomGameState* GameState = Cast<AClientRoomGameState>(GetWorld()->GetGameState());
 	if (!GameState)
 	{
 		return ;
@@ -161,7 +161,7 @@ void USelectRoomUI::OnPickCustomMap()
 
 void USelectRoomUI::OnPickFileComplete(const FString& FilePath, bool bSuccess)
 {
-	ALobbyGameState* GameState = Cast<ALobbyGameState>(GetWorld()->GetGameState());
+	AClientRoomGameState* GameState = Cast<AClientRoomGameState>(GetWorld()->GetGameState());
 	if (!GameState)
 	{
 		return ;

@@ -13,6 +13,7 @@
 #include "JumpGame/Core/GameState/ClientRoomGameState.h"
 #include "JumpGame/Core/GameState/LobbyGameState.h"
 #include "JumpGame/Maps/Node/NodeTutorial.h"
+#include "JumpGame/StageSystem/StageSystemSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "UICam/LobbyCameraComp.h"
 
@@ -54,6 +55,11 @@ void UCustomGameUI::OnClickGameStart()
 	
 	// TODO: 선택한 게임레벨로 이동하게하자
 	UE_LOG(LogTemp, Warning, TEXT("게임시작"));
+	UJumpGameInstance* JumpGameInstance = Cast<UJumpGameInstance>(GetWorld()->GetGameInstance());
+	if (!JumpGameInstance) return;
+	JumpGameInstance->bCustomGameMode = true;
+	// 레벨 전환
+	UGameplayStatics::OpenLevel(GetWorld(), FName("Stage_01"), true);
 }
 
 void UCustomGameUI::OnMapSelected(class UMapSlotUI* MapSlotUI)

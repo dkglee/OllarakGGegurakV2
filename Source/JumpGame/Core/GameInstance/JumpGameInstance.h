@@ -129,6 +129,9 @@ public:
 	// 눈 추적 파이썬 코드 실행 시킬 지 여부
 	bool bIsRunEyeScript{false};
 
+	UPROPERTY()
+	bool bCustomGameMode = false; // 커스텀 게임 모드 여부
+	
 private:
 	UPROPERTY()
 	FString MapFilePath;

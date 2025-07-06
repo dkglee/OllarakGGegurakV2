@@ -25,4 +25,7 @@ public:
 	class UButton* OutToMainButton;
 	UPROPERTY(BlueprintReadOnly, Transient, meta = (BindWidgetAnim))
 	class UWidgetAnimation* ClearAnimation;
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* Text_ClearTime;
 };

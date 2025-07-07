@@ -84,6 +84,12 @@ public:
 	void StopJump();
 	void WPressed(const struct FInputActionValue& Value);
 	void WReleased(const struct FInputActionValue& Value);
+	void APressed(const struct FInputActionValue& Value);
+	void AReleased(const struct FInputActionValue& Value);
+	void DPressed(const struct FInputActionValue& Value);
+	void DReleased(const struct FInputActionValue& Value);
+	void SPressed(const struct FInputActionValue& Value);
+	void SReleased(const struct FInputActionValue& Value);
 	UFUNCTION(BlueprintCallable)
 	void StartSprint();
 	UFUNCTION(BlueprintCallable)
@@ -233,6 +239,12 @@ public:
 	class UInputAction* CrouchAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	class UInputAction* SprintAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	class UInputAction* SprintLeftAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	class UInputAction* SprintRightAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	class UInputAction* SprintBackAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	class UInputAction* TongueAttackAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
@@ -441,8 +453,16 @@ public :
 
 	// 대쉬
 	FTimerHandle DoubleTapTimer;
+	FTimerHandle SprintStopTimer;
 	float WPressedTime{0.f};
+	float APressedTime{0.f};
+	float DPressedTime{0.f};
+	float SPressedTime{0.f};
 	bool bIsSprint{false};
+	bool bWPressed{false};
+	bool bAPressed{false};
+	bool bSPressed{false};
+	bool bDPressed{false};
 
 	// 점프 버퍼 : 착지 직전에 일찍 점프 해도 점프 되도록
 	float JumpBufferTime{0.25f};

@@ -50,12 +50,13 @@ void UOutToMainUI::OnClickOutToMain()
 	
 	if (GetWorld()->GetMapName().Contains(TEXT("Stage")))
 	{
-		AMapGameState* GS{Cast<AMapGameState>(GetWorld()->GetGameState())};
-		if (GS)
-		{
-			GS->EndStage(false);
-		}
-		
+		// 설정으로 나간것은 저장 X
+		// AMapGameState* GS{Cast<AMapGameState>(GetWorld()->GetGameState())};
+		// if (GS)
+		// {
+		// 	GS->EndStage(false);
+		// }
+		//
 		UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/Levels/GameLobby?AutoStartStage=1"));
 	}
 	else

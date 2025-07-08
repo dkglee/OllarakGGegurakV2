@@ -30,18 +30,29 @@ void UJumpGaugeUI::OnSuperJumpRatioChanged(float NewRatio)
 	{
 		SuperJumpText->SetRenderOpacity(1.f);
 		SmallJumpText->SetRenderOpacity(0.f);
+		ReadyText->SetRenderOpacity(0.f);
 		//JumpGaugeSlider->SetFillColorAndOpacity(FLinearColor::Red);
 	}
 	else if (NewRatio >= 0.5f)
 	{
 		SuperJumpText->SetRenderOpacity(0.f);
 		SmallJumpText->SetRenderOpacity(1.f);
+		ReadyText->SetRenderOpacity(0.f);
 		//JumpGaugeSlider->SetFillColorAndOpacity(FLinearColor::Yellow);
+	}
+	else if (NewRatio >= 0.2f)
+	{
+		SuperJumpText->SetRenderOpacity(0.f);
+		SmallJumpText->SetRenderOpacity(0.f);
+		ReadyText->SetRenderOpacity(1.f);
+		PlayAnimation(TextAnimation, 0.f, 0, EUMGSequencePlayMode::Forward, 1.f);
 	}
 	else
 	{
 		SuperJumpText->SetRenderOpacity(0.f);
 		SmallJumpText->SetRenderOpacity(0.f);
+		ReadyText->SetRenderOpacity(0.f);
+		StopAnimation(TextAnimation);
 		//JumpGaugeSlider->SetFillColorAndOpacity(FLinearColor::Green);
 	}
 }

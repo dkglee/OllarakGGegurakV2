@@ -1408,20 +1408,10 @@ void AFrog::SetSprintSpeed()
 	if (HasAuthority())
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 600.f;
-
-		if (!GetCharacterMovement()->Velocity.IsNearlyZero())
-		{
-			GetCharacterMovement()->Velocity = GetCharacterMovement()->Velocity.GetSafeNormal() * 600.f;
-		}
 	}
 	else
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 600.f;
-		
-		if (!GetCharacterMovement()->Velocity.IsNearlyZero())
-		{
-			GetCharacterMovement()->Velocity = GetCharacterMovement()->Velocity.GetSafeNormal() * 600.f;
-		}
 		
 		if (IsLocallyControlled())
 		{
@@ -1435,20 +1425,10 @@ void AFrog::SetWalkSpeed()
 	if (HasAuthority())
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 300.f;
-
-		if (!GetCharacterMovement()->Velocity.IsNearlyZero())
-		{
-			GetCharacterMovement()->Velocity = GetCharacterMovement()->Velocity.GetSafeNormal() * 300.f;
-		}
 	}
 	else
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 300.f;
-
-		if (!GetCharacterMovement()->Velocity.IsNearlyZero())
-		{
-			GetCharacterMovement()->Velocity = GetCharacterMovement()->Velocity.GetSafeNormal() * 300.f;
-		}
 		
 		if (IsLocallyControlled())
 		{

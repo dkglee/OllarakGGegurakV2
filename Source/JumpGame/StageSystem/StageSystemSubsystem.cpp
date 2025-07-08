@@ -131,6 +131,10 @@ void UStageSystemSubsystem::SaveFieldResult(FName FieldID, int32 StarCount, floa
 			// 별은 같고, 시간이 더 빠르면 시간만 갱신
 			FieldRow->FieldClearTime = ClearTime;
 		}
+		if (FieldRow->FieldStarCount != 3)
+		{
+			SetFieldState(FieldID, EFieldProgressState::InProgress);
+		}
 	}
 }
 

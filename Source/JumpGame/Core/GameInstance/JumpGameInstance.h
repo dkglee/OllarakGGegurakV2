@@ -21,7 +21,8 @@ enum class EMapKind : uint8
 	Unknown,
 	Lobby,
 	Stage,
-	Editor
+	Editor,
+	CustomStage
 };
 /**
  * 

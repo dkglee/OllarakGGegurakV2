@@ -66,6 +66,7 @@ void AInGameMode::BeginPlay()
 	}
 	else
 	{
+		JumpGameInstance->CurrentMap = EMapKind::CustomStage;
 		FString FileName = JumpGameInstance->GetMapFilePath();
 		if (FileName.IsEmpty())
 		{

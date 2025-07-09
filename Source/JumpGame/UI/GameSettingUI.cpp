@@ -166,7 +166,7 @@ void UGameSettingUI::PlaySettingAnim(bool bIsForward)
 	else
 	{
 		// 2. 로비로 (게임 중이면)
-		Text_QuitGame->SetText(FText::FromString(TEXT("로비로 돌아가기")));
+		Text_QuitGame->SetText(FText::FromString(TEXT("로비로 나가기")));
 	}
 	
 	if (bIsForward)
@@ -431,7 +431,7 @@ void UGameSettingUI::MapKind()
 		// 2. 게임 중이면 - 스테이지 화면 로비로 나가기
 		UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/Levels/GameLobby?AutoStartStage=1"));
 	}
-	else if (GI->CurrentMap == EMapKind::Editor)
+	else if (GI->CurrentMap == EMapKind::Editor || GI->CurrentMap == EMapKind::CustomStage)
 	{
 		// 3. 에디터라면 - 메인 화면으로 나가기
 		UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/Levels/GameLobby"));

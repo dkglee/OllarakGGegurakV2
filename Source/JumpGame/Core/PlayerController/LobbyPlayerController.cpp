@@ -8,18 +8,13 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "OnlineSubsystem.h"
-#include "Blueprint/UserWidget.h"
-#include "Components/Button.h"
 #include "GameFramework/PlayerState.h"
 #include "Interfaces/OnlineFriendsInterface.h"
-#include "Interfaces/OnlineIdentityInterface.h"
 #include "Interfaces/OnlinePresenceInterface.h"
 #include "JumpGame/Characters/LobbyCharacter/LobbyFrog.h"
 #include "JumpGame/Core/GameState/TypeInfo/GameInfo.h"
-#include "JumpGame/UI/BottomNaviBarUI.h"
 #include "JumpGame/UI/FriendsList.h"
 #include "JumpGame/Utils/CursorManager.h"
-#include "JumpGame/Utils/FastLogger.h"
 #include "Kismet/GameplayStatics.h"
 
 ALobbyPlayerController::ALobbyPlayerController()

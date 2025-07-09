@@ -95,6 +95,27 @@ AFrog::AFrog()
 		SprintAction = Frog_Sprint.Object;
 	}
 
+	ConstructorHelpers::FObjectFinder<UInputAction> Frog_SprintLeft
+	(TEXT("/Game/Characters/Input/IA_FrogSprintLeft.IA_FrogSprintLeft"));
+	if (Frog_SprintLeft.Succeeded())
+	{
+		SprintLeftAction = Frog_SprintLeft.Object;
+	}
+
+	ConstructorHelpers::FObjectFinder<UInputAction> Frog_SprintRight
+	(TEXT("/Game/Characters/Input/IA_FrogSprintRight.IA_FrogSprintRight"));
+	if (Frog_SprintRight.Succeeded())
+	{
+		SprintRightAction = Frog_SprintRight.Object;
+	}
+
+	ConstructorHelpers::FObjectFinder<UInputAction> Frog_SprintBack
+	(TEXT("/Game/Characters/Input/IA_FrogSprintBack.IA_FrogSprintBack"));
+	if (Frog_SprintBack.Succeeded())
+	{
+		SprintBackAction = Frog_SprintBack.Object;
+	}
+
 	ConstructorHelpers::FObjectFinder<UInputAction> Frog_TongueAttack
 		(TEXT("/Game/Characters/Input/IA_FrogTongueAttack.IA_FrogTongueAttack"));
 	if (Frog_TongueAttack.Succeeded())
@@ -480,6 +501,7 @@ void AFrog::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		GetWorldTimerManager().ClearTimer(JumpBackHandle);
 		GetWorldTimerManager().ClearTimer(ReturnCollisionTimer);
 		GetWorldTimerManager().ClearTimer(ZoomTimer);
+		//GetWorldTimerManager().ClearTimer(SprintStopTimer);
 	}
 
 	Super::EndPlay(EndPlayReason);
@@ -609,11 +631,18 @@ void AFrog::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this,
 		                                   &AFrog::StopCrouch);
 
-		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this,
-		                                   &AFrog::WPressed);
-		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this,
-		                                   &AFrog::WReleased);
-
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &AFrog::WPressed);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &AFrog::WReleased);
+		
+		EnhancedInputComponent->BindAction(SprintLeftAction, ETriggerEvent::Started, this, &AFrog::APressed);
+		EnhancedInputComponent->BindAction(SprintLeftAction, ETriggerEvent::Completed, this, &AFrog::AReleased);
+		
+		EnhancedInputComponent->BindAction(SprintRightAction, ETriggerEvent::Started, this, &AFrog::DPressed);
+		EnhancedInputComponent->BindAction(SprintRightAction, ETriggerEvent::Completed, this, &AFrog::DReleased);
+		
+		EnhancedInputComponent->BindAction(SprintBackAction, ETriggerEvent::Started, this, &AFrog::SPressed);
+		EnhancedInputComponent->BindAction(SprintBackAction, ETriggerEvent::Completed, this, &AFrog::SReleased);
+		
 		EnhancedInputComponent->BindAction(TongueAttackAction, ETriggerEvent::Started, this,
 		                                   &AFrog::TongueAttack);
 
@@ -847,6 +876,8 @@ void AFrog::StopJump()
 
 void AFrog::WPressed(const struct FInputActionValue& Value)
 {
+	bWPressed = true;
+	
 	float CurrentTime{static_cast<float>(GetWorld()->GetTimeSeconds())};
 
 	if (CurrentTime - WPressedTime < 0.25f)
@@ -854,15 +885,140 @@ void AFrog::WPressed(const struct FInputActionValue& Value)
 		bIsSprint = true;
 		StartSprint();
 	}
+	
+	// if (GetWorldTimerManager().IsTimerActive(SprintStopTimer))
+	// {
+	// 	GetWorldTimerManager().ClearTimer(SprintStopTimer);
+	// }
 
 	WPressedTime = CurrentTime;
 }
 
 void AFrog::WReleased(const struct FInputActionValue& Value)
 {
+	bWPressed = false;
+
+	if (bWPressed || bAPressed || bSPressed || bDPressed)
+	{
+		return;
+	}
+	
 	if (bIsSprint)
 	{
 		bIsSprint = false;
+		//GetWorldTimerManager().SetTimer(SprintStopTimer, this, &AFrog::StopSprint, 0.2f, false);
+		StopSprint();
+	}
+}
+
+void AFrog::APressed(const struct FInputActionValue& Value)
+{
+	bAPressed = true;
+	
+	float CurrentTime{static_cast<float>(GetWorld()->GetTimeSeconds())};
+
+	if (CurrentTime - APressedTime < 0.25f)
+	{
+		bIsSprint = true;
+		StartSprint();
+	}
+	
+	// if (GetWorldTimerManager().IsTimerActive(SprintStopTimer))
+	// {
+	// 	GetWorldTimerManager().ClearTimer(SprintStopTimer);
+	// }
+
+	APressedTime = CurrentTime;
+}
+
+void AFrog::AReleased(const struct FInputActionValue& Value)
+{
+	bAPressed = false;
+
+	if (bWPressed || bAPressed || bSPressed || bDPressed)
+	{
+		return;
+	}
+	
+	if (bIsSprint)
+	{
+		bIsSprint = false;
+		//GetWorldTimerManager().SetTimer(SprintStopTimer, this, &AFrog::StopSprint, 0.2f, false);
+		StopSprint();
+	}
+}
+
+void AFrog::DPressed(const struct FInputActionValue& Value)
+{
+	bDPressed = true;
+	
+	float CurrentTime{static_cast<float>(GetWorld()->GetTimeSeconds())};
+
+	if (CurrentTime - DPressedTime < 0.25f)
+	{
+		bIsSprint = true;
+		StartSprint();
+	}
+
+	// if (GetWorldTimerManager().IsTimerActive(SprintStopTimer))
+	// {
+	// 	GetWorldTimerManager().ClearTimer(SprintStopTimer);
+	// }
+	
+	DPressedTime = CurrentTime;
+}
+
+void AFrog::DReleased(const struct FInputActionValue& Value)
+{
+	bDPressed = false;
+
+	if (bWPressed || bAPressed || bSPressed || bDPressed)
+	{
+		return;
+	}
+	
+	if (bIsSprint)
+	{
+		bIsSprint = false;
+		//GetWorldTimerManager().SetTimer(SprintStopTimer, this, &AFrog::StopSprint, 0.2f, false);
+		StopSprint();
+	}
+}
+
+void AFrog::SPressed(const struct FInputActionValue& Value)
+{
+	bSPressed = true;
+	
+	float CurrentTime{static_cast<float>(GetWorld()->GetTimeSeconds())};
+
+	if (CurrentTime - SPressedTime < 0.25f)
+	{
+		bIsSprint = true;
+		StartSprint();
+	}
+
+	// if (GetWorldTimerManager().IsTimerActive(SprintStopTimer))
+	// {
+	// 	GetWorldTimerManager().ClearTimer(SprintStopTimer);
+	// }
+	
+	SPressedTime = CurrentTime;
+}
+
+void AFrog::SReleased(const struct FInputActionValue& Value)
+{
+	bSPressed = false;
+
+	if (bWPressed || bAPressed || bSPressed || bDPressed)
+	{
+		return;
+		
+	}
+	
+	if (bIsSprint)
+	{
+		bIsSprint = false;
+		//GetWorldTimerManager().SetTimer(SprintStopTimer, this, &AFrog::StopSprint, 0.2f, false);
 		StopSprint();
 	}
 }
@@ -1256,6 +1412,7 @@ void AFrog::SetSprintSpeed()
 	else
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 600.f;
+		
 		if (IsLocallyControlled())
 		{
 			ServerRPC_StartSprint();
@@ -1272,6 +1429,7 @@ void AFrog::SetWalkSpeed()
 	else
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 300.f;
+		
 		if (IsLocallyControlled())
 		{
 			ServerRPC_StopSprint();

@@ -96,11 +96,11 @@ void AMapGameState::BeginPlay()
 
 	RadiusValue = 3.f;
 
-	if (UStageSystemSubsystem* SS = GetGameInstance()->GetSubsystem<UStageSystemSubsystem>())
-	{
-		if (SS->GetFieldState(SS->GetChosenField()) == EFieldProgressState::Cleared) return; // 이미 클리어한 맵이면 업데이트 하지말자)
-		SS->SetFieldState(SS->GetChosenField(), EFieldProgressState::InProgress);
-	}
+	// if (UStageSystemSubsystem* SS = GetGameInstance()->GetSubsystem<UStageSystemSubsystem>())
+	// {
+	// 	if (SS->GetFieldState(SS->GetChosenField()) == EFieldProgressState::Cleared) return; // 이미 클리어한 맵이면 업데이트 하지말자)
+	// 	SS->SetFieldState(SS->GetChosenField(), EFieldProgressState::InProgress);
+	// }
 }
 
 void AMapGameState::Tick(float DeltaTime)

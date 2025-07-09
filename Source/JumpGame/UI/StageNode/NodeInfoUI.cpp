@@ -104,9 +104,8 @@ void UNodeInfoUI::UpdateStarImages(int32 StarCount)
 
 void UNodeInfoUI::UpdateClearTime(float ClearTime)
 {
-	const int32 TotalSeconds = FMath::RoundToInt(ClearTime);
-	const int32 Minutes = TotalSeconds / 60;
-	const int32 Seconds = TotalSeconds % 60;
+	const int32 Minutes = ClearTime / 60;
+	const int32 Seconds = (int32)ClearTime % 60;
 
 	const FString TimeText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
 

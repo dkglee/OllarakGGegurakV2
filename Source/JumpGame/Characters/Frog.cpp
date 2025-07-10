@@ -258,9 +258,8 @@ AFrog::AFrog()
 	GetCharacterMovement()->BrakingDecelerationWalking = 1500.f;
 	GetCharacterMovement()->bCanWalkOffLedgesWhenCrouching = true;
 	GetCharacterMovement()->AirControl = 1.f;
-	GetCharacterMovement()->PerchRadiusThreshold = 20.f;
-	GetCharacterMovement()->PerchRadiusThreshold = 20.f;
-	GetCharacterMovement()->bUseFlatBaseForFloorChecks = true;
+	GetCharacterMovement()->PerchRadiusThreshold = 18.f;
+	GetCharacterMovement()->bUseFlatBaseForFloorChecks = false;
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 800.f, 0.f);
 	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
 	GetCharacterMovement()->MaxWalkSpeedCrouched = 150.f;

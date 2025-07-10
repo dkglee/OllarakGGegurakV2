@@ -140,4 +140,7 @@ private:
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bIsGameStart = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bLastMapClear = false;
 };

@@ -11,7 +11,9 @@
 #include "JumpGame/Maps/Node/StageMapNodeComponent.h"
 #include "JumpGame/StageSystem/StageSystemSubsystem.h"
 #include "JumpGame/UI/ClientRoomLogoUI.h"
+#include "JumpGame/UI/Cinematic/Ending.h"
 #include "JumpGame/UI/Cinematic/IntroCinematic.h"
+#include "JumpGame/UI/Cinematic/OutroCinematic.h"
 #include "JumpGame/Utils/FastLogger.h"
 
 
@@ -32,16 +34,25 @@ void AClientRoomGameMode::BeginPlay()
 	GI->CurrentMap = EMapKind::Lobby;
 	UE_LOG(LogTemp, Warning, TEXT("CurrentMap: %d"), GI->CurrentMap);
 
-	if (GI->bIsGameStart)
+	if (!GI->bIsGameStart)
 	{
-		return;
+		IntroCinematic = CreateWidget<UIntroCinematic>(GetWorld(), IntroCinematicUIClass);
+		if (IntroCinematic)
+		{
+			IntroCinematic->AddToViewport(100);
+			IntroCinematic->MediaPlayer->OnEndReached.AddDynamic(this, &AClientRoomGameMode::OnVideoEnd);
+		}
 	}
 	
-	IntroCinematic = CreateWidget<UIntroCinematic>(GetWorld(), IntroCinematicUIClass);
-	if (IntroCinematic)
+	if (GI->bLastMapClear)
 	{
-		IntroCinematic->AddToViewport(100);
-		IntroCinematic->MediaPlayer->OnEndReached.AddDynamic(this, &AClientRoomGameMode::OnVideoEnd);
+		OutroCinematic = CreateWidget<UOutroCinematic>(GetWorld(), OutroCinematicUIClass);
+		if (OutroCinematic)
+		{
+			OutroCinematic->AddToViewport(100);
+			UE_LOG(LogTemp, Warning, TEXT("OutroCinematic Add1111111111111"));
+			OutroCinematic->MediaPlayer->OnEndReached.AddDynamic(this, &AClientRoomGameMode::OnOutroVideoEnd);
+		}
 	}
 	
 	if (UStageMapNodeComponent* NodeComp = UStageMapNodeComponent::Get(GetWorld()))
@@ -62,6 +73,20 @@ void AClientRoomGameMode::OnVideoEnd()
 		{
 			ClientRoomLogoUI->AddToViewport(20);
 			GI->bIsGameStart = true;
+		}
+	}
+}
+
+void AClientRoomGameMode::OnOutroVideoEnd()
+{
+	if (OutroCinematic)
+	{
+		OutroCinematic->MediaPlayer->OnEndReached.RemoveAll(this);
+		OutroCinematic->RemoveFromParent();
+		EndingUI = CreateWidget<UEnding>(GetWorld(), EndingUIClass);
+		if (EndingUI)
+		{
+			EndingUI->AddToViewport(40);
 		}
 	}
 }

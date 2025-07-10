@@ -21,9 +21,4 @@ public:
 	class UButton* Btn_GoLobby;
 	UFUNCTION()
 	void OnClickedGoLobby();
-	
-	UPROPERTY(meta=(BindWidgetAnim),Transient)
-	class UWidgetAnimation* EndingAnim;
-	UFUNCTION(BlueprintCallable, Category="Media")
-	void PlayEndingAnim();
 };

@@ -3,11 +3,18 @@
 
 #include "StageResultUI.h"
 
+#include "MediaPlayer.h"
+#include "ToolMenusLog.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
+#include "JumpGame/Core/GameInstance/JumpGameInstance.h"
 #include "JumpGame/Core/GameState/MapGameState.h"
+#include "JumpGame/StageSystem/StageSystemSubsystem.h"
+#include "JumpGame/UI/Cinematic/OutroCinematic.h"
 #include "JumpGame/Utils/FastLogger.h"
 #include "Kismet/GameplayStatics.h"
+
+class UStageSystemSubsystem;
 
 void UStageResultUI::NativeOnInitialized()
 {
@@ -41,7 +48,22 @@ void UStageResultUI::OnClickOutToMain()
 
 	if (GetWorld()->GetMapName().Contains(TEXT("Stage")))
 	{
-		UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/Levels/GameLobby?AutoStartStage=1"));
+		UStageSystemSubsystem* SGI = GetWorld()->GetGameInstance()->GetSubsystem<UStageSystemSubsystem>();
+		if (SGI->GetChosenField() == FString(TEXT("Field_01_10")))
+		{
+			UJumpGameInstance* GI = Cast<UJumpGameInstance>(GetWorld()->GetGameInstance());
+			if (GI)
+			{
+				GI->bLastMapClear = true;
+				UE_LOG(LogTemp, Warning, TEXT("GI->bLastMapClear = true"));
+			}
+			UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/Levels/GameLobby?AutoStartStage=1"));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("GI->bLastMapClear = false"));
+			UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/Levels/GameLobby?AutoStartStage=1"));
+		}
 	}
 	else
 	{

@@ -7,12 +7,10 @@
 #include "Components/Button.h"
 #include "JumpGame/Core/GameMode/ClientRoomGameMode.h"
 
-class AClientRoomGameMode;
-
 void UOutroCinematic::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
-
+	UE_LOG(LogTemp, Warning, TEXT("UOutroCinematic::NativeOnInitialized"));
 	if (MediaPlayer && MediaSource)
 	{
 		MediaPlayer->OpenSource(MediaSource);
@@ -22,7 +20,7 @@ void UOutroCinematic::NativeOnInitialized()
 	PlayAnimation(SkipAnim);
 
 	// 일정 시간마다 애니메이션 반복 실행
-	GetWorld()->GetTimerManager().SetTimer(AnimTimerhandle,	this, &UOutroCinematic::PlaySkipAnim, 3.0f, true);
+	GetWorld()->GetTimerManager().SetTimer(AnimOutTimerhandle,	this, &UOutroCinematic::PlaySkipAnim, 3.0f, true);
 
 	Btn_Skip->OnClicked.AddDynamic(this, &UOutroCinematic::OnClickSkip);
 }
@@ -48,7 +46,7 @@ void UOutroCinematic::NativeDestruct()
 {
 	if (GetWorld())
 	{
-		GetWorld()->GetTimerManager().ClearTimer(AnimTimerhandle);
+		GetWorld()->GetTimerManager().ClearTimer(AnimOutTimerhandle);
 	}
 	
 	Super::NativeDestruct();
@@ -64,7 +62,7 @@ void UOutroCinematic::OnClickSkip()
 	AClientRoomGameMode* GM = Cast<AClientRoomGameMode>(GetWorld()->GetAuthGameMode());
 	if (GM)
 	{
-		GM->OnVideoEnd();
-		GetWorld()->GetTimerManager().ClearTimer(AnimTimerhandle);
+		GM->OnOutroVideoEnd();
+		GetWorld()->GetTimerManager().ClearTimer(AnimOutTimerhandle);
 	}
 }

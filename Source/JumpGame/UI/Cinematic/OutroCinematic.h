@@ -37,7 +37,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Media")
 	void PlaySkipAnim();
 
-	FTimerHandle AnimTimerhandle;
+	FTimerHandle AnimOutTimerhandle;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Media")
 	class UButton* Btn_Skip;

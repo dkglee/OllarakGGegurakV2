@@ -64,17 +64,17 @@ void USelectRoomUI::InitSelectRoomUI()
 	}
 	bIsInitialized = true;
 	
-	OriginMapList = GetMapList(TEXT(".json"), TEXT("OriginMap\\"));
-	CustomMapList = GetMapList(TEXT(".json"), TEXT("CustomMap\\"));
-	SavedMapList = GetMapList(TEXT(".json"), TEXT("../../Saved/SaveMap/"));
+	// OriginMapList = GetMapList(TEXT(".json"), TEXT(""));
+	CustomMapList = GetMapList(TEXT(".json"), TEXT(""));
+	// SavedMapList = GetMapList(TEXT(".json"), TEXT(""));
 	CombinedMapList.Append(OriginMapList);
 	CombinedMapList.Append(CustomMapList);
 	CombinedMapList.Append(SavedMapList);
 	CustomMapList.Append(SavedMapList);
 
 	InitAllMap();
-	InitOriginMap();
-	InitCustomMap();
+	// InitOriginMap();
+	// InitCustomMap();
 
 	for (int32 i = 0; i < HorizontalBoxCount; i++)
 	{
@@ -197,7 +197,7 @@ TArray<FString> USelectRoomUI::GetMapList(const FString& MapType, const FString&
 {
 	TArray<FString> MapList;
 
-	FString ExecutableDir = FPaths::ProjectDir() + TEXT("AppData/Content/Maps/");
+	FString ExecutableDir = FPaths::ProjectContentDir() + TEXT("Maps/CustomMap/");
 	FString MapPath = FPaths::Combine(ExecutableDir, MapDir);
 	FString AbsoluteMapPath = FPaths::ConvertRelativePathToFull(MapPath);
 

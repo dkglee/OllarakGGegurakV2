@@ -105,7 +105,7 @@ void ULoadMapComponent::LoadMap()
 	FileBrowserUI->SetVisibility(ESlateVisibility::Visible);
 	FileBrowserUI->OnFileSelectedDelegate.BindUObject(this, &ULoadMapComponent::OnLoadFileComplete);
 
-	FString RelativeDir = FPaths::ProjectDir() + TEXT("AppData/Content/Maps/");
+	FString RelativeDir = FPaths::ProjectContentDir() + TEXT("Maps/CustomMap/");
 
 	FString AbsoluteDir = FPaths::ConvertRelativePathToFull(RelativeDir);
 	FPaths::MakePlatformFilename(AbsoluteDir);
@@ -140,7 +140,7 @@ void ULoadMapComponent::PickFile(const FString& Suffix, bool bBindFunction)
 		FileBrowserUI->OnFileSelectedDelegate.BindUObject(this, &ULoadMapComponent::OnPickFileComplete);
 	}
 
-	FString RelativeDir = FPaths::ProjectDir() + TEXT("AppData/Content/Maps/");
+	FString RelativeDir = FPaths::ProjectContentDir() + TEXT("Maps/CustomMap/");
 
 	FString AbsoluteDir = FPaths::ConvertRelativePathToFull(RelativeDir);
 	FPaths::MakePlatformFilename(AbsoluteDir);

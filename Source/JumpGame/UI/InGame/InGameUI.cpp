@@ -23,8 +23,9 @@ void UInGameUI::UpdateStarCount(int32 Count)
 	{
 		return;
 	}
-	UTexture2D* MemoryImage = StageSystem->GetField(StageSystem->GetChosenField())->FieldMemoryImage;
-	MemoryImage = MemoryImage ? MemoryImage : StageSystem->GetField(TEXT("Field_01_01"))->FieldMemoryImage;
+	const FFieldTableRow* FieldData = StageSystem->GetField(StageSystem->GetChosenField());
+	UTexture2D* MemoryImage = FieldData ? FieldData->FieldMemoryImage : StageSystem->GetField(TEXT("Field_01_01"))->FieldMemoryImage; 
+	
 	MemoryIMG->SetBrushFromTexture(MemoryImage);
 	switch (Count)
 	{

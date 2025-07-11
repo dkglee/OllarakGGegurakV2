@@ -17,6 +17,8 @@ public:
 	UFUNCTION()
 	void SetWarningText(const FString& Text);
 	UFUNCTION()
+	void SetSubText(const FString& Text);
+	UFUNCTION()
 	void StopWarningAnim();
 
 // private:
@@ -30,7 +32,7 @@ public:
 	void OnWarningButtonHovered();
 	UFUNCTION()
 	void OnWarningButtonUnhovered();
-	
+
 	UPROPERTY(EditAnywhere, meta = (BindWidgetAnim), Transient, Category = "UI", meta = (AllowPrivateAccess = "true"))
 	class UWidgetAnimation* WarningForwardAnim;
 	UPROPERTY(EditAnywhere, meta = (BindWidgetAnim), Transient, Category = "UI", meta = (AllowPrivateAccess = "true"))
@@ -50,6 +52,9 @@ public:
 	class UButton* WarningToggle;
 	UPROPERTY(EditAnywhere, meta = (BindWidget), Category = "UI", meta = (AllowPrivateAccess = "true"))
 	class USizeBox* WarningBox;
+
+	UPROPERTY(EditAnywhere, meta = (BindWidget), Category = "UI", meta = (AllowPrivateAccess = "true"))
+	class UTextBlock* SubText;
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"), Category = "UI")
 	bool bIsButtonClicked = false;

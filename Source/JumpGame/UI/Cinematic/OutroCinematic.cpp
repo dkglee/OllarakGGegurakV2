@@ -4,8 +4,10 @@
 #include "OutroCinematic.h"
 #include "FileMediaSource.h"
 #include "MediaPlayer.h"
+#include "MediaSoundComponent.h"
 #include "Components/Button.h"
 #include "JumpGame/Core/GameMode/ClientRoomGameMode.h"
+#include "JumpGame/Core/GameState/ClientRoomGameState.h"
 
 void UOutroCinematic::NativeOnInitialized()
 {
@@ -59,10 +61,10 @@ void UOutroCinematic::PlaySkipAnim()
 
 void UOutroCinematic::OnClickSkip()
 {
-	AClientRoomGameMode* GM = Cast<AClientRoomGameMode>(GetWorld()->GetAuthGameMode());
-	if (GM)
+	AClientRoomGameState* GS = Cast<AClientRoomGameState>(GetWorld()->GetGameState());
+	if (GS)
 	{
-		GM->OnOutroVideoEnd();
+		GS->OnOutroVideoEnd();
 		GetWorld()->GetTimerManager().ClearTimer(AnimOutTimerhandle);
 	}
 }

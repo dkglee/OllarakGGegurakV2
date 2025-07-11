@@ -40,7 +40,7 @@ public:
 	UPROPERTY()
 	TMap<FName, class AStageNodeActor*> FieldIDToNodeActorMap;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bIsMoving = false;
 	UPROPERTY()
 	bool bHasData = false;

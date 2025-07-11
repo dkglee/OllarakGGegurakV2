@@ -10,6 +10,7 @@
 #include "ScoreCollectUI.h"
 #include "SessionListItemWidget.h"
 #include "SessionListItemDouble.h"
+#include "Components/AudioComponent.h"
 #include "Components/Button.h"
 #include "Components/CanvasPanel.h"
 #include "Components/CheckBox.h"
@@ -24,9 +25,20 @@
 #include "JumpGame/Maps/Node/NodeTutorial.h"
 #include "JumpGame/Maps/Node/StageMapNodeComponent.h"
 #include "JumpGame/StageSystem/StageSystemSubsystem.h"
+#include "Sound/SoundCue.h"
 #include "StageNode/NodeInfoUI.h"
 #include "UICam/LobbyCameraComp.h"
 
+
+UClientRoomUI::UClientRoomUI(const FObjectInitializer& InObjectInitializer) : Super(InObjectInitializer)
+{
+	ConstructorHelpers::FObjectFinder<USoundCue> SoundObject
+	(TEXT("/Game/Sounds/Ques/Lobby_Cue.Lobby_Cue"));
+	if (SoundObject.Succeeded())
+	{
+		LobbySoundCue = SoundObject.Object;
+	}
+}
 
 void UClientRoomUI::NativeOnInitialized()
 {
@@ -92,6 +104,23 @@ void UClientRoomUI::NativeOnInitialized()
 	if (CreditUI)
 	{
 		CreditUI->OnClickBackToLobbyFromCredit.AddDynamic(this, &UClientRoomUI::SetVisibleMain);
+	}
+	
+	LobbyAudio = UGameplayStatics::CreateSound2D(GetWorld(), LobbySoundCue);
+}
+
+void UClientRoomUI::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	if (LobbyAudio)
+	{
+		LobbyAudio->Play();
+	}
+	else
+	{
+		LobbyAudio = UGameplayStatics::CreateSound2D(GetWorld(), LobbySoundCue);
+		LobbyAudio->Play();
 	}
 }
 

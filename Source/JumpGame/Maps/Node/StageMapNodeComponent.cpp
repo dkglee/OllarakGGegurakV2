@@ -43,7 +43,7 @@ void UStageMapNodeComponent::BeginPlay()
 	NodeInfoUI = CreateWidget<UNodeInfoUI>(GetWorld(), NodeInfoUIClass);
 	if (NodeInfoUI)
 	{
-		NodeInfoUI->AddToViewport(50);
+		NodeInfoUI->AddToViewport();
 		NodeInfoUI->SetVisibility(ESlateVisibility::Hidden);
 		NodeInfoUI->SetIsEnabled(false);
 	}
@@ -54,15 +54,16 @@ void UStageMapNodeComponent::TickComponent(float DeltaTime, ELevelTick TickType,
                                          FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
+	
 	if (!bIsMoving) return;
 	if (!OwnerChar) return;
 	
 	FVector CharLoc = OwnerChar->GetActorLocation();
 	FVector TargetLoc = NodeMap[DestinationNodeID].WorldPosition;
 	float XYDist = FVector2D::Distance(FVector2D(CharLoc.X, CharLoc.Y), FVector2D(TargetLoc.X, TargetLoc.Y));
-	
-	if (XYDist < 55.f)
+
+	// if (XYDist < 55.f)
+	if (FMath::IsNearlyEqual(XYDist, 55.0f, 5.0f))
 	{
 		UpdateStageSign(CurrentNodeID, DestinationNodeID);
 		

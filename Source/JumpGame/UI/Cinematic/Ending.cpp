@@ -15,7 +15,5 @@ void UEnding::NativeOnInitialized()
 
 void UEnding::OnClickedGoLobby()
 {
-	// 로비로 이동
 	this->RemoveFromParent();
-	UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/Levels/GameLobby"));
 }

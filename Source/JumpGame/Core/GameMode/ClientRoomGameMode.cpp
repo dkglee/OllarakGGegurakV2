@@ -87,6 +87,7 @@ void AClientRoomGameMode::OnOutroVideoEnd()
 		if (EndingUI)
 		{
 			EndingUI->AddToViewport(40);
+			GI->bLastMapClear = false;
 		}
 	}
 }

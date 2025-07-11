@@ -1059,7 +1059,8 @@ void AFrog::SetCrouchEnabled(bool bEnabled)
 void AFrog::StartCrouch()
 {
 	bIsPressedCrouch = true;
-
+	GetCharacterMovement()->bUseFlatBaseForFloorChecks = true;
+	
 	if (!GetCanMove())
 	{
 		return;
@@ -1079,6 +1080,7 @@ void AFrog::StartCrouch()
 void AFrog::StopCrouch()
 {
 	bIsPressedCrouch = false;
+	GetCharacterMovement()->bUseFlatBaseForFloorChecks = false;
 
 	MulticastRPC_StopCrouch();
 	if (HasAuthority())
@@ -1278,6 +1280,8 @@ void AFrog::MulticastRPC_StartCrouch_Implementation()
 		return;
 	}
 
+	GetCharacterMovement()->bUseFlatBaseForFloorChecks = true;
+
 	// 공중에 있거나 수영 중이면 리턴
 	if (GetCharacterMovement()->IsFalling() || bIsSwimming)
 	{
@@ -1325,6 +1329,7 @@ void AFrog::MulticastRPC_StopCrouch_Implementation()
 	bIsCrouching = false;
 	SetJumpGaugeVisibility(false);
 	UnCrouch();
+	GetCharacterMovement()->bUseFlatBaseForFloorChecks = false;
 
 	GetWorldTimerManager().ClearTimer(CrouchTimer);
 	CrouchTime = 0.f;

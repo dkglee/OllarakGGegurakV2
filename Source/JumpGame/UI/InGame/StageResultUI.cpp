@@ -56,7 +56,7 @@ void UStageResultUI::OnClickOutToMain()
 				GI->bLastMapClear = true;
 				UE_LOG(LogTemp, Warning, TEXT("GI->bLastMapClear = true"));
 			}
-			UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/Levels/GameLobby?AutoStartStage=1"));
+			UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/Levels/GameLobby"));
 		}
 		else
 		{

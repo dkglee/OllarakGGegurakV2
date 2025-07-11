@@ -35,6 +35,11 @@ void UWarningUI::SetWarningText(const FString& Text)
 	WarningText->SetText(FText::FromString(Text));
 }
 
+void UWarningUI::SetSubText(const FString& Text)
+{
+	SubText->SetText(FText::FromString(Text));
+}
+
 void UWarningUI::StopWarningAnim()
 {
 	UUMGSequencePlayer* SequencePlayer = PlayAnimation(WarningReverseAnim);

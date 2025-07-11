@@ -147,6 +147,7 @@ void UWarningPropManager::SetWarning(EEditorWarningType WarningType)
 		{
 			CachedWarningUI->WarningOccured();
 			CachedWarningUI->SetWarningText(TEXT("충돌하는 블록이 있어요!"));
+			CachedWarningUI->SetSubText(TEXT("[F]를 눌러 문제되는 블록을 찾아가세요!"));
 		}
 		break;
 	case EEditorWarningType::OverCount:
@@ -154,6 +155,7 @@ void UWarningPropManager::SetWarning(EEditorWarningType WarningType)
 		{
 			CachedWarningUI->WarningOccured();
 			CachedWarningUI->SetWarningText(TEXT("필수 블록이 너무 많아요!"));
+			CachedWarningUI->SetSubText(TEXT("[F]를 눌러 문제되는 블록을 찾아가세요!"));
 		}
 		break;
 	case EEditorWarningType::LessCount:
@@ -161,6 +163,7 @@ void UWarningPropManager::SetWarning(EEditorWarningType WarningType)
 		{
 			CachedWarningUI->WarningOccured();
 			CachedWarningUI->SetWarningText(TEXT("필수 블록이 부족해요!"));
+			CachedWarningUI->SetSubText(TEXT("필수 카테고리에서 블록을 설치해주세요!"));
 		}
 		break;
 	default:

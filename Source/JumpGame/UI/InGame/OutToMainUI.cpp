@@ -6,6 +6,7 @@
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "JumpGame/Characters/Frog.h"
+#include "JumpGame/Core/GameInstance/JumpGameInstance.h"
 #include "JumpGame/Core/GameState/MapGameState.h"
 #include "JumpGame/Utils/FastLogger.h"
 #include "Kismet/GameplayStatics.h"
@@ -55,8 +56,18 @@ void UOutToMainUI::OnClickOutToMain()
 		{
 			GS->EndStage(false);
 		}
-		
-		UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/Levels/GameLobby?AutoStartStage=1"));
+
+		// 커스텀 맵인 경우, 그냥 로비로 나가야한다
+		UJumpGameInstance* GI = Cast<UJumpGameInstance>(GetWorld()->GetGameInstance());
+		if (GI->CurrentMap == EMapKind::CustomStage)
+		{
+			UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/Levels/GameLobby"));
+		}
+		else
+		{
+			// 아니면 스테이지로
+			UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/Levels/GameLobby?AutoStartStage=1"));
+		}
 	}
 	else
 	{

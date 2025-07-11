@@ -21,6 +21,9 @@ public:
 	void PlayClearAnimation();
 	
 public:
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	class UImage* MemoryIMG;
+	
 	UPROPERTY(BlueprintReadOnly, Transient, meta = (BindWidgetAnim))
 	class UWidgetAnimation* StarAnimation1;
 	UPROPERTY(BlueprintReadOnly, Transient, meta = (BindWidgetAnim))

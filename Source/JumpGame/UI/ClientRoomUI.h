@@ -27,7 +27,10 @@ class JUMPGAME_API UClientRoomUI : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	UClientRoomUI(const FObjectInitializer& InObjectInitializer);
+	
 	virtual void NativeOnInitialized() override;
+	virtual void NativeConstruct() override;
 
 	UPROPERTY()
 	class UJumpGameInstance* GI;
@@ -208,5 +211,10 @@ public:
 	void SetTutorialNode(bool IsVisible);
 	UPROPERTY()
 	TArray<AActor*> AllTutorialActors;
+
+	UPROPERTY(EditAnywhere, Category = "SoundCue", meta = (AllowPrivateAccess = "true"))
+	class USoundCue* LobbySoundCue;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SoundCue", meta = (AllowPrivateAccess = "true"))
+	class UAudioComponent* LobbyAudio;
 };
 

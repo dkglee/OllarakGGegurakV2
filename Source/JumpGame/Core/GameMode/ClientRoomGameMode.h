@@ -16,11 +16,11 @@ class JUMPGAME_API AClientRoomGameMode : public AGameMode
 	GENERATED_BODY()
 
 public:
+	AClientRoomGameMode();
+	
 	virtual void BeginPlay() override;
 	UFUNCTION()
 	void OnVideoEnd();
-	UFUNCTION()
-	void OnOutroVideoEnd();
 	
 	UPROPERTY()
 	UJumpGameInstance* GI;
@@ -35,14 +35,4 @@ public:
 	TSubclassOf<class UIntroCinematic> IntroCinematicUIClass;
 	UPROPERTY(EditAnywhere)
 	class UIntroCinematic* IntroCinematic {nullptr};
-
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	TSubclassOf<class UEnding> EndingUIClass;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UEnding* EndingUI;
-
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<class UOutroCinematic> OutroCinematicUIClass;
-	UPROPERTY(EditAnywhere)
-	class UOutroCinematic* OutroCinematic {nullptr};
 };

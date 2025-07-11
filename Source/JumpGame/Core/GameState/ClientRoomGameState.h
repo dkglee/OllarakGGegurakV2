@@ -18,10 +18,14 @@ public:
 	AClientRoomGameState();
 	
 	virtual void BeginPlay() override;
+	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void OnConnectionSucceeded() override;
 	
 public:
+	UPROPERTY()
+	class UJumpGameInstance* GI;
+	
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UFollower> FollowerUIClass;
 	UPROPERTY(EditAnywhere)
@@ -65,4 +69,20 @@ public:
 
 	UFUNCTION()
 	class UTexture2D* MakeTextureFromBytes(const TArray<uint8>& FileData);
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UOutroCinematic> OutroCinematicUIClass;
+	UPROPERTY(EditAnywhere)
+	class UOutroCinematic* OutroCinematic {nullptr};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UMediaSoundComponent* OutroSoundComponent;
+
+	UFUNCTION()
+	void OnOutroVideoEnd();
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	TSubclassOf<class UEnding> EndingUIClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UEnding* EndingUI;
 };

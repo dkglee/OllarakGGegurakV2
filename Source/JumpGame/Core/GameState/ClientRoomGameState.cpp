@@ -5,6 +5,8 @@
 
 #include "IImageWrapper.h"
 #include "IImageWrapperModule.h"
+#include "MediaPlayer.h"
+#include "MediaSoundComponent.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "JumpGame/Characters/LobbyCharacter/LobbyFrog.h"
 #include "JumpGame/Maps/Node/StageMapNodeComponent.h"
@@ -14,10 +16,11 @@
 #include "JumpGame/UI/ClientRoomUI.h"
 #include "JumpGame/UI/CustomGameUI.h"
 #include "JumpGame/UI/FriendsList.h"
+#include "JumpGame/UI/Cinematic/Ending.h"
+#include "JumpGame/UI/Cinematic/OutroCinematic.h"
 #include "JumpGame/UI/Lobby/Follower.h"
 #include "JumpGame/Utils/FastLogger.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMathLibrary.h"
 
 class ALobbyPlayerController;
 
@@ -34,12 +37,16 @@ AClientRoomGameState::AClientRoomGameState()
 	}
 
 	LoadMapComponent = CreateDefaultSubobject<ULoadMapComponent>(TEXT("LoadMapComponent"));
+	OutroSoundComponent = CreateDefaultSubobject<UMediaSoundComponent>(TEXT("OutroSoundComponent"));
+	
 }
 
 void AClientRoomGameState::BeginPlay()
 {
 	Super::BeginPlay();
 
+	GI = Cast<UJumpGameInstance>(GetWorld()->GetGameInstance());
+	
 	FollowerUI = CreateWidget<UFollower>(GetWorld(), FollowerUIClass);
 	if (FollowerUI)
 	{
@@ -64,7 +71,7 @@ void AClientRoomGameState::BeginPlay()
 	{
 		ClientRoomUI->OnClickGoStartStageGame();
 	}
-	UJumpGameInstance* GI = Cast<UJumpGameInstance>(GetGameInstance());
+
 	if (!GI) return;
 	GI->bCustomGameMode = false;
 	
@@ -74,6 +81,33 @@ void AClientRoomGameState::BeginPlay()
 
 	Frog->RestoreNodePosition();
 	Frog->StageMapNodeComponent->StageOutSign->SpawnSign(false);
+
+	if (GI->bLastMapClear)
+	{
+		OutroCinematic = CreateWidget<UOutroCinematic>(GetWorld(), OutroCinematicUIClass);
+		if (OutroCinematic && OutroSoundComponent)
+		{
+			if (ClientRoomUI && ClientRoomUI->LobbyAudio)
+			{
+				ClientRoomUI->LobbyAudio->SetPaused(true);
+			}
+			
+			OutroSoundComponent->SetMediaPlayer(OutroCinematic->MediaPlayer);
+			OutroCinematic->AddToViewport(100);
+
+			OutroCinematic->MediaPlayer->OnEndReached.AddDynamic(this, &AClientRoomGameState::OnOutroVideoEnd);
+		}
+	}
+}
+
+void AClientRoomGameState::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	// if (ClientRoomUIClass)
+	// {
+	// 	ClientRoomUI = CreateWidget<UClientRoomUI>(GetWorld(), ClientRoomUIClass);
+	// }
 }
 
 void AClientRoomGameState::Tick(float DeltaSeconds)
@@ -207,4 +241,25 @@ UTexture2D* AClientRoomGameState::MakeTextureFromBytes(const TArray<uint8>& File
 	Texture->UpdateResource();
 
 	return Texture;
+}
+
+void AClientRoomGameState::OnOutroVideoEnd()
+{
+	if (OutroCinematic)
+	{
+		OutroSoundComponent->SetMediaPlayer(nullptr);
+		OutroCinematic->MediaPlayer->OnEndReached.RemoveAll(this);
+		OutroCinematic->RemoveFromParent();
+		EndingUI = CreateWidget<UEnding>(GetWorld(), EndingUIClass);
+		if (EndingUI)
+		{
+			EndingUI->AddToViewport(40);
+			GI->bLastMapClear = false;
+		}
+		
+		if (ClientRoomUI->LobbyAudio)
+		{
+			ClientRoomUI->LobbyAudio->SetPaused(false);
+		}
+	}
 }

@@ -11,11 +11,14 @@
 #include "JumpGame/Maps/Node/StageMapNodeComponent.h"
 #include "JumpGame/StageSystem/StageSystemSubsystem.h"
 #include "JumpGame/UI/ClientRoomLogoUI.h"
-#include "JumpGame/UI/Cinematic/Ending.h"
 #include "JumpGame/UI/Cinematic/IntroCinematic.h"
-#include "JumpGame/UI/Cinematic/OutroCinematic.h"
 #include "JumpGame/Utils/FastLogger.h"
 
+
+AClientRoomGameMode::AClientRoomGameMode()
+{
+	//OutroSoundComponent = CreateDefaultSubobject<UMediaSoundComponent>(TEXT("OutroSoundComponent"));
+}
 
 void AClientRoomGameMode::BeginPlay()
 {
@@ -44,16 +47,23 @@ void AClientRoomGameMode::BeginPlay()
 		}
 	}
 	
-	if (GI->bLastMapClear)
-	{
-		OutroCinematic = CreateWidget<UOutroCinematic>(GetWorld(), OutroCinematicUIClass);
-		if (OutroCinematic)
-		{
-			OutroCinematic->AddToViewport(100);
-			UE_LOG(LogTemp, Warning, TEXT("OutroCinematic Add1111111111111"));
-			OutroCinematic->MediaPlayer->OnEndReached.AddDynamic(this, &AClientRoomGameMode::OnOutroVideoEnd);
-		}
-	}
+	// if (GI->bLastMapClear)
+	// {
+	// 	OutroCinematic = CreateWidget<UOutroCinematic>(GetWorld(), OutroCinematicUIClass);
+	// 	if (OutroCinematic && OutroSoundComponent)
+	// 	{
+	// 		AClientRoomGameState* GS{Cast<AClientRoomGameState>(GetWorld()->GetGameState())};
+	// 		if (GS && GS->ClientRoomUI && GS->ClientRoomUI->LobbyAudio)
+	// 		{
+	// 			GS->ClientRoomUI->LobbyAudio->SetPaused(true);
+	// 		}
+	// 		
+	// 		OutroSoundComponent->SetMediaPlayer(OutroCinematic->MediaPlayer);
+	// 		OutroCinematic->AddToViewport(100);
+	// 		UE_LOG(LogTemp, Warning, TEXT("OutroCinematic Add1111111111111"));
+	// 		OutroCinematic->MediaPlayer->OnEndReached.AddDynamic(this, &AClientRoomGameMode::OnOutroVideoEnd);
+	// 	}
+	// }
 	
 	if (UStageMapNodeComponent* NodeComp = UStageMapNodeComponent::Get(GetWorld()))
 	{
@@ -73,21 +83,6 @@ void AClientRoomGameMode::OnVideoEnd()
 		{
 			ClientRoomLogoUI->AddToViewport(20);
 			GI->bIsGameStart = true;
-		}
-	}
-}
-
-void AClientRoomGameMode::OnOutroVideoEnd()
-{
-	if (OutroCinematic)
-	{
-		OutroCinematic->MediaPlayer->OnEndReached.RemoveAll(this);
-		OutroCinematic->RemoveFromParent();
-		EndingUI = CreateWidget<UEnding>(GetWorld(), EndingUIClass);
-		if (EndingUI)
-		{
-			EndingUI->AddToViewport(40);
-			GI->bLastMapClear = false;
 		}
 	}
 }

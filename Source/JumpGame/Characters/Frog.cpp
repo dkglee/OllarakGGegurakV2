@@ -252,7 +252,7 @@ AFrog::AFrog()
 	GetCharacterMovement()->bUseSeparateBrakingFriction = true;
 	GetCharacterMovement()->GroundFriction = 5.f;
 	GetCharacterMovement()->MaxWalkSpeed = 300.f;
-	GetCharacterMovement()->JumpZVelocity = 650.f;
+	GetCharacterMovement()->JumpZVelocity = 762.f;
 	GetCharacterMovement()->MaxStepHeight = 65.f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 150.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 1500.f;
@@ -1537,15 +1537,16 @@ void AFrog::InitFrogState()
 		FrogGravity = 2.7f;
 		FrogMovementMode = EMovementMode::MOVE_Walking;
 	}
+
+	FrogJumpGravityZ = GetCharacterMovement()->GetGravityZ();
 }
 
 void AFrog::SetJumpAvailableBlock(int32 Block)
 {
 	float Height{Block * 100.f + 10.f};
-	float Value{FMath::Sqrt(Height * FMath::Abs(GetCharacterMovement()->GetGravityZ()) * 2)};
+	//float Value{FMath::Sqrt(Height * FMath::Abs(GetCharacterMovement()->GetGravityZ()) * 2)};
+	float Value{FMath::Sqrt(Height * FMath::Abs(FrogJumpGravityZ) * 2)};
 	GetCharacterMovement()->JumpZVelocity = Value;
-
-	//FLog::Log("Block", Block);
 
 	// 점프력 높게 설정하면 다시 원래대로 점프력 돌아오게
 	if (Block != 1)
@@ -1664,7 +1665,8 @@ void AFrog::OnRep_SuperJumpRatio()
 void AFrog::ServerRPC_SetJumpAvailableBlock_Implementation(int32 Block)
 {
 	float Height{Block * 100.f + 10.f};
-	float Value{FMath::Sqrt(Height * FMath::Abs(GetCharacterMovement()->GetGravityZ()) * 2)};
+	//float Value{FMath::Sqrt(Height * FMath::Abs(GetCharacterMovement()->GetGravityZ()) * 2)};
+	float Value{FMath::Sqrt(Height * FMath::Abs(FrogJumpGravityZ) * 2)};
 	GetCharacterMovement()->JumpZVelocity = Value;
 
 	// 점프력 높게 설정하면 다시 원래대로 점프력 돌아오게

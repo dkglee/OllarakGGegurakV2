@@ -286,6 +286,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated)
 	bool bCanCrouch{true};
 	float PrevVelocityZLength{};
+	float FrogJumpGravityZ{};
 	// 물 관련
 	UPROPERTY(Replicated)
 	float TimeSpentInWater;

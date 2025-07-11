@@ -4,7 +4,6 @@
 #include "StageResultUI.h"
 
 #include "MediaPlayer.h"
-#include "ToolMenusLog.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "JumpGame/Core/GameInstance/JumpGameInstance.h"

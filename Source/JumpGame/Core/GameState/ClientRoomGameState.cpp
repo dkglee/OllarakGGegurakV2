@@ -247,6 +247,7 @@ void AClientRoomGameState::OnOutroVideoEnd()
 {
 	if (OutroCinematic)
 	{
+		OutroSoundComponent->SetVolumeMultiplier(0.f);
 		OutroSoundComponent->SetMediaPlayer(nullptr);
 		OutroCinematic->MediaPlayer->OnEndReached.RemoveAll(this);
 		OutroCinematic->RemoveFromParent();

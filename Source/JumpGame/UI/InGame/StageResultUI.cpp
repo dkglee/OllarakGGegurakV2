@@ -48,9 +48,10 @@ void UStageResultUI::OnClickOutToMain()
 	if (GetWorld()->GetMapName().Contains(TEXT("Stage")))
 	{
 		UStageSystemSubsystem* SGI = GetWorld()->GetGameInstance()->GetSubsystem<UStageSystemSubsystem>();
-		if (SGI->GetChosenField() == FString(TEXT("Field_01_10")))
+		UJumpGameInstance* GI = Cast<UJumpGameInstance>(GetWorld()->GetGameInstance());
+		
+		if (SGI->GetChosenField() == FString(TEXT("Field_01_10")) || GI->CurrentMap == EMapKind::CustomStage)
 		{
-			UJumpGameInstance* GI = Cast<UJumpGameInstance>(GetWorld()->GetGameInstance());
 			if (GI)
 			{
 				GI->bLastMapClear = true;

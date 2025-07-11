@@ -61,7 +61,7 @@ void AClientRoomGameState::BeginPlay()
 		ClientRoomUI = CreateWidget<UClientRoomUI>(GetWorld(), ClientRoomUIClass);
 		if (ClientRoomUI)
 		{
-			ClientRoomUI->AddToViewport();
+			ClientRoomUI->AddToViewport(2);
 		}
 	}
 

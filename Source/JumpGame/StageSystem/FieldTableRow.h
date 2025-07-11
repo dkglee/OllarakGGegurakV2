@@ -18,7 +18,7 @@ struct FFieldTableRow : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Field")
 	FString FieldFilePath; // 필드 파일 경로
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Field")
-	class UTexture2D* Thumbnail; // 필드 썸네일 이미지
+	class UTexture2D* FieldMemoryImage; // 필드 메모리 이미지
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Field")
 	FText Description; // 필드 설명
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Field")
@@ -37,7 +37,7 @@ struct FFieldTableRow : public FTableRowBase
 		const FName& InStageID = NAME_None,
 		const FText& InFieldName = FText::GetEmpty(),
 		const FString& InFieldFilePath = TEXT(""),
-		TObjectPtr<const UTexture2D> InThumbnail = nullptr,
+		TObjectPtr<const UTexture2D> InFieldMemoryImage = nullptr,
 		const FText& InDescription = FText::GetEmpty(),
 		const FName& InClearCondition = NAME_None,
 		const FName& InUnlockCondition = NAME_None)
@@ -45,7 +45,7 @@ struct FFieldTableRow : public FTableRowBase
 		, StageID(InStageID)
 		, FieldName(InFieldName)
 		, FieldFilePath(InFieldFilePath)
-		, Thumbnail(InThumbnail)
+		, FieldMemoryImage(InFieldMemoryImage)
 		, Description(InDescription)
 		, ClearCondition(InClearCondition)
 		, UnlockCondition(InUnlockCondition)

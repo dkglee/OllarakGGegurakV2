@@ -4,12 +4,28 @@
 #include "InGameUI.h"
 
 #include "Animation/UMGSequencePlayer.h"
+#include "Components/Image.h"
+#include "JumpGame/Core/GameInstance/JumpGameInstance.h"
 #include "JumpGame/Core/PlayerController/InGamePlayerController.h"
+#include "JumpGame/StageSystem/StageSystemSubsystem.h"
 #include "JumpGame/Utils/FastLogger.h"
 #include "Kismet/GameplayStatics.h"
 
 void UInGameUI::UpdateStarCount(int32 Count)
 {
+	UJumpGameInstance* GameInstance = Cast<UJumpGameInstance>(GetGameInstance());
+	if (!GameInstance)
+	{
+		return;
+	}
+	UStageSystemSubsystem* StageSystem = GameInstance->GetSubsystem<UStageSystemSubsystem>();
+	if (!StageSystem)
+	{
+		return;
+	}
+	UTexture2D* MemoryImage = StageSystem->GetField(StageSystem->GetChosenField())->FieldMemoryImage;
+	MemoryImage = MemoryImage ? MemoryImage : StageSystem->GetField(TEXT("Field_01_01"))->FieldMemoryImage;
+	MemoryIMG->SetBrushFromTexture(MemoryImage);
 	switch (Count)
 	{
 	case 1:

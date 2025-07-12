@@ -74,6 +74,7 @@ void AClientRoomGameState::BeginPlay()
 
 	if (!GI) return;
 	GI->bCustomGameMode = false;
+	GI->SetMapFilePath(TEXT(""));
 	
 	UStageSystemSubsystem* SGI = GetWorld()->GetGameInstance()->GetSubsystem<UStageSystemSubsystem>();
 	ALobbyFrog* Frog = Cast<ALobbyFrog>(UGameplayStatics::GetActorOfClass(GetWorld(),ALobbyFrog::StaticClass()));

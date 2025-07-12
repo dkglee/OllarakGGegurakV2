@@ -48,6 +48,14 @@ void UCustomGameUI::OnClickBtn_Back()
 
 void UCustomGameUI::OnClickGameStart()
 {
+	UJumpGameInstance* JumpGameInstance = Cast<UJumpGameInstance>(GetWorld()->GetGameInstance());
+	if (!JumpGameInstance) return;
+
+	if (JumpGameInstance->GetMapFilePath() == TEXT(""))
+	{
+		return;
+	}
+	
 	// 버튼 비활성화
 	Btn_GameStart->SetIsEnabled(false);
 	Btn_SelectMap->SetIsEnabled(false);
@@ -55,8 +63,6 @@ void UCustomGameUI::OnClickGameStart()
 	
 	// TODO: 선택한 게임레벨로 이동하게하자
 	UE_LOG(LogTemp, Warning, TEXT("게임시작"));
-	UJumpGameInstance* JumpGameInstance = Cast<UJumpGameInstance>(GetWorld()->GetGameInstance());
-	if (!JumpGameInstance) return;
 	JumpGameInstance->bCustomGameMode = true;
 	// 레벨 전환
 	UGameplayStatics::OpenLevel(GetWorld(), FName("Stage_01"), true);

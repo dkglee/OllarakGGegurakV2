@@ -42,13 +42,13 @@ public:
 	UFUNCTION()
 	void ResetIndex();
 
+	EEditorWarningType CheckWarnings();
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 	void SetWarning(EEditorWarningType WarningType);
 	
-	EEditorWarningType CheckWarnings();
 
 	bool CheckCollisionProps(EEditorWarningType& OutWarningType);
 	bool CheckNecessaryProps(EEditorWarningType& OutWarningType);

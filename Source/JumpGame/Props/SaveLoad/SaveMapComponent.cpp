@@ -1,8 +1,10 @@
 #include "SaveMapComponent.h"
 
 #include "JsonObjectConverter.h"
+#include "JumpGame/Core/GameState/MapEditorState.h"
 #include "JumpGame/MapEditor/CategorySystem/PropStruct.h"
 #include "JumpGame/MapEditor/Components/GridComponent.h"
+#include "JumpGame/MapEditor/WarningPropManager/WarningPropManager.h"
 #include "JumpGame/Props/Components/PropDataComponent.h"
 #include "JumpGame/Props/PrimitiveProp/PrimitiveProp.h"
 #include "Kismet/GameplayStatics.h"
@@ -107,18 +109,26 @@ bool USaveMapComponent::SaveDataToFile(const FSaveDataArray& InSaveDataArray, co
 
 bool USaveMapComponent::CheckNecessaryProps()
 {
-	for (auto& It : PropCountMap)
+	AMapEditorState* EditorState = GetWorld()->GetGameState<AMapEditorState>();
+	if (!EditorState)
 	{
-		if (It.second.second <= 0) // MaxCount가 0 이하면 무시
-		{
-			continue;	
-		}
-		// 0 보다 많으면 필수 갯수를 다 채우지 못함
-		// 0 보다 작으면 더 많이 설치됨
-		if (It.second.first != It.second.second)
-		{
-			return false;
-		}
+		return false;
 	}
-	return true;
+	UWarningPropManager* WarningPropManager = EditorState->GetWarningPropManager();
+	EEditorWarningType OutWarningType = WarningPropManager->CheckWarnings();
+	return (OutWarningType == EEditorWarningType::None);
+	// for (auto& It : PropCountMap)
+	// {
+	// 	if (It.second.second <= 0) // MaxCount가 0 이하면 무시
+	// 	{
+	// 		continue;	
+	// 	}
+	// 	// 0 보다 많으면 필수 갯수를 다 채우지 못함
+	// 	// 0 보다 작으면 더 많이 설치됨
+	// 	if (It.second.first != It.second.second)
+	// 	{
+	// 		return false;
+	// 	}
+	// }
+	// return true;
 }

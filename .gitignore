@@ -110,3 +110,6 @@ Package/
 # User/IDE specific
 *.sln.DotSettings.user
 *.uproject.DotSettings.user
+
+# Rider
+Plugins/Developer/RiderLink/*

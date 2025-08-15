@@ -14,9 +14,11 @@
 #include "Components/PostProcessComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/SpotLightComponent.h"
+#include "Components/TextBlock.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "JumpGame/Core/GameInstance/JumpGameInstance.h"
 #include "JumpGame/Props/LogicProp/RisingWaterProp.h"
 #include "JumpGame/Props/ObstacleProp/ObstacleProp.h"
 #include "JumpGame/UI/GameSettingUI.h"
@@ -93,6 +95,27 @@ AFrog::AFrog()
 		SprintAction = Frog_Sprint.Object;
 	}
 
+	ConstructorHelpers::FObjectFinder<UInputAction> Frog_SprintLeft
+	(TEXT("/Game/Characters/Input/IA_FrogSprintLeft.IA_FrogSprintLeft"));
+	if (Frog_SprintLeft.Succeeded())
+	{
+		SprintLeftAction = Frog_SprintLeft.Object;
+	}
+
+	ConstructorHelpers::FObjectFinder<UInputAction> Frog_SprintRight
+	(TEXT("/Game/Characters/Input/IA_FrogSprintRight.IA_FrogSprintRight"));
+	if (Frog_SprintRight.Succeeded())
+	{
+		SprintRightAction = Frog_SprintRight.Object;
+	}
+
+	ConstructorHelpers::FObjectFinder<UInputAction> Frog_SprintBack
+	(TEXT("/Game/Characters/Input/IA_FrogSprintBack.IA_FrogSprintBack"));
+	if (Frog_SprintBack.Succeeded())
+	{
+		SprintBackAction = Frog_SprintBack.Object;
+	}
+
 	ConstructorHelpers::FObjectFinder<UInputAction> Frog_TongueAttack
 		(TEXT("/Game/Characters/Input/IA_FrogTongueAttack.IA_FrogTongueAttack"));
 	if (Frog_TongueAttack.Succeeded())
@@ -135,7 +158,20 @@ AFrog::AFrog()
 		SettingAction = Frog_Setting.Object;
 	}
 
-
+	ConstructorHelpers::FObjectFinder<UInputAction> Frog_ScrollClick
+	(TEXT("/Game/Characters/Input/IA_SetArmLengthDefault.IA_SetArmLengthDefault"));
+	if (Frog_ScrollClick.Succeeded())
+	{
+		ScrollClickAction = Frog_ScrollClick.Object;
+	}
+	
+	ConstructorHelpers::FObjectFinder<UInputAction> Frog_Scroll
+	(TEXT("/Game/Characters/Input/IA_AdjustSpringArm.IA_AdjustSpringArm"));
+	if (Frog_Scroll.Succeeded())
+	{
+		ScrollAction = Frog_Scroll.Object;
+	}
+	
 	ConstructorHelpers::FObjectFinder<USoundBase> JumpSoundObject
 		(TEXT("/Game/Sounds/Ques/Jump_Cue.Jump_Cue"));
 	if (JumpSoundObject.Succeeded())
@@ -158,7 +194,7 @@ AFrog::AFrog()
 		JumpGaugeUIComponent->SetPivot(FVector2D(3.0, 0.3));
 		JumpGaugeUIComponent->SetDrawAtDesiredSize(true);
 	}
-
+	
 	ConstructorHelpers::FObjectFinder<UMaterial> WaterPostProcessFinder
 		(TEXT("/Game/PostProcess/MPP_InWater.MPP_InWater"));
 	if (WaterPostProcessFinder.Succeeded())
@@ -216,15 +252,14 @@ AFrog::AFrog()
 	GetCharacterMovement()->bUseSeparateBrakingFriction = true;
 	GetCharacterMovement()->GroundFriction = 5.f;
 	GetCharacterMovement()->MaxWalkSpeed = 300.f;
-	GetCharacterMovement()->JumpZVelocity = 650.f;
+	GetCharacterMovement()->JumpZVelocity = 762.f;
 	GetCharacterMovement()->MaxStepHeight = 65.f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 150.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 1500.f;
 	GetCharacterMovement()->bCanWalkOffLedgesWhenCrouching = true;
 	GetCharacterMovement()->AirControl = 1.f;
-	GetCharacterMovement()->PerchRadiusThreshold = 20.f;
-	GetCharacterMovement()->PerchRadiusThreshold = 20.f;
-	GetCharacterMovement()->bUseFlatBaseForFloorChecks = true;
+	GetCharacterMovement()->PerchRadiusThreshold = 18.f;
+	GetCharacterMovement()->bUseFlatBaseForFloorChecks = false;
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 800.f, 0.f);
 	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
 	GetCharacterMovement()->MaxWalkSpeedCrouched = 150.f;
@@ -258,7 +293,8 @@ AFrog::AFrog()
 	SpotLightComponent = CreateDefaultSubobject<USpotLightComponent>(TEXT("SpotLightComponent"));
 	SpotLightComponent->SetupAttachment(CameraBoom);
 	SpotLightComponent->SetIntensityUnits(ELightUnits::Candelas);
-	SpotLightComponent->SetIntensity(10.f);
+	// SpotLightComponent->SetIntensity(10.f);
+	SpotLightComponent->SetIntensity(0.f);
 	SpotLightComponent->SetAttenuationRadius(630.f);
 	SpotLightComponent->SetOuterConeAngle(29.f);
 	SpotLightComponent->SetCastShadows(false);
@@ -349,6 +385,57 @@ void AFrog::NotifyControllerChanged()
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
+
+		if (bInitialized)
+		{
+			return ;
+		}
+		bInitialized = true;
+		
+		if (HasAuthority() && IsLocallyControlled() && GetWorld()->GetMapName().Contains("InGame"))
+		{
+			FFastLogger::LogScreen(FColor::Red, TEXT("This Character: %p"), this);
+		}
+
+		if (WaterPostProcessComponent && WaterPostProcessMaterial)
+		{
+			WaterPostProcessDynamicMaterial = UMaterialInstanceDynamic::Create(
+				WaterPostProcessMaterial, this);
+
+			WaterPostProcessComponent->Settings.AddBlendable(WaterPostProcessDynamicMaterial, 1.f);
+			//WaterPostProcessComponent->Settings.Blendables.Add(WaterPostProcessDynamicMaterial);
+		}
+	
+		// 로컬 플레이어만 카메라 오버랩 이벤트 바인딩
+		if (IsLocallyControlled() && CameraCollision != nullptr)
+		{
+			CameraCollision->OnComponentBeginOverlap.AddDynamic(this, &AFrog::OnCameraBeginOverlapWater);
+			CameraCollision->OnComponentEndOverlap.AddDynamic(this, &AFrog::OnCameraEndOverlapWater);
+		}
+
+		if (TongueCollision != nullptr && HasAuthority())
+		{
+			TongueCollision->OnComponentBeginOverlap.AddDynamic(this, &AFrog::OnTongueBeginOverlap);
+		}
+
+		// 감정표현 UI
+		EmotionUI = CreateWidget<class UEmotionUI>(GetWorld(), EmotionUIClass);
+		if (EmotionUI && IsLocallyControlled())
+		{
+			EmotionUI->AddToViewport();
+		}
+
+		// 설정 UI
+		GameSettingUI = CreateWidget<class UGameSettingUI>(GetWorld(), GameSettingUIClass);
+		if (GameSettingUI && IsLocallyControlled())
+		{
+			GameSettingUI->AddToViewport();
+			GameSettingUI->SetVisibility(ESlateVisibility::Collapsed);
+		}
+
+		// InitJumpGaugeUIComponent();
+		InitJumpGaugeUIComponent();
+		InitFrogState();
 	}
 }
 
@@ -357,49 +444,49 @@ void AFrog::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (HasAuthority() && IsLocallyControlled() && GetWorld()->GetMapName().Contains("InGame"))
-	{
-		FFastLogger::LogScreen(FColor::Red, TEXT("This Character: %p"), this);
-	}
-
-	if (WaterPostProcessComponent && WaterPostProcessMaterial)
-	{
-		WaterPostProcessDynamicMaterial = UMaterialInstanceDynamic::Create(
-			WaterPostProcessMaterial, this);
-
-		WaterPostProcessComponent->Settings.AddBlendable(WaterPostProcessDynamicMaterial, 1.f);
-		//WaterPostProcessComponent->Settings.Blendables.Add(WaterPostProcessDynamicMaterial);
-	}
-	
-	// 로컬 플레이어만 카메라 오버랩 이벤트 바인딩
-	if (IsLocallyControlled() && CameraCollision != nullptr)
-	{
-		CameraCollision->OnComponentBeginOverlap.AddDynamic(this, &AFrog::OnCameraBeginOverlapWater);
-		CameraCollision->OnComponentEndOverlap.AddDynamic(this, &AFrog::OnCameraEndOverlapWater);
-	}
-
-	if (TongueCollision != nullptr && HasAuthority())
-	{
-		TongueCollision->OnComponentBeginOverlap.AddDynamic(this, &AFrog::OnTongueBeginOverlap);
-	}
-
-	// 감정표현 UI
-	EmotionUI = CreateWidget<class UEmotionUI>(GetWorld(), EmotionUIClass);
-	if (EmotionUI && IsLocallyControlled())
-	{
-		EmotionUI->AddToViewport();
-	}
-
-	// 설정 UI
-	GameSettingUI = CreateWidget<class UGameSettingUI>(GetWorld(), GameSettingUIClass);
-	if (GameSettingUI && IsLocallyControlled())
-	{
-		GameSettingUI->AddToViewport();
-		GameSettingUI->SetVisibility(ESlateVisibility::Collapsed);
-	}
-
-	InitJumpGaugeUIComponent();
-	InitFrogState();
+	// if (HasAuthority() && IsLocallyControlled() && GetWorld()->GetMapName().Contains("InGame"))
+	// {
+	// 	FFastLogger::LogScreen(FColor::Red, TEXT("This Character: %p"), this);
+	// }
+	//
+	// if (WaterPostProcessComponent && WaterPostProcessMaterial)
+	// {
+	// 	WaterPostProcessDynamicMaterial = UMaterialInstanceDynamic::Create(
+	// 		WaterPostProcessMaterial, this);
+	//
+	// 	WaterPostProcessComponent->Settings.AddBlendable(WaterPostProcessDynamicMaterial, 1.f);
+	// 	//WaterPostProcessComponent->Settings.Blendables.Add(WaterPostProcessDynamicMaterial);
+	// }
+	//
+	// // 로컬 플레이어만 카메라 오버랩 이벤트 바인딩
+	// if (IsLocallyControlled() && CameraCollision != nullptr)
+	// {
+	// 	CameraCollision->OnComponentBeginOverlap.AddDynamic(this, &AFrog::OnCameraBeginOverlapWater);
+	// 	CameraCollision->OnComponentEndOverlap.AddDynamic(this, &AFrog::OnCameraEndOverlapWater);
+	// }
+	//
+	// if (TongueCollision != nullptr && HasAuthority())
+	// {
+	// 	TongueCollision->OnComponentBeginOverlap.AddDynamic(this, &AFrog::OnTongueBeginOverlap);
+	// }
+	//
+	// // 감정표현 UI
+	// EmotionUI = CreateWidget<class UEmotionUI>(GetWorld(), EmotionUIClass);
+	// if (EmotionUI && IsLocallyControlled())
+	// {
+	// 	EmotionUI->AddToViewport();
+	// }
+	//
+	// // 설정 UI
+	// GameSettingUI = CreateWidget<class UGameSettingUI>(GetWorld(), GameSettingUIClass);
+	// if (GameSettingUI && IsLocallyControlled())
+	// {
+	// 	GameSettingUI->AddToViewport();
+	// 	GameSettingUI->SetVisibility(ESlateVisibility::Collapsed);
+	// }
+	//
+	// // InitJumpGaugeUIComponent();
+	// InitFrogState();
 }
 
 void AFrog::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -412,6 +499,8 @@ void AFrog::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		GetWorldTimerManager().ClearTimer(DoubleTapTimer);
 		GetWorldTimerManager().ClearTimer(JumpBackHandle);
 		GetWorldTimerManager().ClearTimer(ReturnCollisionTimer);
+		GetWorldTimerManager().ClearTimer(ZoomTimer);
+		//GetWorldTimerManager().ClearTimer(SprintStopTimer);
 	}
 
 	Super::EndPlay(EndPlayReason);
@@ -421,7 +510,7 @@ void AFrog::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	InitJumpGaugeUIComponent();
+	// InitJumpGaugeUIComponent();
 }
 
 // Called every frame
@@ -442,7 +531,8 @@ void AFrog::Tick(float DeltaTime)
 		JumpBufferTimeFlow -= DeltaTime;
 		if (CanJump())
 		{
-			Jump();
+			//Jump();
+			StartJump();
 			bJumpBuffered = false;
 		}
 		else if (JumpBufferTimeFlow <= 0.f)
@@ -540,11 +630,18 @@ void AFrog::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this,
 		                                   &AFrog::StopCrouch);
 
-		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this,
-		                                   &AFrog::WPressed);
-		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this,
-		                                   &AFrog::WReleased);
-
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &AFrog::WPressed);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &AFrog::WReleased);
+		
+		EnhancedInputComponent->BindAction(SprintLeftAction, ETriggerEvent::Started, this, &AFrog::APressed);
+		EnhancedInputComponent->BindAction(SprintLeftAction, ETriggerEvent::Completed, this, &AFrog::AReleased);
+		
+		EnhancedInputComponent->BindAction(SprintRightAction, ETriggerEvent::Started, this, &AFrog::DPressed);
+		EnhancedInputComponent->BindAction(SprintRightAction, ETriggerEvent::Completed, this, &AFrog::DReleased);
+		
+		EnhancedInputComponent->BindAction(SprintBackAction, ETriggerEvent::Started, this, &AFrog::SPressed);
+		EnhancedInputComponent->BindAction(SprintBackAction, ETriggerEvent::Completed, this, &AFrog::SReleased);
+		
 		EnhancedInputComponent->BindAction(TongueAttackAction, ETriggerEvent::Started, this,
 		                                   &AFrog::TongueAttack);
 
@@ -559,6 +656,9 @@ void AFrog::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		EnhancedInputComponent->BindAction(EmotionAction, ETriggerEvent::Completed, this, &AFrog::OnReleasedCKey);
 
 		EnhancedInputComponent->BindAction(SettingAction, ETriggerEvent::Started, this, &AFrog::OnPressESCKey);
+		
+		EnhancedInputComponent->BindAction(ScrollAction, ETriggerEvent::Triggered, this, &AFrog::AdjustSpringArmLength);
+		EnhancedInputComponent->BindAction(ScrollClickAction, ETriggerEvent::Started, this, &AFrog::SetArmLengthDefault);
 	}
 }
 
@@ -775,6 +875,8 @@ void AFrog::StopJump()
 
 void AFrog::WPressed(const struct FInputActionValue& Value)
 {
+	bWPressed = true;
+	
 	float CurrentTime{static_cast<float>(GetWorld()->GetTimeSeconds())};
 
 	if (CurrentTime - WPressedTime < 0.25f)
@@ -782,15 +884,140 @@ void AFrog::WPressed(const struct FInputActionValue& Value)
 		bIsSprint = true;
 		StartSprint();
 	}
+	
+	// if (GetWorldTimerManager().IsTimerActive(SprintStopTimer))
+	// {
+	// 	GetWorldTimerManager().ClearTimer(SprintStopTimer);
+	// }
 
 	WPressedTime = CurrentTime;
 }
 
 void AFrog::WReleased(const struct FInputActionValue& Value)
 {
+	bWPressed = false;
+
+	if (bWPressed || bAPressed || bSPressed || bDPressed)
+	{
+		return;
+	}
+	
 	if (bIsSprint)
 	{
 		bIsSprint = false;
+		//GetWorldTimerManager().SetTimer(SprintStopTimer, this, &AFrog::StopSprint, 0.2f, false);
+		StopSprint();
+	}
+}
+
+void AFrog::APressed(const struct FInputActionValue& Value)
+{
+	bAPressed = true;
+	
+	float CurrentTime{static_cast<float>(GetWorld()->GetTimeSeconds())};
+
+	if (CurrentTime - APressedTime < 0.25f)
+	{
+		bIsSprint = true;
+		StartSprint();
+	}
+	
+	// if (GetWorldTimerManager().IsTimerActive(SprintStopTimer))
+	// {
+	// 	GetWorldTimerManager().ClearTimer(SprintStopTimer);
+	// }
+
+	APressedTime = CurrentTime;
+}
+
+void AFrog::AReleased(const struct FInputActionValue& Value)
+{
+	bAPressed = false;
+
+	if (bWPressed || bAPressed || bSPressed || bDPressed)
+	{
+		return;
+	}
+	
+	if (bIsSprint)
+	{
+		bIsSprint = false;
+		//GetWorldTimerManager().SetTimer(SprintStopTimer, this, &AFrog::StopSprint, 0.2f, false);
+		StopSprint();
+	}
+}
+
+void AFrog::DPressed(const struct FInputActionValue& Value)
+{
+	bDPressed = true;
+	
+	float CurrentTime{static_cast<float>(GetWorld()->GetTimeSeconds())};
+
+	if (CurrentTime - DPressedTime < 0.25f)
+	{
+		bIsSprint = true;
+		StartSprint();
+	}
+
+	// if (GetWorldTimerManager().IsTimerActive(SprintStopTimer))
+	// {
+	// 	GetWorldTimerManager().ClearTimer(SprintStopTimer);
+	// }
+	
+	DPressedTime = CurrentTime;
+}
+
+void AFrog::DReleased(const struct FInputActionValue& Value)
+{
+	bDPressed = false;
+
+	if (bWPressed || bAPressed || bSPressed || bDPressed)
+	{
+		return;
+	}
+	
+	if (bIsSprint)
+	{
+		bIsSprint = false;
+		//GetWorldTimerManager().SetTimer(SprintStopTimer, this, &AFrog::StopSprint, 0.2f, false);
+		StopSprint();
+	}
+}
+
+void AFrog::SPressed(const struct FInputActionValue& Value)
+{
+	bSPressed = true;
+	
+	float CurrentTime{static_cast<float>(GetWorld()->GetTimeSeconds())};
+
+	if (CurrentTime - SPressedTime < 0.25f)
+	{
+		bIsSprint = true;
+		StartSprint();
+	}
+
+	// if (GetWorldTimerManager().IsTimerActive(SprintStopTimer))
+	// {
+	// 	GetWorldTimerManager().ClearTimer(SprintStopTimer);
+	// }
+	
+	SPressedTime = CurrentTime;
+}
+
+void AFrog::SReleased(const struct FInputActionValue& Value)
+{
+	bSPressed = false;
+
+	if (bWPressed || bAPressed || bSPressed || bDPressed)
+	{
+		return;
+		
+	}
+	
+	if (bIsSprint)
+	{
+		bIsSprint = false;
+		//GetWorldTimerManager().SetTimer(SprintStopTimer, this, &AFrog::StopSprint, 0.2f, false);
 		StopSprint();
 	}
 }
@@ -832,7 +1059,8 @@ void AFrog::SetCrouchEnabled(bool bEnabled)
 void AFrog::StartCrouch()
 {
 	bIsPressedCrouch = true;
-
+	GetCharacterMovement()->bUseFlatBaseForFloorChecks = true;
+	
 	if (!GetCanMove())
 	{
 		return;
@@ -852,6 +1080,7 @@ void AFrog::StartCrouch()
 void AFrog::StopCrouch()
 {
 	bIsPressedCrouch = false;
+	GetCharacterMovement()->bUseFlatBaseForFloorChecks = false;
 
 	MulticastRPC_StopCrouch();
 	if (HasAuthority())
@@ -866,14 +1095,14 @@ void AFrog::StopCrouch()
 
 void AFrog::TongueAttack()
 {
-	if (HasAuthority())
-	{
-		ServerRPC_StartTongueAttack_Implementation();
-	}
-	else
-	{
-		ServerRPC_StartTongueAttack();
-	}
+	// if (HasAuthority())
+	// {
+	// 	ServerRPC_StartTongueAttack_Implementation();
+	// }
+	// else
+	// {
+	// 	ServerRPC_StartTongueAttack();
+	// }
 }
 
 void AFrog::TongueAttackEnd()
@@ -920,6 +1149,57 @@ void AFrog::PropActive()
 void AFrog::PropCheat()
 {
 	//
+}
+
+void AFrog::AdjustSpringArmLength(const struct FInputActionValue& Value)
+{
+	float MovementFloat{Value.Get<float>()};
+
+	if (MovementFloat > 0.5f)
+	{
+		GoalArmLength -= ZoomSize;
+	}
+	else
+	{
+		GoalArmLength += ZoomSize;
+	}
+	
+	GoalArmLength = FMath::Clamp(GoalArmLength, MinArmLength, MaxArmLength);
+	
+	if (!bIsZoom)
+	{
+		bIsZoom = true;
+		GetWorldTimerManager().SetTimer(ZoomTimer, this, &AFrog::StartZoom, 0.01f, true);
+	}
+}
+
+void AFrog::SetArmLengthDefault()
+{
+	GoalArmLength = 400.f;
+	
+	if (!bIsZoom)
+	{
+		bIsZoom = true;
+		GetWorldTimerManager().SetTimer(ZoomTimer, this, &AFrog::StartZoom, 0.01f, true);
+	}
+}
+
+void AFrog::StartZoom()
+{
+	float NewLength{FMath::Lerp(CameraBoom->TargetArmLength, GoalArmLength, 0.1f)};
+	CameraBoom->TargetArmLength = NewLength;
+	
+	if (FMath::IsNearlyEqual(NewLength, GoalArmLength, 0.05f))
+	{
+		CameraBoom->TargetArmLength = GoalArmLength;
+		StopZoom();
+	}
+}
+
+void AFrog::StopZoom()
+{
+	bIsZoom = false;
+	GetWorldTimerManager().ClearTimer(ZoomTimer);
 }
 
 void AFrog::ServerRPC_Launch_Implementation(const FVector& LaunchVelocity)
@@ -1000,6 +1280,8 @@ void AFrog::MulticastRPC_StartCrouch_Implementation()
 		return;
 	}
 
+	GetCharacterMovement()->bUseFlatBaseForFloorChecks = true;
+
 	// 공중에 있거나 수영 중이면 리턴
 	if (GetCharacterMovement()->IsFalling() || bIsSwimming)
 	{
@@ -1047,6 +1329,7 @@ void AFrog::MulticastRPC_StopCrouch_Implementation()
 	bIsCrouching = false;
 	SetJumpGaugeVisibility(false);
 	UnCrouch();
+	GetCharacterMovement()->bUseFlatBaseForFloorChecks = false;
 
 	GetWorldTimerManager().ClearTimer(CrouchTimer);
 	CrouchTime = 0.f;
@@ -1133,6 +1416,7 @@ void AFrog::SetSprintSpeed()
 	else
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 600.f;
+		
 		if (IsLocallyControlled())
 		{
 			ServerRPC_StartSprint();
@@ -1149,6 +1433,7 @@ void AFrog::SetWalkSpeed()
 	else
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 300.f;
+		
 		if (IsLocallyControlled())
 		{
 			ServerRPC_StopSprint();
@@ -1187,12 +1472,13 @@ void AFrog::MulticastRPC_Landed_Implementation()
 
 void AFrog::SetLightIntensity(float Alpha)
 {
-	SpotLightComponent->SetIntensity(10.f * (1 - Alpha));
-
-	if (IsLocallyControlled())
-	{
-		ServerRPC_SetLight(Alpha);
-	}
+	SpotLightComponent->SetIntensity(0.f);
+	// SpotLightComponent->SetIntensity(10.f * (1 - Alpha));
+	//
+	// if (IsLocallyControlled())
+	// {
+	// 	ServerRPC_SetLight(Alpha);
+	// }
 }
 
 void AFrog::ServerRPC_SetLight_Implementation(float Alpha)
@@ -1211,6 +1497,7 @@ void AFrog::InitJumpGaugeUIComponent()
 	{
 		if (SettingPostProcessComponent)
 		{
+			FFastLogger::LogConsole(TEXT("Hello"));
 			SettingPostProcessComponent->DestroyComponent();
 			SettingPostProcessComponent = nullptr;
 		}
@@ -1219,18 +1506,24 @@ void AFrog::InitJumpGaugeUIComponent()
 	// 로컬 클라만 점프 게이지 보이게
 	if (IsLocallyControlled() || bMapEditingPawn)
 	{
+		FFastLogger::LogConsole(TEXT("Hello   111111111"));
 		SetJumpGaugeVisibility(false);
+
+		UJumpGaugeUI* JumpGaugeUI = Cast<UJumpGaugeUI>(JumpGaugeUIComponent->GetUserWidgetObject());
+		if (JumpGaugeUI) JumpGaugeUI->DelegateBind(this);
 	}
 	else
 	{
 		// 다른 클라에서 삭제
 		if (JumpGaugeUIComponent)
 		{
+			FFastLogger::LogConsole(TEXT("Hello   222222222222222"));
 			JumpGaugeUIComponent->DestroyComponent();
 			JumpGaugeUIComponent = nullptr;
 		}
 		if (SettingPostProcessComponent)
 		{
+			FFastLogger::LogConsole(TEXT("Hello   3333333333333"));
 			SettingPostProcessComponent->DestroyComponent();
 			SettingPostProcessComponent = nullptr;
 		}
@@ -1249,15 +1542,16 @@ void AFrog::InitFrogState()
 		FrogGravity = 2.7f;
 		FrogMovementMode = EMovementMode::MOVE_Walking;
 	}
+
+	FrogJumpGravityZ = GetCharacterMovement()->GetGravityZ();
 }
 
 void AFrog::SetJumpAvailableBlock(int32 Block)
 {
 	float Height{Block * 100.f + 10.f};
-	float Value{FMath::Sqrt(Height * FMath::Abs(GetCharacterMovement()->GetGravityZ()) * 2)};
+	//float Value{FMath::Sqrt(Height * FMath::Abs(GetCharacterMovement()->GetGravityZ()) * 2)};
+	float Value{FMath::Sqrt(Height * FMath::Abs(FrogJumpGravityZ) * 2)};
 	GetCharacterMovement()->JumpZVelocity = Value;
-
-	//FLog::Log("Block", Block);
 
 	// 점프력 높게 설정하면 다시 원래대로 점프력 돌아오게
 	if (Block != 1)
@@ -1376,7 +1670,8 @@ void AFrog::OnRep_SuperJumpRatio()
 void AFrog::ServerRPC_SetJumpAvailableBlock_Implementation(int32 Block)
 {
 	float Height{Block * 100.f + 10.f};
-	float Value{FMath::Sqrt(Height * FMath::Abs(GetCharacterMovement()->GetGravityZ()) * 2)};
+	//float Value{FMath::Sqrt(Height * FMath::Abs(GetCharacterMovement()->GetGravityZ()) * 2)};
+	float Value{FMath::Sqrt(Height * FMath::Abs(FrogJumpGravityZ) * 2)};
 	GetCharacterMovement()->JumpZVelocity = Value;
 
 	// 점프력 높게 설정하면 다시 원래대로 점프력 돌아오게
@@ -1753,6 +2048,42 @@ void AFrog::OnTongueBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 	}
 }
 
+void AFrog::StopFrogMovement()
+{
+	APlayerController* PC{GetWorld()->GetFirstPlayerController()};
+	if (!PC)
+	{
+		return;
+	}
+	
+	GetCharacterMovement()->StopMovementImmediately();
+
+	if (ULocalPlayer* LocalPlayer{PC->GetLocalPlayer()})
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem{LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>()})
+		{
+			Subsystem->ClearAllMappings();
+		}
+	}
+}
+
+void AFrog::ResumeFrogMovement()
+{
+	APlayerController* PC{GetWorld()->GetFirstPlayerController()};
+	if (!PC)
+	{
+		return;
+	}
+	
+	if (ULocalPlayer* LocalPlayer{PC->GetLocalPlayer()})
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem{LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>()})
+		{
+			Subsystem->AddMappingContext(DefaultMappingContext, 0);
+		}
+	}
+}
+
 void AFrog::OnRep_TongueLengthRatio()
 {
 	SetTongueLength(TongueLengthRatio);
@@ -1828,16 +2159,19 @@ void AFrog::CalculateWaterCameraOverlapRatio(float dt)
 void AFrog::ServerRPC_SetSkin_Implementation(int32 NewIndex)
 {
 	SkinIndex = NewIndex;
+	FFastLogger::LogConsole(TEXT("HI!!!!666666666666666"));
 	OnRep_SkinIndex();
 }
 
 void AFrog::OnRep_SkinIndex_Implementation()
 {
+	FFastLogger::LogConsole(TEXT("HI!!!!777777777777"));
 	if (GetMesh())
 	{
 		UMaterialInstanceDynamic* DynMat{GetMesh()->CreateAndSetMaterialInstanceDynamic(0)};
 		if (DynMat && SkinTextures.IsValidIndex(SkinIndex))
 		{
+			FFastLogger::LogConsole(TEXT("HI!!!!788888888888888888"));
 			DynMat->SetTextureParameterValue("Skin", SkinTextures[SkinIndex]);
 		}
 	}
@@ -1880,8 +2214,6 @@ void AFrog::OnSelectionEmotionIndex(int32 EmotionIndex)
 	{
 		PlayEmotion(EmotionIndex);
 	}
-
-	FFastLogger::LogScreen(FColor::Red, TEXT("선택인덱스: %d"), EmotionIndex);
 }
 
 void AFrog::ShowEmotionUI(bool bIsShow)
@@ -2077,8 +2409,7 @@ void AFrog::SetFrogGlobalGain_PP(float Value)
 	Value *= 2;
 	Value = FMath::Clamp(Value, 0.1f, 1.8f);
 
-	SettingPostProcessComponent->Settings.ColorGain.Set(1, 1, 1, Value);
-	FLog::Log(TEXT("SetFrogGlobalGain_PP: Value"), Value);
+SettingPostProcessComponent->Settings.ColorGain.Set(1, 1, 1, Value);
 
 	//SettingPostProcessComponent->Settings.ColorGainMidtones.Set(1, 1, 1, Value);
 	//SettingPostProcessComponent->Settings.ColorGainHighlights.Set(1, 1, 1, Value);

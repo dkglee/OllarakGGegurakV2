@@ -8,18 +8,13 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "OnlineSubsystem.h"
-#include "Blueprint/UserWidget.h"
-#include "Components/Button.h"
 #include "GameFramework/PlayerState.h"
 #include "Interfaces/OnlineFriendsInterface.h"
-#include "Interfaces/OnlineIdentityInterface.h"
 #include "Interfaces/OnlinePresenceInterface.h"
 #include "JumpGame/Characters/LobbyCharacter/LobbyFrog.h"
 #include "JumpGame/Core/GameState/TypeInfo/GameInfo.h"
-#include "JumpGame/UI/BottomNaviBarUI.h"
 #include "JumpGame/UI/FriendsList.h"
 #include "JumpGame/Utils/CursorManager.h"
-#include "JumpGame/Utils/FastLogger.h"
 #include "Kismet/GameplayStatics.h"
 
 ALobbyPlayerController::ALobbyPlayerController()
@@ -50,11 +45,11 @@ void ALobbyPlayerController::BeginPlay()
 
 	if (IsLocalPlayerController())
 	{
-		BottomNaviBarUI = CreateWidget<UBottomNaviBarUI>(GetWorld(), BottomNaviBarUIClass);
-		if (BottomNaviBarUI)
-		{
-			BottomNaviBarUI->AddToViewport(5);
-		}
+		// BottomNaviBarUI = CreateWidget<UBottomNaviBarUI>(GetWorld(), BottomNaviBarUIClass);
+		// if (BottomNaviBarUI)
+		// {
+		// 	BottomNaviBarUI->AddToViewport(5);
+		// }
 	
 		UCursorManager::SetCursor(this, ECursorName::LeafCursor);
 		
@@ -191,7 +186,6 @@ void ALobbyPlayerController::CalculateMinMax(const FVector& InLocallyPosition)
 	FVector TopLeftWorldDirection;
 	if (!UGameplayStatics::DeprojectScreenToWorld(this, TopLeft, TopLeftWorld, TopLeftWorldDirection))
 	{
-		FFastLogger::LogScreen(FColor::Red, TEXT("Deproject Top Left World ScreenToWorld failed"));
 		return;
 	}
 
@@ -199,7 +193,6 @@ void ALobbyPlayerController::CalculateMinMax(const FVector& InLocallyPosition)
 	FVector BottomRightWorldDirection;
 	if (!UGameplayStatics::DeprojectScreenToWorld(this, BottomRight, BottomRightWorld, BottomRightWorldDirection))
 	{
-		FFastLogger::LogScreen(FColor::Red, TEXT("Deproject Bottom Right ScreenToWorld failed"));
 		return;
 	}
 
@@ -325,7 +318,6 @@ void ALobbyPlayerController::ClientRPC_ReceiveFriendList_Implementation(
 	
 	// Recursive_ReceiveFriendList(FromPlayer, FriendList);
 }
-
 
 void ALobbyPlayerController::Recursive_ReceiveFriendList(const FUniqueNetIdRepl& FromPlayer,
 	const TArray<FSteamFriendData>& FriendList)

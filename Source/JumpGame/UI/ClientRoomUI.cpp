@@ -4,10 +4,13 @@
 #include "ClientRoomUI.h"
 
 #include "CreditUI.h"
+#include "CustomGameUI.h"
 #include "GameQuitUI.h"
 #include "GameSettingUI.h"
+#include "ScoreCollectUI.h"
 #include "SessionListItemWidget.h"
 #include "SessionListItemDouble.h"
+#include "Components/AudioComponent.h"
 #include "Components/Button.h"
 #include "Components/CanvasPanel.h"
 #include "Components/CheckBox.h"
@@ -17,12 +20,25 @@
 #include "Components/TextBlock.h"
 #include "Components/WidgetSwitcher.h"
 #include "JumpGame/Core/GameInstance/JumpGameInstance.h"
-#include "JumpGame/Utils/FastLogger.h"
 #include "Kismet/GameplayStatics.h"
-#include "StoryMenuUI.h"
-#include "Components/Image.h"
 #include "JumpGame/Characters/LobbyCharacter/LobbyFrog.h"
+#include "JumpGame/Maps/Node/NodeTutorial.h"
+#include "JumpGame/Maps/Node/StageMapNodeComponent.h"
+#include "JumpGame/StageSystem/StageSystemSubsystem.h"
+#include "Sound/SoundCue.h"
+#include "StageNode/NodeInfoUI.h"
+#include "UICam/LobbyCameraComp.h"
 
+
+UClientRoomUI::UClientRoomUI(const FObjectInitializer& InObjectInitializer) : Super(InObjectInitializer)
+{
+	ConstructorHelpers::FObjectFinder<USoundCue> SoundObject
+	(TEXT("/Game/Sounds/Ques/Lobby_Cue.Lobby_Cue"));
+	if (SoundObject.Succeeded())
+	{
+		LobbySoundCue = SoundObject.Object;
+	}
+}
 
 void UClientRoomUI::NativeOnInitialized()
 {
@@ -31,12 +47,12 @@ void UClientRoomUI::NativeOnInitialized()
 	GetWorld()->GetFirstPlayerController()->SetShowMouseCursor(true);
 
 	GI = Cast<UJumpGameInstance>(GetWorld()->GetGameInstance());
-	ALobbyFrog* Frog = Cast<ALobbyFrog>(UGameplayStatics::GetActorOfClass(GetWorld(),ALobbyFrog::StaticClass()));
+	Frog = Cast<ALobbyFrog>(UGameplayStatics::GetActorOfClass(GetWorld(),ALobbyFrog::StaticClass()));
 	CameraComp = Cast<ULobbyCameraComp>(Frog->CameraComp);
 
 	// WidgetSwitcher (0)
 	// 메인 화면 버튼 클릭
-	Btn_GoFind->OnClicked.AddDynamic(this, &UClientRoomUI::OnClickGoFindRoom);
+	Btn_GoFind->OnClicked.AddDynamic(this, &UClientRoomUI::OnClickGoStartStageGame);
 	Btn_GoCreateMap->OnClicked.AddDynamic(this, &UClientRoomUI::OnClickGoCreateMap);
 	Btn_GoStoryMenu->OnClicked.AddDynamic(this, &UClientRoomUI::OnClickGoStoryMenu);
 	Btn_GoSettings->OnClicked.AddDynamic(this, &UClientRoomUI::OnClickGoSettings);
@@ -58,14 +74,23 @@ void UClientRoomUI::NativeOnInitialized()
 	Btn_BackFromFind->OnClicked.AddDynamic(this, &UClientRoomUI::OnClickBackFromFind);
 	GI->OnFindComplete.BindUObject(this, &UClientRoomUI::OnFindComplete);
 
+	// WidgetSwitcher (2)
+	Btn_GoLobby->OnClicked.AddDynamic(this, &UClientRoomUI::UClientRoomUI::OnClickGoLobby);
+
 	// 초기화
 	InitRoomListPool();
+	InitTutorialNode();
 
 	// UI 만들기
-	StoryMenuUI = CreateWidget<UStoryMenuUI>(GetWorld(), StoryMenuUIClass);
+	/*StoryMenuUI = CreateWidget<UStoryMenuUI>(GetWorld(), StoryMenuUIClass);
 	if (StoryMenuUI)
 	{
 		StoryMenuUI->OnClickBackToLobby.AddDynamic(this, &UClientRoomUI::SetVisibleMain);
+	}*/
+	CustomGameUI = CreateWidget<UCustomGameUI>(GetWorld(), CustomGameUIClass);
+	if (CustomGameUI)
+	{
+		CustomGameUI->OnClickBackToLobby.AddDynamic(this, &UClientRoomUI::SetVisibleMain);
 	}
 
 	GameSettingUI = CreateWidget<UGameSettingUI>(GetWorld(), GameSettingUIClass);
@@ -80,6 +105,23 @@ void UClientRoomUI::NativeOnInitialized()
 	{
 		CreditUI->OnClickBackToLobbyFromCredit.AddDynamic(this, &UClientRoomUI::SetVisibleMain);
 	}
+	
+	LobbyAudio = UGameplayStatics::CreateSound2D(GetWorld(), LobbySoundCue);
+}
+
+void UClientRoomUI::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	if (LobbyAudio)
+	{
+		LobbyAudio->Play();
+	}
+	else
+	{
+		LobbyAudio = UGameplayStatics::CreateSound2D(GetWorld(), LobbySoundCue);
+		LobbyAudio->Play();
+	}
 }
 
 void UClientRoomUI::SetVisibleMain()
@@ -91,14 +133,88 @@ void UClientRoomUI::SetVisibleMain()
 	}
 }
 
+void UClientRoomUI::OnClickGoLobby()
+{
+	// 스테이지 -> 로비로 돌아가자
+	if (Frog)
+	{
+		// 움직이는 중이면 반응하지말자
+		if (Frog->StageMapNodeComponent->bIsMoving == true) return;
+	}
+	
+	WidgetSwitcher->SetActiveWidgetIndex(0);
+	CameraComp->SetViewTarget(ECameraState::Main);
+	CanvasMain->SetVisibility(ESlateVisibility::Visible);
+	SetTutorialNode(false);
+
+	// 로비 애니메이션 전환
+	if (Frog)
+	{
+		Frog->UpdateAnimation(ELobbyCharacterState::InLobby);
+		Frog->StageMapNodeComponent->NodeInfoUI->SetVisibility(ESlateVisibility::Collapsed);
+		Frog->SetActorRotation(FRotator(0, -10, 0));
+	}
+}
+
+void UClientRoomUI::InitTutorialNode()
+{
+	AllTutorialActors.Empty();
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANodeTutorial::StaticClass(), FoundActors);
+
+	for (AActor* Actor : FoundActors)
+	{
+		if (ANodeTutorial* Node = Cast<ANodeTutorial>(Actor))
+		{
+			AllTutorialActors.Add(Node);
+		}
+	}
+}
+
+void UClientRoomUI::SetTutorialNode(bool IsVisible)
+{
+	for (AActor* NodeActor : AllTutorialActors)
+	{
+		if (!NodeActor) continue;
+		NodeActor->SetActorHiddenInGame(!IsVisible);
+	}
+}
+
 void UClientRoomUI::OnClickGoFindRoom()
 {
 	WidgetSwitcher->SetActiveWidgetIndex(1);
-	CameraComp->SetViewTarget();
+	//CameraComp->SetViewTarget();
 	CanvasMain->SetVisibility(ESlateVisibility::Hidden);
 	
 	// 세션 검색 화면 넘어갈때 자동으로 한번은 세션을 검색해주자
 	OnClickFind();
+}
+
+void UClientRoomUI::OnClickGoStartStageGame()
+{
+	// 스테이지로 이동하자
+	WidgetSwitcher->SetActiveWidgetIndex(2);
+	CameraComp->SetViewTarget(ECameraState::Stage);
+	CanvasMain->SetVisibility(ESlateVisibility::Hidden);
+	SetTutorialNode(true);
+
+	// 스테이지 애니메이션 전환
+	if (Frog)
+	{
+		Frog->UpdateAnimation(ELobbyCharacterState::OnStageMap);
+		if (Frog->StageMapNodeComponent->NodeInfoUI->GetVisibility() == ESlateVisibility::Collapsed && Frog->StageMapNodeComponent->bHasData == true)
+		{
+			Frog->StageMapNodeComponent->NodeInfoUI->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
+
+	UJumpGameInstance* JumpGI = Cast<UJumpGameInstance>(GetWorld()->GetGameInstance());
+	if (!JumpGI) return;
+	UStageSystemSubsystem* StageSystem = JumpGI->GetSubsystem<UStageSystemSubsystem>();
+	if (!StageSystem) return;
+	
+	GameScoreUI->UpdateCurrentScore(StageSystem->GetTotalStarCountByStageID(StageSystem->GetChosenStage()));
+	GameScoreUI->UpdateTotalScore(StageSystem->GetTotalFieldCountByStageID(StageSystem->GetChosenStage()) * 3);
 }
 
 void UClientRoomUI::OnClickGoCreateMap()
@@ -108,12 +224,21 @@ void UClientRoomUI::OnClickGoCreateMap()
 
 void UClientRoomUI::OnClickGoStoryMenu()
 {
-	CameraComp->SetViewTarget();
+	// 스토리 UI를 커스텀 게임 UI로 변경함
+	CameraComp->SetViewTarget(ECameraState::Sub);
+	CanvasMain->SetVisibility(ESlateVisibility::Hidden);
+	if (CustomGameUI)
+	{
+		CustomGameUI->AddToViewport();
+	}
+	SetTutorialNode(false);
+	
+	/*CameraComp->SetViewTarget(ECameraState::Sub);
 	CanvasMain->SetVisibility(ESlateVisibility::Hidden);
 	if (StoryMenuUI)
 	{
 		StoryMenuUI->AddToViewport();
-	}
+	}*/
 }
 
 void UClientRoomUI::OnClickGoSettings()
@@ -123,8 +248,10 @@ void UClientRoomUI::OnClickGoSettings()
 
 void UClientRoomUI::OnClickGoCredit()
 {
-	CameraComp->SetViewTarget();
+	CameraComp->SetViewTarget(ECameraState::Sub);
 	CanvasMain->SetVisibility(ESlateVisibility::Hidden);
+	SetTutorialNode(false);
+	
 	if (CreditUI)
 	{
 		CreditUI->AddToViewport();
@@ -218,7 +345,7 @@ void UClientRoomUI::OnFindComplete(const FRoomData& Data)
 void UClientRoomUI::OnClickBackFromFind()
 {
 	WidgetSwitcher->SetActiveWidgetIndex(0);
-	CameraComp->SetViewTarget();
+	CameraComp->SetViewTarget(ECameraState::Main);
 	CanvasMain->SetVisibility(ESlateVisibility::Visible);
 }
 

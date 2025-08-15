@@ -4,8 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "JumpGame/Core/GameState/TypeInfo/GameInfo.h"
-#include "UICam/LobbyCameraComp.h"
 #include "ClientRoomUI.generated.h"
 
 /*
@@ -18,6 +16,8 @@ WidgetSwitcher 구조
 -> FindRoom에서 팝업으로 방을 생성한다
  */
 
+
+struct FRoomData;
 class UButton;
 class UImage;
 
@@ -27,7 +27,10 @@ class JUMPGAME_API UClientRoomUI : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	UClientRoomUI(const FObjectInitializer& InObjectInitializer);
+	
 	virtual void NativeOnInitialized() override;
+	virtual void NativeConstruct() override;
 
 	UPROPERTY()
 	class UJumpGameInstance* GI;
@@ -56,7 +59,9 @@ public:
 	
 	// 눌렀을때 호출되는 함수
 	UFUNCTION()
-	void OnClickGoFindRoom();
+	void OnClickGoFindRoom(); // 스팀 멀티
+	UFUNCTION()
+	void OnClickGoStartStageGame(); // 스테이지
 	UFUNCTION()
 	void OnClickGoCreateMap();
 	UFUNCTION()
@@ -90,6 +95,8 @@ public:
 	class UCheckBox* CheckBox_Lock;
 	UPROPERTY(meta = (BindWidget))
 	class UEditableTextBox* Edit_Password;
+	UPROPERTY(meta = (BindWidget))
+	class UScoreCollectUI* GameScoreUI;
 	
 	// 버튼 눌렀을 때 호출될 함수
 	UFUNCTION()
@@ -152,7 +159,7 @@ public:
 
 	// 카메라 전환하기
 	UPROPERTY()
-	ULobbyCameraComp* CameraComp;
+	class ULobbyCameraComp* CameraComp;
 
 public:
 	// 스토리 UI 띄우기
@@ -160,6 +167,12 @@ public:
 	TSubclassOf<class UStoryMenuUI> StoryMenuUIClass;
 	UPROPERTY(editanywhere, BlueprintReadWrite)
 	UStoryMenuUI* StoryMenuUI;
+
+	// 커스텀 맵 UI 띄우기
+	UPROPERTY(editanywhere, BlueprintReadWrite)
+	TSubclassOf<class UCustomGameUI> CustomGameUIClass;
+	UPROPERTY(editanywhere, BlueprintReadWrite)
+	UCustomGameUI* CustomGameUI;
 
 	// 보이니?
 	UPROPERTY()
@@ -179,5 +192,29 @@ public:
 	TSubclassOf<class UCreditUI> CreditUIClass;
 	UPROPERTY(editanywhere, BlueprintReadWrite)
 	UCreditUI* CreditUI;
+
+public:
+	// WidgetSwitcher (2)
+	// 스테이지 선택 관련
+	UPROPERTY(meta = (BindWidget))
+	class UButton* Btn_GoLobby;
+
+	UFUNCTION()
+	void OnClickGoLobby();
+
+	UPROPERTY()
+	class ALobbyFrog* Frog;
+
+	UFUNCTION()
+	void InitTutorialNode();
+	UFUNCTION()
+	void SetTutorialNode(bool IsVisible);
+	UPROPERTY()
+	TArray<AActor*> AllTutorialActors;
+
+	UPROPERTY(EditAnywhere, Category = "SoundCue", meta = (AllowPrivateAccess = "true"))
+	class USoundCue* LobbySoundCue;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SoundCue", meta = (AllowPrivateAccess = "true"))
+	class UAudioComponent* LobbyAudio;
 };
 

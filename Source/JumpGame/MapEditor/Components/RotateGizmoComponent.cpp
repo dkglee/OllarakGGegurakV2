@@ -101,8 +101,6 @@ void URotateGizmoComponent::Clicked()
 	// 3) 시간 누적용 지역 변수(λ 캡처)
 	float Elapsed = 0.f;
 
-	FFastLogger::LogScreen(FColor::Green, TEXT("Clicked Rotate Gizmo"));
-
 	// 4) 매 프레임 람다 실행
 	GetWorld()->GetTimerManager().SetTimer(
 		TempTimerHandle,
@@ -130,7 +128,6 @@ void URotateGizmoComponent::Clicked()
 				Scale = FMath::Lerp(MaxScale, MinScale, Alpha);
 			}
 
-			FFastLogger::LogScreen(FColor::Green, TEXT("Elapsed: %.2f, Scale: %.2f"), Elapsed, Scale);
 			Gizmo->SetRelativeScale3D(FVector(Scale));
 
 			/* ----- 종료 처리 ----- */

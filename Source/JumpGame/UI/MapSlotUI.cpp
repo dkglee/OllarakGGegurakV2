@@ -61,7 +61,6 @@ void UMapSlotUI::Init(const FString& InMapFullPath, const FString& InMapName)
 void UMapSlotUI::OnBtnMapSlotClicked()
 {
 	OnClicked.ExecuteIfBound(this);
-	FFastLogger::LogScreen(FColor::Green, TEXT("MapSlot Clicked: %s"), *MapName);
 }
 
 UTexture2D* UMapSlotUI::GetMapThumbnail(const FString& InMapFullPath)

@@ -3,11 +3,15 @@
 
 #include "LobbyCameraComp.h"
 
+#include "LobbyCustomCamera.h"
 #include "LobbyMainCamera.h"
+#include "LobbyStageCamera.h"
 #include "LobbySubCamera.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/CanvasPanel.h"
+#include "JumpGame/Maps/Node/NodeTutorial.h"
 #include "JumpGame/UI/ClientRoomUI.h"
+#include "JumpGame/UI/StageNode/NodeTutorialUI.h"
 #include "JumpGame/Utils/FastLogger.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -30,6 +34,8 @@ void ULobbyCameraComp::BeginPlay()
 	
 	MainCamera = Cast<ALobbyMainCamera>(UGameplayStatics::GetActorOfClass(GetWorld(), ALobbyMainCamera::StaticClass()));
 	SubCamera = Cast<ALobbySubCamera>(UGameplayStatics::GetActorOfClass(GetWorld(), ALobbySubCamera::StaticClass()));
+	StageCamera = Cast<ALobbyStageCamera>(UGameplayStatics::GetActorOfClass(GetWorld(), ALobbyStageCamera::StaticClass()));
+	CustomCamera = Cast<ALobbyCustomCamera>(UGameplayStatics::GetActorOfClass(GetWorld(), ALobbyCustomCamera::StaticClass()));
 
 	PC = GetWorld()->GetFirstPlayerController();
 	if (PC)
@@ -48,19 +54,30 @@ void ULobbyCameraComp::TickComponent(float DeltaTime, ELevelTick TickType,
 	// ...
 }
 
-void ULobbyCameraComp::SetViewTarget()
+void ULobbyCameraComp::SetViewTarget(ECameraState NewState)
 {
 	if (!PC) return;
-	
+
 	AActor* CurrentTarget = PC->GetViewTarget();
-	if (CurrentTarget == MainCamera)
+	ACameraActor* TargetCam = nullptr;
+	switch (NewState)
 	{
-		// 메인카메라 -> 서브카메라 이동
-		PC->SetViewTargetWithBlend(SubCamera, 0.5f);
+	case ECameraState::Main:
+		TargetCam = MainCamera;
+		break;
+	case ECameraState::Sub:
+		TargetCam = SubCamera;
+		break;
+	case ECameraState::Stage:
+		TargetCam = StageCamera;
+		break;
+	case ECameraState::CustomGame:
+		TargetCam = CustomCamera;
+		break;
 	}
-	else
+
+	if (TargetCam != CurrentTarget)
 	{
-		// 서브카메라 -> 메인카메라 이동
-		PC->SetViewTargetWithBlend(MainCamera, 0.5f);
+		PC->SetViewTargetWithBlend(TargetCam, 0.5f);
 	}
 }

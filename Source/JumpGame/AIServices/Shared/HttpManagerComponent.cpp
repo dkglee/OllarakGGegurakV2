@@ -13,35 +13,35 @@ void UHttpManagerComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (!InitializeConfigFile())
-	{
-		return ;
-	}
-
-	// TODO : HttpManagerComponent를 두자
-	TSharedPtr<IIOHandlerInterface> HttpMultipartHandler = MakeShared<FHttpsMultiPartsHandler>();
-	
-	RegisterHttpHandler(EMessageType::HttpMultipartRequest, HttpMultipartHandler);
-
-	for (auto& Handler : HttpHandlers)
-	{
-		HttpMessageQueue[Handler.Key] = std::queue<FHttpMessageWrapper>();
-	}
-	HttpMessageQueue[EMessageType::HttpMultipartResponse] = std::queue<FHttpMessageWrapper>();
-
-// 	// 목업 데이터 하나 넣어보자!
-// 	FHttpMessageWrapper Message;
-// 	Message.Header.Type = EMessageType::HttpMultipartResponse;
-// 	Message.HttpMessage = FHttpMultipartResponse();
-// 	FHttpMultipartResponse& HttpMultipartResponseRef = std::get<FHttpMultipartResponse>(Message.HttpMessage);
-// 	HttpMultipartResponseRef.ResponseCode = 200;
-// 	HttpMultipartResponseRef.ResponseText = TEXT(R"({
-// "SubCategoryList": [102]
-// })");
-
-	// HttpMessageQueue[EMessageType::HttpMultipartResponse].push(Message);
-	
-	HttpMultipartHandler->Init(FIOHandlerInitInfo(), nullptr, &HttpMessageQueue);
+// 	if (!InitializeConfigFile())
+// 	{
+// 		return ;
+// 	}
+//
+// 	// TODO : HttpManagerComponent를 두자
+// 	TSharedPtr<IIOHandlerInterface> HttpMultipartHandler = MakeShared<FHttpsMultiPartsHandler>();
+// 	
+// 	RegisterHttpHandler(EMessageType::HttpMultipartRequest, HttpMultipartHandler);
+//
+// 	for (auto& Handler : HttpHandlers)
+// 	{
+// 		HttpMessageQueue[Handler.Key] = std::queue<FHttpMessageWrapper>();
+// 	}
+// 	HttpMessageQueue[EMessageType::HttpMultipartResponse] = std::queue<FHttpMessageWrapper>();
+//
+// // 	// 목업 데이터 하나 넣어보자!
+// // 	FHttpMessageWrapper Message;
+// // 	Message.Header.Type = EMessageType::HttpMultipartResponse;
+// // 	Message.HttpMessage = FHttpMultipartResponse();
+// // 	FHttpMultipartResponse& HttpMultipartResponseRef = std::get<FHttpMultipartResponse>(Message.HttpMessage);
+// // 	HttpMultipartResponseRef.ResponseCode = 200;
+// // 	HttpMultipartResponseRef.ResponseText = TEXT(R"({
+// // "SubCategoryList": [102]
+// // })");
+//
+// 	// HttpMessageQueue[EMessageType::HttpMultipartResponse].push(Message);
+// 	
+// 	HttpMultipartHandler->Init(FIOHandlerInitInfo(), nullptr, &HttpMessageQueue);
 }
 
 
@@ -69,7 +69,6 @@ bool UHttpManagerComponent::InitializeConfigFile()
 	FString ConfigFilePath = FPaths::ProjectConfigDir() + TEXT("HttpHandlerConfig.json");
 	if (!FPaths::FileExists(ConfigFilePath))
 	{
-		FFastLogger::LogScreen(FColor::Red, TEXT("Config file not found: %s"), *ConfigFilePath);
 		return false;
 	}
 
@@ -77,12 +76,10 @@ bool UHttpManagerComponent::InitializeConfigFile()
 	FFileHelper::LoadFileToString(ConfigContent, *ConfigFilePath);
 	if (ConfigContent.IsEmpty())
 	{
-		FFastLogger::LogScreen(FColor::Red, TEXT("Config file is empty: %s"), *ConfigFilePath);
 		return false;
 	}
 	if (!FJsonObjectConverter::JsonObjectStringToUStruct(ConfigContent, &HttpHandlerInitInfo))
 	{
-		FFastLogger::LogScreen(FColor::Red, TEXT("Failed to parse config file: %s"), *ConfigFilePath);
 		return false;
 	}
 

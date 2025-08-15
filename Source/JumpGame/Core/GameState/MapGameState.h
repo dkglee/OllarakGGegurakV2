@@ -18,6 +18,10 @@ class JUMPGAME_API AMapGameState : public ANetworkGameState
 
 public:
 	AMapGameState();
+
+	UPROPERTY(EditAnywhere)
+	class USaveMapComponent* SaveMapComponent{nullptr};
+	
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void OnAllClientAdded() override;
@@ -53,6 +57,8 @@ public:
 	class ULoadingUI* LoadingUI{nullptr};
 
 	// 로딩 UI 제거
+	UFUNCTION()
+	void RemoveLoadingUI();
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPC_RemoveLoadingUI();
 
@@ -74,4 +80,42 @@ public:
 	TSubclassOf<class UInGameSettingUI> InGameSettingUIClass{nullptr};
 	UPROPERTY(EditAnywhere)
 	class UInGameSettingUI* InGameSettingUI{nullptr};
+
+public:
+	// 별 개수
+	int32 StarCount{};
+	// 최대 별 개수
+	int32 MaxStarCount{3};
+	bool bIsGameClear{false};
+	// 별 획득
+	void AddStar();
+	// 게임 종료 처리
+	void EndStage(bool bIsClear);
+
+	// 게임 시작 시간
+	UPROPERTY()
+	float StartTime = 0.f;
+	UPROPERTY()
+	float ClearTime = 0.f;
+
+	// 진행도
+	UFUNCTION()
+	void OnEnterField(FName FieldID);
+	UFUNCTION()
+	void OnFieldClear(FName FieldID);
+	
+
+	// 레벨 트랜지션
+	UPROPERTY(editanywhere, BlueprintReadWrite)
+	TSubclassOf<class ULevelTransfer> WidgetTransferUIClass;
+	UPROPERTY(editanywhere, BlueprintReadWrite)
+	ULevelTransfer* WidgetTransferUI;
+
+	UPROPERTY()
+	FTimerHandle TransitionTimer;
+	UPROPERTY()
+	float RadiusValue{};
+
+	UFUNCTION()
+	void TransitionAnimation();
 };

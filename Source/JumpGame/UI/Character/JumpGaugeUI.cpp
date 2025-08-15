@@ -4,6 +4,7 @@
 #include "JumpGaugeUI.h"
 
 #include "Components/ProgressBar.h"
+#include "Components/TextBlock.h"
 #include "JumpGame/Characters/Frog.h"
 #include "JumpGame/Utils/FastLogger.h"
 
@@ -11,9 +12,9 @@ void UJumpGaugeUI::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
-	Frog = Cast<AFrog>(GetWorld()->GetFirstPlayerController()->GetPawn());
-
-	DelegateBind(Frog);
+	// Frog = Cast<AFrog>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	//
+	// DelegateBind(Frog);
 }
 
 void UJumpGaugeUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -23,19 +24,36 @@ void UJumpGaugeUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 
 void UJumpGaugeUI::OnSuperJumpRatioChanged(float NewRatio)
 {
-	JumpGaugeSlider->SetPercent(NewRatio);
+	//JumpGaugeSlider->SetPercent(NewRatio);
 
 	if (NewRatio >= 1.f)
 	{
-		JumpGaugeSlider->SetFillColorAndOpacity(FLinearColor::Red);
+		SuperJumpText->SetRenderOpacity(1.f);
+		SmallJumpText->SetRenderOpacity(0.f);
+		ReadyText->SetRenderOpacity(0.f);
+		//JumpGaugeSlider->SetFillColorAndOpacity(FLinearColor::Red);
 	}
 	else if (NewRatio >= 0.5f)
 	{
-		JumpGaugeSlider->SetFillColorAndOpacity(FLinearColor::Yellow);
+		SuperJumpText->SetRenderOpacity(0.f);
+		SmallJumpText->SetRenderOpacity(1.f);
+		ReadyText->SetRenderOpacity(0.f);
+		//JumpGaugeSlider->SetFillColorAndOpacity(FLinearColor::Yellow);
+	}
+	else if (NewRatio >= 0.2f)
+	{
+		SuperJumpText->SetRenderOpacity(0.f);
+		SmallJumpText->SetRenderOpacity(0.f);
+		ReadyText->SetRenderOpacity(1.f);
+		PlayAnimation(TextAnimation, 0.f, 0, EUMGSequencePlayMode::Forward, 1.f);
 	}
 	else
 	{
-		JumpGaugeSlider->SetFillColorAndOpacity(FLinearColor::Green);
+		SuperJumpText->SetRenderOpacity(0.f);
+		SmallJumpText->SetRenderOpacity(0.f);
+		ReadyText->SetRenderOpacity(0.f);
+		StopAnimation(TextAnimation);
+		//JumpGaugeSlider->SetFillColorAndOpacity(FLinearColor::Green);
 	}
 }
 

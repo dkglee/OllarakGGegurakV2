@@ -5,6 +5,7 @@
 #include "PressedHandlerInterface.h"
 #include "Components/ActorComponent.h"
 #include "JumpGame/MapEditor/ClickHandlers/ClickResponse.h"
+#include "JumpGame/Utils/CommonUtils.h"
 #include "PressedHandlerManager.generated.h"
 
 
@@ -16,7 +17,7 @@ class JUMPGAME_API UPressedHandlerManager : public UActorComponent
 public:
 	UPressedHandlerManager();
 
-	void RegisterHandler(TSharedPtr<IPressedHandler> Handler);
+	void RegisterHandler(class UPressedHandlerInterface* Handler);
 	bool HandlePressed(FClickResponse& ControlledInfo, class AMapEditingPlayerController* PlayerController);
 	void InitializeSettings(FClickResponse& ControlledInfo, AMapEditingPlayerController* PlayerController);
 	void ResetPositions();
@@ -24,17 +25,20 @@ public:
 	UFUNCTION()
 	void OnWidgetDragging(FVector2D MousePosition);
 
+	SETTER(bool, bCopyMode)
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void InitializeComponent() override;
 
 private:
-	// GC의 관리 대상이 아님
-	// 주의 : 내부적으로 UObject를 캐싱하지 않기 : 즉 일회성으로만 사용
-	TArray<TSharedPtr<IPressedHandler>> Handlers;
+	UPROPERTY()
+	TArray<class UPressedHandlerInterface*> Handlers;
 
 	FGizmoPressedInfo GizmoPressedInfo;
 
 	UPROPERTY()
 	class UClickHandlerManager* ClickHandlerManager = nullptr;
+
+	bool bCopyMode = false;
 };

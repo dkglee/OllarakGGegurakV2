@@ -145,6 +145,7 @@ void AObstacleProp::LaunchCharacter(AFrog* Character, FVector Direction, float F
 	LaunchVelocity = Direction.GetSafeNormal() * Force;
 	if (Character->IsLocallyControlled())
 	{
+		Character->StopCrouch();
 		Character->LaunchCharacter(LaunchVelocity, bXYOverride, bZOverride);
 		Character->ServerRPC_Launch(LaunchVelocity);
 		ForceNetUpdate();

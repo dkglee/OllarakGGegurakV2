@@ -214,8 +214,6 @@ void ASoundQuizProp::SendStartSoundQuizNotify()
 
 void ASoundQuizProp::SendSoundQuizMessage()
 {
-	FFastLogger::LogScreen(FColor::Red,TEXT("음성파일 보냅니다"));
-	
 	FDateTime Now = FDateTime::Now();
 	int32 Hour = Now.GetHour();
 	int32 Minute = Now.GetMinute();
@@ -228,7 +226,6 @@ void ASoundQuizProp::SendSoundQuizMessage()
 	{
 		// FString FilePath = TEXT("C:/FinalProject/Game/Saved/SoundQuizResponseFile.wav");
 		FString FilePath = FPaths::ProjectDir() + TEXT("Saved/AudioRecordings/") + TEXT("SoundQuizResponseFile.wav");
-		FFastLogger::LogFile(TEXT("SocketLog.txt"), TEXT("Sound FilePath : %s"), *FilePath);
 		LoadWavFileBinary(FilePath, CachedBinaryWav);
 		// 없으면 로그 출력
 		if (CachedBinaryWav.Num() == 0)
@@ -281,7 +278,6 @@ void ASoundQuizProp::SendSoundQuizMessage()
 		// Fin이면 타이머 종료 및 초기화
 		if (ReqMessage.Fin)
 		{
-			FFastLogger::LogScreen(FColor::Red,TEXT("음성파일 전송완료"));
 			UE_LOG(LogTemp, Log, TEXT("모든 WAV 패킷 전송 완료"));
 			CurrentSendIndex = 0;
 			TotalWavSize = 0;

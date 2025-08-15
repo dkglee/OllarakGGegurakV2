@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "UICam/LobbyCameraComp.h"
 #include "CreditUI.generated.h"
 
 /**
@@ -24,13 +23,17 @@ public:
 	class UCanvasPanel* CreditCanvas;
 	UPROPERTY(meta = (BindWidget))
 	class UButton* Btn_Back;
+	UPROPERTY(meta = (BindWidget))
+	class UButton* Btn_Link;
 
 	UFUNCTION()
 	void OnClickBack();
+	UFUNCTION()
+	void OnClickLink();
 
 	// 카메라 전환하기
 	UPROPERTY()
-	ULobbyCameraComp* CameraComp;
+	class ULobbyCameraComp* CameraComp;
 
 	FOnClickBackToLobbyFromCredit OnClickBackToLobbyFromCredit;
 };

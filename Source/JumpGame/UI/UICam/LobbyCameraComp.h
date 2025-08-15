@@ -6,7 +6,16 @@
 #include "Components/ActorComponent.h"
 #include "LobbyCameraComp.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnChangeViewTarget);
+UENUM(BlueprintType)
+enum class ECameraState : uint8
+{
+	Main,
+	Sub,
+	Stage,
+	CustomGame
+};
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnChangeViewTarget, ECameraState, NewState);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class JUMPGAME_API ULobbyCameraComp : public UActorComponent
@@ -34,11 +43,15 @@ public:
 	class ALobbyMainCamera* MainCamera;
 	UPROPERTY(editanywhere, BlueprintReadWrite)
 	class ALobbySubCamera* SubCamera;
+	UPROPERTY(editanywhere, BlueprintReadWrite)
+	class ALobbyStageCamera* StageCamera;
+	UPROPERTY(editanywhere, BlueprintReadWrite)
+	class ALobbyCustomCamera* CustomCamera;
 	
 	UFUNCTION()
-	void SetViewTarget();
+	void SetViewTarget(ECameraState NewState);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnChangeViewTarget OnChangeViewTarget;
-
+	
 };

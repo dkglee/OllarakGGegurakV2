@@ -15,6 +15,15 @@
 DECLARE_DELEGATE_OneParam(FFindComplete, const FRoomData&);
 DECLARE_DELEGATE_OneParam(FFriendListUpdated, const FSteamFriendData&);
 
+UENUM()
+enum class EMapKind : uint8
+{
+	Unknown,
+	Lobby,
+	Stage,
+	Editor,
+	CustomStage
+};
 /**
  * 
  */
@@ -25,6 +34,11 @@ class JUMPGAME_API UJumpGameInstance : public UGameInstance
 	
 public:
 	virtual void Init() override;
+
+	// 현재 어떤 맵?
+	UPROPERTY()
+	EMapKind CurrentMap = EMapKind::Lobby;
+	
 	// 세션 이름
 	UPROPERTY()
 	FName CurrentSessionName;
@@ -114,8 +128,11 @@ public:
 	void RunEyeTrackingScript();
 
 	// 눈 추적 파이썬 코드 실행 시킬 지 여부
-	bool bIsRunEyeScript{true};
+	bool bIsRunEyeScript{false};
 
+	UPROPERTY()
+	bool bCustomGameMode = false; // 커스텀 게임 모드 여부
+	
 private:
 	UPROPERTY()
 	FString MapFilePath;
@@ -123,4 +140,7 @@ private:
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bIsGameStart = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bLastMapClear = false;
 };

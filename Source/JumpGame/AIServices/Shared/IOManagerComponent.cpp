@@ -29,53 +29,53 @@ void UIOManagerComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (!InitializeConfigFile())
-	{
-		return ;
-	}
-	
-	// TODO: 방어코드 재설정
-	if (!GetWorld()->GetMapName().Contains(TEXT("InGameLevel")))
-	{
-		return ;
-	}
-	
-	// IOHandler 초기화
-	TSharedPtr<IIOHandlerInterface> IPCReadHandler = MakeShared<FIPCHandler>();
-	IPCReadHandler->SetReaderMode();
-	TSharedPtr<IIOHandlerInterface> IPCSendHandler = MakeShared<FIPCHandler>();
-	IPCSendHandler->SetWriterMode();
-	TSharedPtr<IIOHandlerInterface> SocketHandler = MakeShared<FSocketHandler>();
-	
-	RegisterIOHandler(EMessageType::Ping, SocketHandler);
-	RegisterIOHandler(EMessageType::Pong, SocketHandler);
-	RegisterIOHandler(EMessageType::QuizNotify, SocketHandler);
-	RegisterIOHandler(EMessageType::WaveRequest, SocketHandler);
-	RegisterIOHandler(EMessageType::WaveResponse, SocketHandler);
-	
-	RegisterIOHandler(EMessageType::EyeTrackingNotifyMessage, IPCSendHandler);
-	RegisterIOHandler(EMessageType::EyeTrackingResponseMessage, IPCReadHandler);
-	RegisterIOHandler(EMessageType::EyeTrackingRequestMessage, IPCReadHandler);
-
-	// queue 초기화
-	for (auto& Handler : IOHandlers)
-	{
-		MessageQueue[Handler.Key] = std::queue<FMessageUnion>();
-	}
-
-	if (!IPCReadHandler->Init(IOHandlerInitInfo, &MessageQueue, nullptr))
-	{
-		TSharedPtr<FIPCHandler> SharedIPC = StaticCastSharedPtr<FIPCHandler>(IPCReadHandler);
-		RetryReadConnectToPipe(SharedIPC);
-	}
-
-	if (!IPCSendHandler->Init(IOHandlerInitInfo, &MessageQueue, nullptr))
-	{
-		TSharedPtr<FIPCHandler> SharedIPC = StaticCastSharedPtr<FIPCHandler>(IPCSendHandler);
-		RetrySendConnectToPipe(SharedIPC);
-	}
-
-	SocketHandler->Init(IOHandlerInitInfo, &MessageQueue, nullptr);
+	// if (!InitializeConfigFile())
+	// {
+	// 	return ;
+	// }
+	//
+	// // TODO: 방어코드 재설정
+	// if (!GetWorld()->GetMapName().Contains(TEXT("InGameLevel")))
+	// {
+	// 	return ;
+	// }
+	//
+	// // IOHandler 초기화
+	// TSharedPtr<IIOHandlerInterface> IPCReadHandler = MakeShared<FIPCHandler>();
+	// IPCReadHandler->SetReaderMode();
+	// TSharedPtr<IIOHandlerInterface> IPCSendHandler = MakeShared<FIPCHandler>();
+	// IPCSendHandler->SetWriterMode();
+	// TSharedPtr<IIOHandlerInterface> SocketHandler = MakeShared<FSocketHandler>();
+	//
+	// RegisterIOHandler(EMessageType::Ping, SocketHandler);
+	// RegisterIOHandler(EMessageType::Pong, SocketHandler);
+	// RegisterIOHandler(EMessageType::QuizNotify, SocketHandler);
+	// RegisterIOHandler(EMessageType::WaveRequest, SocketHandler);
+	// RegisterIOHandler(EMessageType::WaveResponse, SocketHandler);
+	//
+	// RegisterIOHandler(EMessageType::EyeTrackingNotifyMessage, IPCSendHandler);
+	// RegisterIOHandler(EMessageType::EyeTrackingResponseMessage, IPCReadHandler);
+	// RegisterIOHandler(EMessageType::EyeTrackingRequestMessage, IPCReadHandler);
+	//
+	// // queue 초기화
+	// for (auto& Handler : IOHandlers)
+	// {
+	// 	MessageQueue[Handler.Key] = std::queue<FMessageUnion>();
+	// }
+	//
+	// if (!IPCReadHandler->Init(IOHandlerInitInfo, &MessageQueue, nullptr))
+	// {
+	// 	TSharedPtr<FIPCHandler> SharedIPC = StaticCastSharedPtr<FIPCHandler>(IPCReadHandler);
+	// 	RetryReadConnectToPipe(SharedIPC);
+	// }
+	//
+	// if (!IPCSendHandler->Init(IOHandlerInitInfo, &MessageQueue, nullptr))
+	// {
+	// 	TSharedPtr<FIPCHandler> SharedIPC = StaticCastSharedPtr<FIPCHandler>(IPCSendHandler);
+	// 	RetrySendConnectToPipe(SharedIPC);
+	// }
+	//
+	// SocketHandler->Init(IOHandlerInitInfo, &MessageQueue, nullptr);
 }
 
 void UIOManagerComponent::RegisterIOHandler(const EMessageType& MessageType, TSharedPtr<IIOHandlerInterface> Handler)
@@ -88,7 +88,6 @@ bool UIOManagerComponent::InitializeConfigFile()
 	FString ConfigFilePath = FPaths::ProjectConfigDir() + TEXT("IOHandlerConfig.json");
 	if (!FPaths::FileExists(ConfigFilePath))
 	{
-		FFastLogger::LogScreen(FColor::Red, TEXT("Config file not found: %s"), *ConfigFilePath);
 		return false;
 	}
 
@@ -96,12 +95,10 @@ bool UIOManagerComponent::InitializeConfigFile()
 	FFileHelper::LoadFileToString(ConfigContent, *ConfigFilePath);
 	if (ConfigContent.IsEmpty())
 	{
-		FFastLogger::LogScreen(FColor::Red, TEXT("Config file is empty: %s"), *ConfigFilePath);
 		return false;
 	}
 	if (!FJsonObjectConverter::JsonObjectStringToUStruct(ConfigContent, &IOHandlerInitInfo))
 	{
-		FFastLogger::LogScreen(FColor::Red, TEXT("Failed to parse config file: %s"), *ConfigFilePath);
 		return false;
 	}
 	

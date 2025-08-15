@@ -16,9 +16,12 @@ class JUMPGAME_API AClientRoomGameMode : public AGameMode
 	GENERATED_BODY()
 
 public:
+	AClientRoomGameMode();
+	
+	virtual void BeginPlay() override;
 	UFUNCTION()
 	void OnVideoEnd();
-	virtual void BeginPlay() override;
+	
 	UPROPERTY()
 	UJumpGameInstance* GI;
 	

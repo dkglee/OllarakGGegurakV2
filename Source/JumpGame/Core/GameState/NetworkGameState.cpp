@@ -92,6 +92,13 @@ void ANetworkGameState::BeginPlay()
 		CheckInterval, false);
 }
 
+void ANetworkGameState::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	GetWorld()->GetTimerManager().ClearTimer(ConnectionTimer);
+	
+	Super::EndPlay(EndPlayReason);
+}
+
 void ANetworkGameState::VerifyConnection(const FString& NetID)
 {
 	ConnectionVerifyComponent->ConfirmClient(NetID);

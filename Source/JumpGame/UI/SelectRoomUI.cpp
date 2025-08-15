@@ -6,7 +6,6 @@
 #include "Components/Button.h"
 #include "Components/WidgetSwitcher.h"
 #include "JumpGame/Core/GameInstance/JumpGameInstance.h"
-#include "JumpGame/Core/GameState/LobbyGameState.h"
 #include "JumpGame/Props/SaveLoad/LoadMapComponent.h"
 #include "Components/ScrollBox.h"
 #include "Components/TextBlock.h"
@@ -15,6 +14,7 @@
 #include "Components/Image.h"
 #include "Components/SizeBox.h"
 #include "FileBrowser/FileBrowserUI.h"
+#include "JumpGame/Core/GameState/ClientRoomGameState.h"
 #include "JumpGame/Utils/FastLogger.h"
 
 void USelectRoomUI::NativeOnInitialized()
@@ -64,17 +64,17 @@ void USelectRoomUI::InitSelectRoomUI()
 	}
 	bIsInitialized = true;
 	
-	OriginMapList = GetMapList(TEXT(".json"), TEXT("OriginMap\\"));
-	CustomMapList = GetMapList(TEXT(".json"), TEXT("CustomMap\\"));
-	SavedMapList = GetMapList(TEXT(".json"), TEXT("../../Saved/SaveMap/"));
+	// OriginMapList = GetMapList(TEXT(".json"), TEXT(""));
+	CustomMapList = GetMapList(TEXT(".json"), TEXT(""));
+	// SavedMapList = GetMapList(TEXT(".json"), TEXT(""));
 	CombinedMapList.Append(OriginMapList);
 	CombinedMapList.Append(CustomMapList);
 	CombinedMapList.Append(SavedMapList);
 	CustomMapList.Append(SavedMapList);
 
 	InitAllMap();
-	InitOriginMap();
-	InitCustomMap();
+	// InitOriginMap();
+	// InitCustomMap();
 
 	for (int32 i = 0; i < HorizontalBoxCount; i++)
 	{
@@ -119,7 +119,7 @@ void USelectRoomUI::OnClickSelectComplete()
 	{
 		GameInstance->SetMapFilePath(CurrentSelectedMapSlotUI->GetMapFullPath());
 	}
-
+	
 	OnMapSelectedDelegate.ExecuteIfBound(CurrentSelectedMapSlotUI);
 }
 
@@ -148,7 +148,7 @@ void USelectRoomUI::OnPickCustomMap()
 	{
 		return ;
 	}
-	ALobbyGameState* GameState = Cast<ALobbyGameState>(GetWorld()->GetGameState());
+	AClientRoomGameState* GameState = Cast<AClientRoomGameState>(GetWorld()->GetGameState());
 	if (!GameState)
 	{
 		return ;
@@ -161,7 +161,7 @@ void USelectRoomUI::OnPickCustomMap()
 
 void USelectRoomUI::OnPickFileComplete(const FString& FilePath, bool bSuccess)
 {
-	ALobbyGameState* GameState = Cast<ALobbyGameState>(GetWorld()->GetGameState());
+	AClientRoomGameState* GameState = Cast<AClientRoomGameState>(GetWorld()->GetGameState());
 	if (!GameState)
 	{
 		return ;
@@ -172,8 +172,6 @@ void USelectRoomUI::OnPickFileComplete(const FString& FilePath, bool bSuccess)
 		return ;
 	}
 
-	FFastLogger::LogScreen(FColor::Red, TEXT("here"));
-	
 	UMapSlotUI* MapSlot = CreateWidget<UMapSlotUI>(GetWorld(), MapSlotClass);
 	FString FileName = FPaths::GetCleanFilename(FilePath);
 	MapSlot->Init(FilePath, FileName);
@@ -199,14 +197,13 @@ TArray<FString> USelectRoomUI::GetMapList(const FString& MapType, const FString&
 {
 	TArray<FString> MapList;
 
-	FString ExecutableDir = FPaths::ProjectDir() + TEXT("AppData/Content/Maps/");
+	FString ExecutableDir = FPaths::ProjectContentDir() + TEXT("Maps/CustomMap/");
 	FString MapPath = FPaths::Combine(ExecutableDir, MapDir);
 	FString AbsoluteMapPath = FPaths::ConvertRelativePathToFull(MapPath);
 
 	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
 	if (!PlatformFile.DirectoryExists(*AbsoluteMapPath))
 	{
-		FFastLogger::LogScreen(FColor::Red, TEXT("Directory does not exist"));
 		return MapList;
 	}
 	

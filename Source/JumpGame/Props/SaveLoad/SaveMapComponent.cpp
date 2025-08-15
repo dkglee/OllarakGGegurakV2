@@ -1,7 +1,10 @@
 #include "SaveMapComponent.h"
 
 #include "JsonObjectConverter.h"
+#include "JumpGame/Core/GameState/MapEditorState.h"
+#include "JumpGame/MapEditor/CategorySystem/PropStruct.h"
 #include "JumpGame/MapEditor/Components/GridComponent.h"
+#include "JumpGame/MapEditor/WarningPropManager/WarningPropManager.h"
 #include "JumpGame/Props/Components/PropDataComponent.h"
 #include "JumpGame/Props/PrimitiveProp/PrimitiveProp.h"
 #include "Kismet/GameplayStatics.h"
@@ -15,56 +18,63 @@ void USaveMapComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	DefaultDirectory = FPaths::ProjectDir() + TEXT("AppData/Saved/");
-	DefaultDirectory += TEXT(R"(SaveMap/)");
+	DefaultDirectory = FPaths::ProjectContentDir() + TEXT("Maps/CustomMap/");
+	// DefaultDirectory += TEXT(R"(SaveMap/)");
 	FFastLogger::LogConsole(TEXT("DefaultDirectory : %s"), *DefaultDirectory);
 }
 
 bool USaveMapComponent::SaveMap(const FString& FileName, const FString& ImageBase64)
 {
-	CollisionPropTags.Empty();
 	SaveDataArray.SaveDataArray.Empty();
-	GetAllPropsInfo(SaveDataArray.SaveDataArray);
-	if (CollisionPropTags.Num() != 0)
+	PropCountMap.clear();
+	if (!GetAllPropsInfo(SaveDataArray.SaveDataArray))
 	{
-		FFastLogger::LogScreen(FColor::Red, TEXT("충돌중인 프롭이 있습니다! 저장 실패!!"));
 		return false;
 	}
 	SaveDataArray.ImageBase64 = ImageBase64; // TODO: 이미지 저장 기능 추가
 	return SaveDataToFile(SaveDataArray, FileName);
 }
 
-void USaveMapComponent::GetAllPropsInfo(TArray<FSaveData>& OutSaveDataArray)
+bool USaveMapComponent::GetAllPropsInfo(TArray<FSaveData>& OutSaveDataArray)
 {
 	// 현재 월드에 있는 APrmitiveActor를 모두 가져옴
 	TArray<AActor*> AllActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APrimitiveProp::StaticClass(), AllActors);
-	
+
 	for (AActor* Actor : AllActors)
 	{
 		APrimitiveProp* PrimitiveProp = Cast<APrimitiveProp>(Actor);
+		// 충돌 중인 Prop이 있는지
 		if (PrimitiveProp->IsOnCollision())
 		{
-			if (PrimitiveProp->Tags.Num() != 0)
-			{
-				CollisionPropTags.Add(PrimitiveProp->Tags.Last().ToString());
-			}
-			else
-			{
-				CollisionPropTags.Add(TEXT("NoTag"));
-			}
-			continue;
+			return false;
 		}
 		
 		FSaveData SaveData;
 
 		SaveData.Id = PrimitiveProp->GetPropDataComponent()->GetPropID();
+		
+		FPropStruct* PropInfo = PropTable->FindRow<FPropStruct>(SaveData.Id, TEXT("LoadMap"), true);
+		if (!PropInfo || PropInfo->bIsHidden)
+		{
+			continue;
+		}
+
+		if (PropCountMap.find(SaveData.Id.ToString()) == PropCountMap.end())
+		{
+			PropCountMap[SaveData.Id.ToString()] = std::make_pair(0, PropInfo->PropMaxCount);
+		}
+		PropCountMap[SaveData.Id.ToString()].first += 1;
+		
 		SaveData.Position = PrimitiveProp->GetActorLocation();
 		SaveData.Rotation = PrimitiveProp->GetActorRotation();
 		SaveData.Size = PrimitiveProp->GetGridComp()->GetSize();
 		
 		OutSaveDataArray.Add(SaveData);
 	}
+
+	return CheckNecessaryProps();
+	// return true;
 }
 
 bool USaveMapComponent::SaveDataToFile(const FSaveDataArray& InSaveDataArray, const FString& FileName)
@@ -93,13 +103,32 @@ bool USaveMapComponent::SaveDataToFile(const FSaveDataArray& InSaveDataArray, co
 	// 저장
 	bool bSuccess = FFileHelper::SaveStringToFile(JsonString, *FullPath);
 
-	if (bSuccess)
-	{
-		FFastLogger::LogScreen(FColor::Green, TEXT("성공적으로 저장했습니다! 경로: %s"), *FullPath);
-	}
-	else
-	{
-		FFastLogger::LogScreen(FColor::Red, TEXT("저장 실패했습니다. 경로: %s"), *FullPath);
-	}
 	return bSuccess;
+}
+
+
+bool USaveMapComponent::CheckNecessaryProps()
+{
+	AMapEditorState* EditorState = GetWorld()->GetGameState<AMapEditorState>();
+	if (!EditorState)
+	{
+		return false;
+	}
+	UWarningPropManager* WarningPropManager = EditorState->GetWarningPropManager();
+	EEditorWarningType OutWarningType = WarningPropManager->CheckWarnings();
+	return (OutWarningType == EEditorWarningType::None);
+	// for (auto& It : PropCountMap)
+	// {
+	// 	if (It.second.second <= 0) // MaxCount가 0 이하면 무시
+	// 	{
+	// 		continue;	
+	// 	}
+	// 	// 0 보다 많으면 필수 갯수를 다 채우지 못함
+	// 	// 0 보다 작으면 더 많이 설치됨
+	// 	if (It.second.first != It.second.second)
+	// 	{
+	// 		return false;
+	// 	}
+	// }
+	// return true;
 }

@@ -9,12 +9,14 @@
 #include "JumpGame/Core/GameState/MapEditorState.h"
 #include "JumpGame/MapEditor/ClickHandlers/ClickHandlerManager.h"
 #include "JumpGame/MapEditor/Pawn/MapEditingPawn.h"
+#include "JumpGame/Props/BuildProp/ChameleonProp.h"
 #include "JumpGame/UI/Character/JumpGaugeUI.h"
+#include "Kismet/GameplayStatics.h"
 
 void UPlayStopUI::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
-
+	
 	FTransform SpawnTransform;
 	SpawnTransform.SetScale3D({1.f, 1.f, 1.f});
 	SpawnTransform.SetTranslation({-1000,-1000,-1000});
@@ -32,6 +34,11 @@ void UPlayStopUI::NativeOnInitialized()
 	PlayStopButton->OnClicked.AddDynamic(this, &UPlayStopUI::OnPlayStopButtonClicked);
 
 	IMG_PlayStop->SetBrushFromTexture(PlayIcon);
+}
+
+void UPlayStopUI::NativeConstruct()
+{
+	Super::NativeConstruct();
 }
 
 void UPlayStopUI::OnPlayStopButtonClicked()
@@ -59,13 +66,42 @@ void UPlayStopUI::OnPlayStopButtonClicked()
 
 void UPlayStopUI::ChangePlayer()
 {
+	TArray<AActor*> FindCopyProps;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AChameleonProp::StaticClass(), FindCopyProps);
+	
 	if (bIsPlayMode)
 	{
 		ChangeToFrog();
+		ApplyCopyProps(FindCopyProps);
 	}
 	else
 	{
 		ChangeToEditor();
+		ShowCopyProps(FindCopyProps);
+	}
+}
+
+void UPlayStopUI::ApplyCopyProps(TArray<AActor*> Actors)
+{
+	for (AActor* Actor : Actors)
+	{
+		AChameleonProp* ChameleonProp = Cast<AChameleonProp>(Actor);
+		if (ChameleonProp)
+		{
+			ChameleonProp->CopyMeshAndMaterial();
+		}
+	}
+}
+
+void UPlayStopUI::ShowCopyProps(TArray<AActor*> Actors)
+{
+	for (AActor* Actor : Actors)
+	{
+		AChameleonProp* ChameleonProp = Cast<AChameleonProp>(Actor);
+		if (ChameleonProp)
+		{
+			ChameleonProp->RecoverMeshAndMaterial();
+		}
 	}
 }
 

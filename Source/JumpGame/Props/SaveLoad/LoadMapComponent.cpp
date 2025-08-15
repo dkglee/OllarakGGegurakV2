@@ -7,16 +7,21 @@
 #include "Blueprint/UserWidget.h"
 #include "Developer/DesktopPlatform/Public/IDesktopPlatform.h"
 #include "JumpGame/Core/GameInstance/JumpGameInstance.h"
+#include "JumpGame/Core/GameState/MapEditorState.h"
+#include "JumpGame/MapEditor/CategorySystem/CategorySystem.h"
 #include "JumpGame/MapEditor/Components/GridComponent.h"
+#include "JumpGame/MapEditor/WarningPropManager/WarningPropManager.h"
 #include "JumpGame/UI/FileBrowser/FileBrowserUI.h"
 #include "JumpGame/UI/MapEditing/MapLoadingUI.h"
+
+class AMapEditorState;
 
 ULoadMapComponent::ULoadMapComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
 	static ConstructorHelpers::FClassFinder<UMapLoadingUI> MAP_LOADING_UI_CLASS
-	(TEXT("/Game/UI/MapEditing/WBP_MapLoading.WBP_MapLoading_C"));
+		(TEXT("/Game/UI/MapEditing/WBP_MapLoading.WBP_MapLoading_C"));
 	if (MAP_LOADING_UI_CLASS.Succeeded())
 	{
 		MapLoadingUIClass = MAP_LOADING_UI_CLASS.Class;
@@ -27,19 +32,22 @@ void ULoadMapComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FileBrowserUI = CreateWidget<UFileBrowserUI>(GetWorld(), FileBrowserUIClass);
-	FileBrowserUI->AddToViewport(999);
-	MapLoadingUI = CreateWidget<UMapLoadingUI>(GetWorld(), MapLoadingUIClass);
+	if (FileBrowserUIClass && MapLoadingUIClass)
+	{
+		FileBrowserUI = CreateWidget<UFileBrowserUI>(GetWorld(), FileBrowserUIClass);
+		FileBrowserUI->AddToViewport(999);
+		MapLoadingUI = CreateWidget<UMapLoadingUI>(GetWorld(), MapLoadingUIClass);
+	}
 }
 
 void ULoadMapComponent::TickComponent(float DeltaTime, enum ELevelTick TickType,
-	FActorComponentTickFunction* ThisTickFunction)
+                                      FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	if (!bIsLoading)
 	{
-		return ;
+		return;
 	}
 
 	BuildMapFromSaveDataV2();
@@ -50,13 +58,13 @@ void ULoadMapComponent::OnPickFileComplete(const FString& FileName, bool bSucces
 	FileBrowserUI->OnFileSelectedDelegate.Unbind();
 	if (!bSuccess)
 	{
-		return ;
+		return;
 	}
-	
+
 	UJumpGameInstance* GI = Cast<UJumpGameInstance>(GetWorld()->GetGameInstance());
 	if (!GI)
 	{
-		return ;
+		return;
 	}
 	GI->ClearMapFilePath();
 	GI->SetMapFilePath(FileName);
@@ -65,23 +73,21 @@ void ULoadMapComponent::OnPickFileComplete(const FString& FileName, bool bSucces
 void ULoadMapComponent::OnLoadFileComplete(const FString& FileName, bool bSuccess)
 {
 	FileBrowserUI->OnFileSelectedDelegate.Unbind();
-	
+
 	if (!bSuccess)
 	{
-		return ;
+		return;
 	}
-	
+
 	FString JsonString;
 
-	FFastLogger::LogScreen(FColor::Red, TEXT("LoadMapComponent::OnLoadFileComplete : %s"), *FileName);
-	
 	if (!LoadFileToJsonString(FileName, JsonString))
 	{
-		return ;
+		return;
 	}
 	if (!ParseJsonStringToMap(JsonString))
 	{
-		return ;
+		return;
 	}
 	bIsLoading = true;
 	if (bShowLoading)
@@ -96,15 +102,14 @@ void ULoadMapComponent::OnLoadFileComplete(const FString& FileName, bool bSucces
 
 void ULoadMapComponent::LoadMap()
 {
-	FFastLogger::LogScreen(FColor::Red, TEXT("LoadMapComponent::LoadMap"));
 	FileBrowserUI->SetVisibility(ESlateVisibility::Visible);
 	FileBrowserUI->OnFileSelectedDelegate.BindUObject(this, &ULoadMapComponent::OnLoadFileComplete);
 
-	FString RelativeDir = FPaths::ProjectDir() + TEXT("AppData/Content/Maps/");
+	FString RelativeDir = FPaths::ProjectContentDir() + TEXT("Maps/CustomMap/");
 
 	FString AbsoluteDir = FPaths::ConvertRelativePathToFull(RelativeDir);
 	FPaths::MakePlatformFilename(AbsoluteDir);
-	
+
 	FileBrowserUI->SetSuffixes({TEXT(".json")});
 	FileBrowserUI->LoadDirectoryContents(AbsoluteDir);
 }
@@ -113,18 +118,17 @@ void ULoadMapComponent::LoadMapWithString(const FString& FileName)
 {
 	FString JsonString;
 
-	FFastLogger::LogFile(TEXT("LoadMapComponent"), TEXT("LoadFile : %s"), *FileName);
 	if (!LoadFileToJsonString(FileName, JsonString))
 	{
-		return ;
+		return;
 	}
 	if (!ParseJsonStringToMap(JsonString))
 	{
-		return ;
+		return;
 	}
 	bIsLoading = true;
 	//
-	// BuildMapFromSaveData();
+	// BuildMapFromSaveDataV2();
 }
 
 void ULoadMapComponent::PickFile(const FString& Suffix, bool bBindFunction)
@@ -136,11 +140,11 @@ void ULoadMapComponent::PickFile(const FString& Suffix, bool bBindFunction)
 		FileBrowserUI->OnFileSelectedDelegate.BindUObject(this, &ULoadMapComponent::OnPickFileComplete);
 	}
 
-	FString RelativeDir = FPaths::ProjectDir() + TEXT("AppData/Content/Maps/");
+	FString RelativeDir = FPaths::ProjectContentDir() + TEXT("Maps/CustomMap/");
 
 	FString AbsoluteDir = FPaths::ConvertRelativePathToFull(RelativeDir);
 	FPaths::MakePlatformFilename(AbsoluteDir);
-	
+
 	FileBrowserUI->SetSuffixes({Suffix});
 	FileBrowserUI->LoadDirectoryContents(AbsoluteDir);
 }
@@ -177,25 +181,7 @@ void ULoadMapComponent::BuildMapFromSaveData()
 	for (const FSaveData& SaveData : SaveDataArray.SaveDataArray)
 	{
 		FPropStruct* PropInfo = PropTable->FindRow<FPropStruct>(SaveData.Id, TEXT("LoadMap"), true);
-		if (!PropInfo)
-		{
-			continue ;
-		}
-		TSubclassOf<APrimitiveProp> PropClass = PropInfo->PropClass;
-
-		SpawnProp(PropClass, SaveData);	
-	}
-	OnMapLoaded.Broadcast();
-}
-
-void ULoadMapComponent::BuildMapFromSaveDataV2()
-{
-	// SaveData에 SaveDataArray의 배열에서 500개씩 가져와서 처리하면 될 듯
-	for (uint32 i = CurrentChunkIndex * ChunkSize; i < (uint32)SaveDataArray.SaveDataArray.Num() && i < (CurrentChunkIndex + 1) * ChunkSize; ++i)
-	{
-		const FSaveData& SaveData = SaveDataArray.SaveDataArray[i];
-		FPropStruct* PropInfo = PropTable->FindRow<FPropStruct>(SaveData.Id, TEXT("LoadMap"), true);
-		if (!PropInfo)
+		if (!PropInfo || PropInfo->bIsHidden)
 		{
 			continue ;
 		}
@@ -203,7 +189,33 @@ void ULoadMapComponent::BuildMapFromSaveDataV2()
 
 		SpawnProp(PropClass, SaveData);
 	}
-	
+	OnMapLoaded.Broadcast();
+}
+
+void ULoadMapComponent::BuildMapFromSaveDataV2()
+{
+	// SaveData에 SaveDataArray의 배열에서 500개씩 가져와서 처리하면 될 듯
+	for (uint32 i = CurrentChunkIndex * ChunkSize; i < (uint32)SaveDataArray.SaveDataArray.Num() && i < (
+		     CurrentChunkIndex + 1) * ChunkSize; ++i)
+	{
+		const FSaveData& SaveData = SaveDataArray.SaveDataArray[i];
+		FPropStruct* PropInfo = PropTable->FindRow<FPropStruct>(SaveData.Id, TEXT("LoadMap"), true);
+		if (!PropInfo || PropInfo->bIsHidden)
+		{
+			continue ;
+		}
+
+		TSubclassOf<APrimitiveProp> PropClass = PropInfo->PropClass;
+
+		SpawnProp(PropClass, SaveData);
+
+		AMapEditorState* EditorState = Cast<AMapEditorState>(GetWorld()->GetGameState());
+		if (EditorState)
+		{
+			EditorState->GetCategorySystem()->DecrementPropCountByID(PropInfo->PropID);
+		}
+	}
+
 	if ((CurrentChunkIndex + 1) * ChunkSize >= (uint32)SaveDataArray.SaveDataArray.Num())
 	{
 		bIsLoading = false;
@@ -229,7 +241,7 @@ void ULoadMapComponent::SpawnProp(TSubclassOf<APrimitiveProp> PropClass, const F
 	SpawnTransform.SetLocation(Location);
 	SpawnTransform.SetRotation(FRotator::ZeroRotator.Quaternion());
 	SpawnTransform.SetScale3D({1.f, 1.f, 1.f});
-	
+
 	FVector Size = SaveData.Size;
 
 	// APrimitiveProp* NewProp = GetWorld()->SpawnActorDeferred<APrimitiveProp>(PropClass,	SpawnTransform, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
@@ -253,6 +265,11 @@ void ULoadMapComponent::SpawnProp(TSubclassOf<APrimitiveProp> PropClass, const F
 		NewProp->GetGridComp()->SetSize(Size);
 		NewProp->SetActorRotation(Rotation);
 		NewProp->RotateAllGizmos();
+		AMapEditorState* EditorState = Cast<AMapEditorState>(GetWorld()->GetGameState());
+		if (EditorState)
+		{
+			EditorState->GetWarningPropManager()->RegisterNecessaryProp(NewProp);
+		}
 	}
 	else
 	{
@@ -261,7 +278,7 @@ void ULoadMapComponent::SpawnProp(TSubclassOf<APrimitiveProp> PropClass, const F
 }
 
 void ULoadMapComponent::OpenFileDialog(const FString& DialogTitle, const FString& DefaultPath, const FString& FileTypes,
-	TArray<FString>& OutFileNames)
+                                       TArray<FString>& OutFileNames)
 {
 	if (GEngine)
 	{
@@ -272,8 +289,10 @@ void ULoadMapComponent::OpenFileDialog(const FString& DialogTitle, const FString
 			if (DesktopPlatform)
 			{
 				//Opening the file picker!
-				uint32 SelectionFlag = 0; //A value of 0 represents single file selection while a value of 1 represents multiple file selection
-				DesktopPlatform->OpenFileDialog(ParentWindowHandle, DialogTitle, DefaultPath, FString(""), FileTypes, SelectionFlag, OutFileNames);
+				uint32 SelectionFlag = 0;
+				//A value of 0 represents single file selection while a value of 1 represents multiple file selection
+				DesktopPlatform->OpenFileDialog(ParentWindowHandle, DialogTitle, DefaultPath, FString(""), FileTypes,
+				                                SelectionFlag, OutFileNames);
 			}
 		}
 	}
@@ -282,8 +301,6 @@ void ULoadMapComponent::OpenFileDialog(const FString& DialogTitle, const FString
 void ULoadMapComponent::PrintData(const FString& File)
 {
 	//Parse the data into a string array
-	FFastLogger::LogScreen(FColor::Red, TEXT("File: %s"), *File);
-	
 	TArray<FString> LoadedText;
 	FFileHelper::LoadFileToStringArray(LoadedText, *File);
 	//Print the contents

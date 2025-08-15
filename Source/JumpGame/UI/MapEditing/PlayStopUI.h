@@ -16,6 +16,7 @@ class JUMPGAME_API UPlayStopUI : public UUserWidget
 
 public:
 	virtual void NativeOnInitialized() override;
+	virtual void NativeConstruct() override;
 
 private:
 	void ChangeToFrog();
@@ -23,7 +24,9 @@ private:
 	void ChangePlayer();
 	UFUNCTION()
 	void OnPlayStopButtonClicked();
-
+	void ShowCopyProps(TArray<AActor*> Actors);
+	void ApplyCopyProps(TArray<AActor*> Actors);
+	
 	UPROPERTY()
 	class AFrog* PlayPawn;
 	UPROPERTY()

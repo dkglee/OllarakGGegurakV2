@@ -45,4 +45,9 @@ public:
 
 		return EnumPtr->GetDisplayNameTextByValue(static_cast<int64>(EnumValue));
 	}
+	template<typename T>
+	static T* SafeLast(TArray<T*>& Array)
+	{
+		return Array.IsEmpty() ? nullptr : Array.Last();
+	}
 };

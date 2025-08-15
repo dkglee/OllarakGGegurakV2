@@ -22,7 +22,7 @@ void UJumpGameInstance::Init()
 	Super::Init();
 
 	// 현재 사용하는 서브시스템을 가져오자
-	IOnlineSubsystem* Subsys = IOnlineSubsystem::Get();
+	/*IOnlineSubsystem* Subsys = IOnlineSubsystem::Get();
 	if (Subsys)
 	{
 		SessionInterface = Subsys->GetSessionInterface();
@@ -49,7 +49,7 @@ void UJumpGameInstance::Init()
 	if (bIsRunEyeScript)
 	{
 		RunEyeTrackingScript();
-	}
+	}*/
 }
 
 void UJumpGameInstance::CreateMySession(FString DisplayName, int32 PlayerCount, const FString& Password)
@@ -130,7 +130,6 @@ void UJumpGameInstance::FindOtherSession()
 
 void UJumpGameInstance::OnFindSessionComplete(bool bWasSuccessful)
 {
-	FFastLogger::LogFile(TEXT("FindSessionComplete.txt"), TEXT("Session Find Complete: %d"), (int32)bWasSuccessful);
 	if (bWasSuccessful && SessionSearch && SessionSearch->SearchResults.Num() != 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("세션 검색 성공!"));
@@ -140,14 +139,12 @@ void UJumpGameInstance::OnFindSessionComplete(bool bWasSuccessful)
 		{
 			FString TempName;
 			results[i].Session.SessionSettings.Get(FName(TEXT("DP_NAME")), TempName);
-			FFastLogger::LogFile(TEXT("FindSessionComplete.txt"), TEXT("Session [%d] Name: %s"), i, TempName.IsEmpty() ? TEXT("Unknown") : *TempName);
 			// 파괴된 세션 필터
 			bool bIsEnded = true; // 기본 true로 두고, Get 실패해도 거르도록
 			results[i].Session.SessionSettings.Get(FName("bIsEnded"), bIsEnded);
 			if (bIsEnded)
 			{
 				UE_LOG(LogTemp, Warning, TEXT("세션 [%d]는 이미 종료된 세션입니다. 자동으로 제외됩니다."), i);
-				FFastLogger::LogFile(TEXT("FindSessionComplete.txt"), TEXT("Session [%d] is Already Destroyed"), i);
 				continue;
 			}
 			
@@ -304,7 +301,6 @@ void UJumpGameInstance::OnDestroySessionComplete(FName Name, bool bArg)
 	// // 만약에 파괴 성공했다면
 	// if (bArg == true)
 	// {
-	// 	FFastLogger::LogScreen(FColor::Red, TEXT("UJumpGameInstance::OnDestroySessionComplete"));
 	//
 	// 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
 	// 	if (PC)
@@ -312,7 +308,6 @@ void UJumpGameInstance::OnDestroySessionComplete(FName Name, bool bArg)
 	// 		// 서버라면, 로비로 이동하자
 	// 		if (PC->HasAuthority())
 	// 		{
-	// 			FFastLogger::LogScreen(FColor::Red, TEXT("서버 이동@@@@@"));
 	// 			GetWorld()->ServerTravel(TEXT("/Game/Maps/ClientRoomLevel?closed"));
 	// 		}
 	// 	}
@@ -330,24 +325,20 @@ void UJumpGameInstance::OnDestroySessionComplete(FName Name, bool bArg)
 	// }
 	
 	FFastLogger::LogConsole(TEXT("DestroySession %s"), bArg ? TEXT("Success") : TEXT("Fail"));
-	FFastLogger::LogScreen(FColor::Red, TEXT("DestroySession %s"), bArg ? TEXT("Success") : TEXT("Fail"));
-	FFastLogger::LogFile(TEXT("DestroySession.txt"), TEXT("DestroySession %s"), bArg ? TEXT("Success") : TEXT("Fail"));
 }
 
 void UJumpGameInstance::OnFailureSessionDetected(const FUniqueNetId& UniqueNetId,
 	ESessionFailure::Type Arg)
 {
-	FFastLogger::LogScreen(FColor::Orange, TEXT("OnFailure"));
 	UWorld* World = GetWorld();
 	if (World)
 	{
-		UGameplayStatics::OpenLevel(World, FName(TEXT("/Game/Maps/ClientRoomLevel")));
+		UGameplayStatics::OpenLevel(World, FName(TEXT("/Game/Maps/Levels/GameLobby")));
 	}
 }
 
 void UJumpGameInstance::OnEndSessionComplete(FName Name, bool bArg)
 {
-	// FFastLogger::LogScreen(FColor::Red, TEXT("OnEndSessionComplete@@@@@@"));
 	// UWorld* World = GetWorld();
 	// if (World)
 	// {
@@ -356,7 +347,7 @@ void UJumpGameInstance::OnEndSessionComplete(FName Name, bool bArg)
 	// }
 
 	// 성공 여부와 무관하게 클라·서버 모두 로비로 이동
-	UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/ClientRoomLevel"));
+	UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/Levels/GameLobby"));
 
 	// 세션 파괴는 백그라운드로
 	IOnlineSessionPtr Sessions = IOnlineSubsystem::Get()->GetSessionInterface();
@@ -364,7 +355,6 @@ void UJumpGameInstance::OnEndSessionComplete(FName Name, bool bArg)
 	{
 		Sessions->DestroySession(CurrentSessionName);
 	}
-	FFastLogger::LogFile(TEXT("EndSession.txt"), TEXT("EndSession %s"), bArg ? TEXT("Success") : TEXT("Fail"));
 }
 
 FString UJumpGameInstance::StringBase64Encode(FString Str)
@@ -556,8 +546,6 @@ void UJumpGameInstance::RunEyeTrackingScript()
 	
 	//FString ScriptPath = TEXT("C:\\FinalProject\\Game\\AI_Service\\eye_tracking\\infinite_counter.py");
 	FString WorkingDirectory = FPaths::GetPath(AbsoluteScriptPath);
-
-	FFastLogger::LogScreen(FColor::Red, TEXT("Python Path: %s"), *AbsoluteScriptPath);
 
 	// Python 실행 명령 구성
 	FString Command = FString::Printf(TEXT("\"%s\" \"%s\""), *PythonPath, *AbsoluteScriptPath);

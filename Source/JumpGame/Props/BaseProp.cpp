@@ -46,9 +46,12 @@ void ABaseProp::BeginPlay()
 		}
 	}
 
-	bInGame = GetWorld()->GetMapName().Contains(TEXT("InGameLevel"));
-
-	
+	bInGame = GetWorld()->GetMapName().Contains(TEXT("Stage"), ESearchCase::IgnoreCase) &&
+		!GetWorld()->GetMapName().Contains(TEXT("Edit"), ESearchCase::IgnoreCase);
+	/*FString MapName = GetWorld()->GetMapName();
+	MapName = FPackageName::GetShortName(MapName);
+	bInGame = MapName.Equals(TEXT("Stage_01"), ESearchCase::IgnoreCase);*/
+	// bInGame = GetWorld()->GetMapName().Equals(TEXT("Stage_01"));
 }
 
 void ABaseProp::SetCollision(bool bEnable)

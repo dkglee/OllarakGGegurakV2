@@ -16,5 +16,5 @@ class JUMPGAME_API AMapEditorMode : public ANetworkGameMode
 
 public:
 	AMapEditorMode();
-	
+	virtual void BeginPlay() override;
 };

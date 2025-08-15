@@ -144,6 +144,9 @@ const TArray<UPropWrap*>& UCategorySystem::GetPropsByMajor(EMajorCategoryType Ma
 	{
 		for (UPropWrap* Prop : KV.Value.PropList)
 		{
+			if (!Prop) continue;
+			if (Prop->Data.bIsHidden) continue;
+			
 			if (!Seen.Contains(Prop))
 			{
 				Seen.Add(Prop);
@@ -164,7 +167,25 @@ const TArray<UPropWrap*>& UCategorySystem::GetPropsBySub(EMajorCategoryType Majo
 	}
 
 	FPropIndexList* FoundSub = Found->SubCategoryMap.Find(Sub);
-	return FoundSub ? FoundSub->PropList : EmptyArray;
+
+	static TArray<UPropWrap*> FoundLists;
+	FoundLists.Reset();
+	FoundLists.Reserve(128);
+
+	if (!FoundSub)
+	{
+		return EmptyArray;
+	}
+
+	for (auto& Prop : FoundSub->PropList)
+	{
+		if (!Prop) continue;
+		if (Prop->Data.bIsHidden) continue;
+
+		FoundLists.Add(Prop);
+	}
+	
+	return FoundLists;
 }
 
 const TArray<class UPropWrap*>& UCategorySystem::GetPropsBySubs(const TArray<ESubCategoryType>& Subs)
@@ -192,6 +213,9 @@ const TArray<class UPropWrap*>& UCategorySystem::GetPropsBySubs(const TArray<ESu
 	// 중복된 PropWrap을 제거
 	for (auto& Prop : FoundLists)
 	{
+		if (!Prop) continue;
+		if (Prop->Data.bIsHidden) continue;
+		
 		if (!Seen.Contains(Prop))
 		{
 			Seen.Add(Prop);
@@ -206,9 +230,127 @@ const UPropWrap* UCategorySystem::GetPropsByID(FName ID)
 {
 	UPropWrap** Found = PropList.FindByPredicate([ID](const UPropWrap* It)
 	{
-		return It && It->Data.PropID == ID;
+		return It && It->Data.PropID == ID && !It->Data.bIsHidden;
 	});
 	return Found && *Found ? *Found : nullptr;
+}
+
+int32 UCategorySystem::GetNecessaryPropCount() const
+{
+	int32 TotalCount = 0;
+	for (const UPropWrap* Prop : PropList)
+	{
+		if (!Prop || Prop->Data.bIsHidden) continue;
+
+		if (Prop->Data.PropMaxCount > 0)
+		{
+			TotalCount += 1;
+		}
+	}
+	return TotalCount;
+}
+
+void UCategorySystem::UpdatePropByID(FName ID, const FPropStruct& NewProp)
+{
+	UPropWrap** Found = PropList.FindByPredicate([ID](const UPropWrap* It)
+	{
+		return It && It->Data.PropID == ID && !It->Data.bIsHidden;
+	});
+	if (!Found)
+	{
+		FFastLogger::LogConsole(TEXT("Prop with ID %s not found"), *ID.ToString());
+		return;
+	}
+	if (!*Found)
+	{
+		FFastLogger::LogConsole(TEXT("Prop with ID %s is null"), *ID.ToString());
+		return;
+	}
+	
+	if (!ValidateProp(NewProp))
+	{
+		FFastLogger::LogConsole(TEXT("PropID : %s is not valid"), *NewProp.PropID.ToString());
+		return;
+	}
+	(*Found)->Data = NewProp;
+}
+
+void UCategorySystem::UpdatePropCountByID(FName ID, int32 NewCount)
+{
+	UPropWrap** Found = PropList.FindByPredicate([ID](const UPropWrap* It)
+	{
+		return It && It->Data.PropID == ID && !It->Data.bIsHidden;
+	});
+	if (!Found)
+	{
+		FFastLogger::LogConsole(TEXT("Prop with ID %s not found"), *ID.ToString());
+		return;
+	}
+	if (!*Found)
+	{
+		FFastLogger::LogConsole(TEXT("Prop with ID %s is null"), *ID.ToString());
+		return;
+	}
+	if ((*Found)->Data.PropMaxCount <= 0) // PropMaxCount가 0 이하인 경우, 업데이트를 하지 않음
+	{
+		FFastLogger::LogConsole(TEXT("Prop with ID %s has invalid PropMaxCount"), *ID.ToString());
+		return;
+	}
+	
+	(*Found)->Data.PropCount = NewCount;
+	OnPropCountUpdated.Broadcast(ID, (*Found)->Data.PropCount, (*Found)->Data.PropMaxCount);
+}
+
+void UCategorySystem::IncrementPropCountByID(FName ID, int32 IncrementValue)
+{
+	UPropWrap** Found = PropList.FindByPredicate([ID](const UPropWrap* It)
+	{
+		return It && It->Data.PropID == ID && !It->Data.bIsHidden;
+	});
+	if (!Found)
+	{
+		FFastLogger::LogConsole(TEXT("Prop with ID %s not found"), *ID.ToString());
+		return;
+	}
+	if (!*Found)
+	{
+		FFastLogger::LogConsole(TEXT("Prop with ID %s is null"), *ID.ToString());
+		return;
+	}
+	if ((*Found)->Data.PropMaxCount <= 0) // PropMaxCount가 0 이하인 경우, 업데이트를 하지 않음
+    {
+    	FFastLogger::LogConsole(TEXT("Prop with ID %s has invalid PropMaxCount"), *ID.ToString());
+    	return;
+    }
+
+	(*Found)->Data.PropCount += IncrementValue;
+	OnPropCountUpdated.Broadcast(ID, (*Found)->Data.PropCount, (*Found)->Data.PropMaxCount);
+}
+
+void UCategorySystem::DecrementPropCountByID(FName ID, int32 DecrementValue)
+{
+	UPropWrap** Found = PropList.FindByPredicate([ID](const UPropWrap* It)
+	{
+		return It && It->Data.PropID == ID && !It->Data.bIsHidden;
+	});
+	if (!Found)
+	{
+		FFastLogger::LogConsole(TEXT("Prop with ID %s not found"), *ID.ToString());
+		return;
+	}
+	if (!*Found)
+	{
+		FFastLogger::LogConsole(TEXT("Prop with ID %s is null"), *ID.ToString());
+		return;
+	}
+	if ((*Found)->Data.PropMaxCount <= 0) // PropMaxCount가 0 이하인 경우, 업데이트를 하지 않음
+	{
+		FFastLogger::LogConsole(TEXT("Prop with ID %s has invalid PropMaxCount"), *ID.ToString());
+		return;
+	}
+
+	(*Found)->Data.PropCount -= DecrementValue;
+	OnPropCountUpdated.Broadcast(ID, (*Found)->Data.PropCount, (*Found)->Data.PropMaxCount);
 }
 
 const TArray<class UPropWrap*>& UCategorySystem::GetPropsByName(FName Name)
@@ -219,6 +361,9 @@ const TArray<class UPropWrap*>& UCategorySystem::GetPropsByName(FName Name)
 	
 	for (auto& Prop : PropList)
 	{
+		if (!Prop) continue;
+		if (Prop->Data.bIsHidden) continue;
+		
 		if (Prop && Prop->Data.PropName.ToString().Contains(Name.ToString(), ESearchCase::IgnoreCase))
 		{
 			FoundLists.Add(Prop);

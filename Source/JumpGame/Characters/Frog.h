@@ -40,7 +40,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
+	
 public:
 	virtual void PossessedBy(AController* NewController) override;
 
@@ -48,7 +48,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
 	virtual void NotifyControllerChanged() override;
+	bool bInitialized = false;
+	
 	virtual bool CanJumpInternal_Implementation() const override;
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void Landed(const FHitResult& Hit) override;
@@ -73,12 +76,20 @@ public:
 
 public:
 	// Input
+	void StopFrogMovement();
+	void ResumeFrogMovement();
 	void Move(const struct FInputActionValue& Value);
 	void Look(const struct FInputActionValue& Value);
 	void StartJump();
 	void StopJump();
 	void WPressed(const struct FInputActionValue& Value);
 	void WReleased(const struct FInputActionValue& Value);
+	void APressed(const struct FInputActionValue& Value);
+	void AReleased(const struct FInputActionValue& Value);
+	void DPressed(const struct FInputActionValue& Value);
+	void DReleased(const struct FInputActionValue& Value);
+	void SPressed(const struct FInputActionValue& Value);
+	void SReleased(const struct FInputActionValue& Value);
 	UFUNCTION(BlueprintCallable)
 	void StartSprint();
 	UFUNCTION(BlueprintCallable)
@@ -90,6 +101,11 @@ public:
 	void DebugMode();
 	void PropActive();
 	void PropCheat();
+	UFUNCTION()
+	void AdjustSpringArmLength(const struct FInputActionValue& Value);
+	UFUNCTION()
+	void SetArmLengthDefault();
+
 
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_ExecuteWaterSurfaceJump(const FVector& LaunchVelocity);
@@ -224,6 +240,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	class UInputAction* SprintAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	class UInputAction* SprintLeftAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	class UInputAction* SprintRightAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	class UInputAction* SprintBackAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	class UInputAction* TongueAttackAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	class UInputAction* PropActiveAction;
@@ -235,6 +257,10 @@ public:
 	class UInputAction* DebugModeAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	class UInputAction* SettingAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	class UInputAction* ScrollAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	class UInputAction* ScrollClickAction;
 	
 	// 일반 변수
 public:
@@ -260,6 +286,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated)
 	bool bCanCrouch{true};
 	float PrevVelocityZLength{};
+	float FrogJumpGravityZ{};
 	// 물 관련
 	UPROPERTY(Replicated)
 	float TimeSpentInWater;
@@ -427,8 +454,16 @@ public :
 
 	// 대쉬
 	FTimerHandle DoubleTapTimer;
+	FTimerHandle SprintStopTimer;
 	float WPressedTime{0.f};
+	float APressedTime{0.f};
+	float DPressedTime{0.f};
+	float SPressedTime{0.f};
 	bool bIsSprint{false};
+	bool bWPressed{false};
+	bool bAPressed{false};
+	bool bSPressed{false};
+	bool bDPressed{false};
 
 	// 점프 버퍼 : 착지 직전에 일찍 점프 해도 점프 되도록
 	float JumpBufferTime{0.25f};
@@ -458,5 +493,21 @@ public:
 	FTimerHandle JumpBackHandle;
 	FTimerHandle ReturnCollisionTimer;
 
+	// TargetArmLength
+	UPROPERTY()
+	float GoalArmLength{400.f};
+	UPROPERTY()
+	float MaxArmLength{1000.f};
+	UPROPERTY()
+	float MinArmLength{150.f};
+	UPROPERTY()
+	float ZoomSize{70.f};
+	UPROPERTY()
+	bool bIsZoom{false};
+	UPROPERTY()
+	FTimerHandle ZoomTimer;
+	
+	void StartZoom();
+	void StopZoom();
 };
 

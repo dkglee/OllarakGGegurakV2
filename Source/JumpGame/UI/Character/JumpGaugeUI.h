@@ -22,7 +22,16 @@ public:
 	class AFrog* Frog;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UProgressBar* JumpGaugeSlider;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UTextBlock* SmallJumpText;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UTextBlock* SuperJumpText;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UTextBlock* ReadyText;
 
+	UPROPERTY(BlueprintReadOnly, Transient, meta = (BindWidgetAnim))
+	class UWidgetAnimation* TextAnimation;
+	
 	UFUNCTION()
 	void OnSuperJumpRatioChanged(float NewRatio);
 

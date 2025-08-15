@@ -8,44 +8,67 @@
 #include "JumpGame/Core/GameInstance/JumpGameInstance.h"
 #include "JumpGame/Core/GameState/ClientRoomGameState.h"
 #include "JumpGame/Core/PlayerController/LobbyPlayerController.h"
+#include "JumpGame/Maps/Node/StageMapNodeComponent.h"
+#include "JumpGame/StageSystem/StageSystemSubsystem.h"
 #include "JumpGame/UI/ClientRoomLogoUI.h"
 #include "JumpGame/UI/Cinematic/IntroCinematic.h"
 #include "JumpGame/Utils/FastLogger.h"
 
 
+AClientRoomGameMode::AClientRoomGameMode()
+{
+	//OutroSoundComponent = CreateDefaultSubobject<UMediaSoundComponent>(TEXT("OutroSoundComponent"));
+}
+
 void AClientRoomGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-
-	FFastLogger::LogFile(TEXT("ClientRoomGameMode"), 
-		TEXT("BeginPlay called."));
-
+	
 	PlayerControllerClass = ALobbyPlayerController::StaticClass();
 
 	// 게임 인스턴스 가져오기
 	GI = Cast<UJumpGameInstance>(GetWorld()->GetGameInstance());
+	UStageSystemSubsystem* SubGI = GI->GetSubsystem<UStageSystemSubsystem>();
+	SubGI->SetChosenStage(TEXT("Stage_01"));		
 	
-	FFastLogger::LogFile(TEXT("ClientRoomGameMode"), 
-		TEXT("Middle called."));
 	// TODO: GI 초기화
 	GI->GetPlayerInfo().Empty();
 
-	if (GI->bIsGameStart)
+	GI->CurrentMap = EMapKind::Lobby;
+	UE_LOG(LogTemp, Warning, TEXT("CurrentMap: %d"), GI->CurrentMap);
+
+	if (!GI->bIsGameStart)
 	{
-		FFastLogger::LogFile(TEXT("ClientRoomGameMode"), 
-			TEXT("Early called."));
-		return;
+		IntroCinematic = CreateWidget<UIntroCinematic>(GetWorld(), IntroCinematicUIClass);
+		if (IntroCinematic)
+		{
+			IntroCinematic->AddToViewport(100);
+			IntroCinematic->MediaPlayer->OnEndReached.AddDynamic(this, &AClientRoomGameMode::OnVideoEnd);
+		}
 	}
 	
-	IntroCinematic = CreateWidget<UIntroCinematic>(GetWorld(), IntroCinematicUIClass);
-	if (IntroCinematic)
-	{
-		IntroCinematic->AddToViewport(100);
-		IntroCinematic->MediaPlayer->OnEndReached.AddDynamic(this, &AClientRoomGameMode::OnVideoEnd);
-	}
+	// if (GI->bLastMapClear)
+	// {
+	// 	OutroCinematic = CreateWidget<UOutroCinematic>(GetWorld(), OutroCinematicUIClass);
+	// 	if (OutroCinematic && OutroSoundComponent)
+	// 	{
+	// 		AClientRoomGameState* GS{Cast<AClientRoomGameState>(GetWorld()->GetGameState())};
+	// 		if (GS && GS->ClientRoomUI && GS->ClientRoomUI->LobbyAudio)
+	// 		{
+	// 			GS->ClientRoomUI->LobbyAudio->SetPaused(true);
+	// 		}
+	// 		
+	// 		OutroSoundComponent->SetMediaPlayer(OutroCinematic->MediaPlayer);
+	// 		OutroCinematic->AddToViewport(100);
+	// 		UE_LOG(LogTemp, Warning, TEXT("OutroCinematic Add1111111111111"));
+	// 		OutroCinematic->MediaPlayer->OnEndReached.AddDynamic(this, &AClientRoomGameMode::OnOutroVideoEnd);
+	// 	}
+	// }
 	
-	FFastLogger::LogFile(TEXT("ClientRoomGameMode"), 
-		TEXT("End called."));
+	if (UStageMapNodeComponent* NodeComp = UStageMapNodeComponent::Get(GetWorld()))
+	{
+		NodeComp->InitAllFieldStars();
+	}
 }
 
 void AClientRoomGameMode::OnVideoEnd()

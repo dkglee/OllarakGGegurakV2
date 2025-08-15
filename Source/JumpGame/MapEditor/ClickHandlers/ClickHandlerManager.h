@@ -7,6 +7,7 @@
 #include "ClickHandlerManager.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnControlledPropChanged);
+DECLARE_DYNAMIC_DELEGATE(FOnPropDragCancelled);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class JUMPGAME_API UClickHandlerManager : public UActorComponent
@@ -37,10 +38,14 @@ public:
 	GETTER(FClickResponse, ControlledClickResponse)
 	SETTER(FClickResponse, ControlledClickResponse)
 	SETTER(bool, bRotateGizmoMode)
+	SETTER(bool, bCtrlMultiSelect)
+	SETTER(bool, bShiftMultiSelect)
 
 	UPROPERTY()
 	FOnControlledPropChanged OnControlledPropChanged;
-
+	UPROPERTY()
+	FOnPropDragCancelled OnPropDragCancelledDelegate;
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void InitializeComponent() override;
@@ -60,4 +65,6 @@ private:
 
 	bool bMouseEnterUI = false;
 	bool bRotateGizmoMode = false;
+	bool bCtrlMultiSelect = false;
+	bool bShiftMultiSelect = false;
 };

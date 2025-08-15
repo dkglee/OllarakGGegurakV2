@@ -18,6 +18,14 @@ public:
 	AMapEditingPawn();
 
 protected:
+	// 블록이랑 충돌했을 때
+	UFUNCTION()
+	void OnCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+	                             const FHitResult& SweepResult);
+	UFUNCTION()
+	void OnCollisionEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -63,7 +71,15 @@ private:
 	void HandleChangeMoveGizmoMode(const FInputActionValue& InputActionValue);
 	UFUNCTION()
 	void HandleChangeRotateGizmoMode(const FInputActionValue& InputActionValue);
-
+	UFUNCTION()
+	void HandleStartedMultiSelect(const FInputActionValue& InputActionValue);
+	UFUNCTION()
+	void HandleCompletedMultiSelect(const FInputActionValue& InputActionValue);
+	UFUNCTION()
+	void HandleStartedCopyMode(const FInputActionValue& InputActionValue);
+	UFUNCTION()
+	void HandleCompletedCopyMode(const FInputActionValue& InputActionValue);
+	
 	UFUNCTION()
 	void MoveForward(float Val);
 	UFUNCTION()
@@ -72,6 +88,8 @@ private:
 	void MoveUp(float Val);
 	UFUNCTION(BlueprintCallable)
 	void OnMoveFinished();
+	UFUNCTION()
+	void TeleportToProp(class APrimitiveProp* Prop);
 
 	// IMC_MAPEDITING
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
@@ -113,6 +131,12 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* IA_RotateGizmoMode = nullptr;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	class UInputAction* IA_MultiSelect = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	class UInputAction* IA_CopyMode = nullptr;
+	
 	UPROPERTY()
 	bool bCanMove = false;
 

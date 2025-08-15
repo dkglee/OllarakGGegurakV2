@@ -115,7 +115,6 @@ void UWaitRoomUI::OnClickGameStart()
 		GI->SetMaxPlayer(CurrentPlayer);
 		// TODO: 선택한 게임레벨로 이동하게하자
 		GetWorld()->ServerTravel(TEXT("/Game/Maps/InGameLevel?listen"));
-		// GetWorld()->ServerTravel(TEXT("/Game/Maps/TestInGameLevel?listen"));
 		UE_LOG(LogTemp, Warning, TEXT("게임시작"));
 	}
 }

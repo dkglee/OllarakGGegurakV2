@@ -71,10 +71,10 @@ private:
 
 public:
 	// 팝업으로 띄울 UI
-	UPROPERTY(editanywhere)
-	TSubclassOf<class UBottomNaviBarUI> BottomNaviBarUIClass;
-	UPROPERTY(editanywhere, BlueprintReadWrite)
-	UBottomNaviBarUI* BottomNaviBarUI;
+	// UPROPERTY(editanywhere)
+	// TSubclassOf<class UBottomNaviBarUI> BottomNaviBarUIClass;
+	// UPROPERTY(editanywhere, BlueprintReadWrite)
+	// UBottomNaviBarUI* BottomNaviBarUI;
 
 public:
 	/** 서버 → 클라 : 친구 목록 보내 달라 */

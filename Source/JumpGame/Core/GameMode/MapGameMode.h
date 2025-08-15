@@ -27,7 +27,9 @@ protected:
 	class ULoadMapComponent* LoadMapComponent = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MapLoad", meta = (AllowPrivateAccess = "true"))
 	class USaveMapComponent* SaveMapComponent = nullptr;
-
+	UPROPERTY()
+	bool bIsMapReady = false;
+	
 public:
 	UPROPERTY()
 	int32 PlayerIdx = 0;

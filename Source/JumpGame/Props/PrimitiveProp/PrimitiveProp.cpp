@@ -5,11 +5,13 @@
 
 #include "Components/BoxComponent.h"
 #include "Components/WidgetComponent.h"
+#include "JumpGame/Core/GameState/MapEditorState.h"
 #include "JumpGame/MapEditor/Components/GizmoComponent.h"
 #include "JumpGame/MapEditor/Components/GizmoPrimaryComponent.h"
 #include "JumpGame/MapEditor/Components/GridComponent.h"
 #include "JumpGame/MapEditor/CategorySystem/PropStruct.h"
 #include "JumpGame/MapEditor/Components/RotateGizmoComponent.h"
+#include "JumpGame/MapEditor/WarningPropManager/WarningPropManager.h"
 #include "JumpGame/Props/Components/PropDataComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -101,6 +103,12 @@ void APrimitiveProp::OnGridPropBeginOverlap(UPrimitiveComponent* OverlappedCompo
 	}
 	CollisionCount++;
 	bIsOnCollision = true;
+	AMapEditorState* MapEditorState = Cast<AMapEditorState>(GetWorld()->GetGameState());
+	if (MapEditorState)
+	{
+		MapEditorState->GetWarningPropManager()->RegisterCollisionProp(this);
+	}
+	
 	MaterialChangeOnCollision();
 }
 
@@ -117,6 +125,11 @@ void APrimitiveProp::OnGridPropEndOverlap(UPrimitiveComponent* OverlappedCompone
 	{
 		CollisionCount = 0;
 		bIsOnCollision = false;
+		AMapEditorState* MapEditorState = Cast<AMapEditorState>(GetWorld()->GetGameState());
+		if (MapEditorState)
+		{
+			MapEditorState->GetWarningPropManager()->UnRegisterCollisionProp(this);
+		}
 	}
 	MaterialChangeOnCollision();
 }
@@ -138,7 +151,7 @@ void APrimitiveProp::SetSize(const FVector& InSize)
 	// 총 6개의 Gizmo와 6개의 방향이 존재함
 	for (int32 i = 0; i < GizmoArray.Num(); i++)
 	{
-		SetGizmoLocation(GizmoArray[i], GizmoDirectionArray[i], BoxExtent);
+		SetGizmoLocation(GizmoArray[i], GizmoDirectionArray[i], GizmoOffset);
 		SetGizmoRotation(GizmoArray[i], GizmoDirectionArray[i]);
 		// TODO: 기즈모 색상 어떻게 하지 어떤 축으로 도는지 모르겠음
 		// GizmoArray[i]->ChangeColorByNewAxis(GizmoDirectionArray[i]);
@@ -147,8 +160,8 @@ void APrimitiveProp::SetSize(const FVector& InSize)
 	// 항상 정면 앞에 RotateWidgetComponent이 위치해야 함
 	// RotateWidgetComponent->SetWorldLocation()
 	RotateGizmo->SetRelativeLocation(FVector(0, 0, 0));
-	FVector RotateGizmoLocation = FVector::UpVector * (GridComp->GetSize() * GridComp->GetSnapSize()) + FVector(0, 0, 35.0f);
-	RotateGizmo->SetWorldLocation(RotateGizmoLocation + GetActorLocation());
+	// FVector RotateGizmoLocation = FVector::UpVector * (GridComp->GetSize() * GridComp->GetSnapSize()) + FVector(0, 0, 35.0f);
+	// RotateGizmo->SetWorldLocation(RotateGizmoLocation + GetActorLocation());
 }
 
 void APrimitiveProp::SetNewSizeByRotation(const FVector& InSize)
@@ -171,7 +184,7 @@ void APrimitiveProp::BeginPlay()
 	GridInnerCollision->OnComponentBeginOverlap.AddDynamic(this, &APrimitiveProp::OnGridPropBeginOverlap);
 	GridInnerCollision->OnComponentEndOverlap.AddDynamic(this, &APrimitiveProp::OnGridPropEndOverlap);
 
-	if (GetWorld()->GetMapName().Contains(TEXT("MapEditorLevel")))
+	if (GetWorld()->GetMapName().Contains(TEXT("Edit")))
 	{
 		GridOuterCollision->SetHiddenInGame(false);
 		GridOuterCollision->SetVisibility(true);
@@ -203,8 +216,8 @@ void APrimitiveProp::SetSelected(bool bRotateGizmoMode)
 {
 	bSelected = true;
 
-	// Outer Collision을 꺼줌
-	GridOuterCollision->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
+	// Outer Collision Preset 변경
+	GridOuterCollision->SetCollisionProfileName(TEXT("GridSelectedPrefet"));
 
 	if (bRotateGizmoMode)
 	{
@@ -217,31 +230,41 @@ void APrimitiveProp::SetSelected(bool bRotateGizmoMode)
 
 	this->SetCollision(false);
 	MaterialChangeOnCollision();
+
+	// Gizmo들의 틱 활성화
+	for (auto& Gizmo : GizmoArray)
+	{
+		Gizmo->SetComponentTickEnabled(true);
+	}
+	if (RotateGizmo)
+	{
+		RotateGizmo->SetComponentTickEnabled(true);
+	}
+	GizmoPrimary->SetComponentTickEnabled(true);
 }
 
 void APrimitiveProp::SetUnSelected()
 {
 	bSelected = false;
 
-	// Outer Collision을 켜줌
-	GridOuterCollision->SetCollisionEnabled(ECollisionEnabled::Type::QueryAndPhysics);
+	// Outer Collision Preset 변경
+	GridOuterCollision->SetCollisionProfileName(TEXT("GridOuterPrefet"));
 
 	HideGizmos();
 
 	this->SetCollision(true);
 	MaterialChangeOnCollision();
-}
 
-void APrimitiveProp::SetPrimitivePropCollision(bool bCond)
-{
-	if (bCond)
+	// Gizmo들의 틱 비활성화
+	for (auto& Gizmo : GizmoArray)
 	{
-		GridOuterCollision->SetCollisionEnabled(ECollisionEnabled::Type::QueryAndPhysics);
+		Gizmo->SetComponentTickEnabled(false);
 	}
-	else
+	if (RotateGizmo)
 	{
-		GridOuterCollision->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
+		RotateGizmo->SetComponentTickEnabled(false);
 	}
+	GizmoPrimary->SetComponentTickEnabled(false);
 }
 
 void APrimitiveProp::SetGizmosCollision(bool bCond)
@@ -274,8 +297,8 @@ void APrimitiveProp::RotateAllGizmos()
 
 	// 항상 액터의 위에 RotateGizmo가 위치해야 함
 	RotateGizmo->SetRelativeLocation(FVector(0, 0, 0));
-	FVector RotateGizmoLocation = FVector::UpVector * (GridComp->GetSize() * GridComp->GetSnapSize()) + FVector(0, 0, 35.0f);
-	RotateGizmo->SetWorldLocation(RotateGizmoLocation + GetActorLocation());
+	// FVector RotateGizmoLocation = FVector::UpVector * (GridComp->GetSize() * GridComp->GetSnapSize()) + FVector(0, 0, 35.0f);
+	// RotateGizmo->SetWorldLocation(RotateGizmoLocation + GetActorLocation());
 	
 	// TODO: 기즈모 색상 어떻게 하지 어떤 축으로 도는지 모르겠음
 	// for (auto& Gizmo : GizmoArray)
@@ -307,6 +330,45 @@ void APrimitiveProp::ShowMoveGizmo()
 		Gizmo->SetCollisionEnabled(ECollisionEnabled::Type::QueryAndPhysics);
 		Gizmo->SetRenderCustomDepth(true);
 	}
+}
+
+void APrimitiveProp::ActivateGizmos(bool bRotateGizmoMode)
+{
+	if (bRotateGizmoMode)
+	{
+		ShowRotateGizmo();
+	}
+	else
+	{
+		ShowMoveGizmo();
+	}
+
+	// Gizmo들의 틱 활성화
+	for (auto& Gizmo : GizmoArray)
+	{
+		Gizmo->SetComponentTickEnabled(true);
+	}
+	if (RotateGizmo)
+	{
+		RotateGizmo->SetComponentTickEnabled(true);
+	}
+	GizmoPrimary->SetComponentTickEnabled(true);
+}
+
+void APrimitiveProp::DeactivateGizmos()
+{
+	HideGizmos();
+
+	// Gizmo들의 틱 비활성화
+	for (auto& Gizmo : GizmoArray)
+	{
+		Gizmo->SetComponentTickEnabled(false);
+	}
+	if (RotateGizmo)
+	{
+		RotateGizmo->SetComponentTickEnabled(false);
+	}
+	GizmoPrimary->SetComponentTickEnabled(false);
 }
 
 void APrimitiveProp::HideGizmos()

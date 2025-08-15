@@ -2,13 +2,17 @@
 
 #include "ActorClickHandler.h"
 #include "BackgroundClickHandler.h"
+#include "ClickContext.h"
 #include "GizmoClickHandler.h"
+#include "MultiSelectClickHandler.h"
 #include "PropSlotClickHandler.h"
 #include "RotateGizmoClickHandler.h"
+#include "JumpGame/Core/GameState/MapEditorState.h"
 #include "JumpGame/Core/PlayerController/MapEditingPlayerController.h"
 #include "JumpGame/MapEditor/Components/GizmoComponent.h"
 #include "JumpGame/MapEditor/DragDropOperation/WidgetMapEditDragDropOperation.h"
 #include "JumpGame/MapEditor/Pawn/MapEditingPawn.h"
+#include "JumpGame/MapEditor/WarningPropManager/WarningPropManager.h"
 #include "JumpGame/Props/PrimitiveProp/PrimitiveProp.h"
 #include "JumpGame/Utils/FastLogger.h"
 
@@ -31,19 +35,24 @@ void UClickHandlerManager::RegisterHandler(UClickHandlerInterface* Handler)
 
 bool UClickHandlerManager::HandleClick(AMapEditingPlayerController* PlayerController)
 {
-	AActor* TempActor = ControlledClickResponse.TargetProp;
+	AActor* TempActor = FCommonUtil::SafeLast(ControlledClickResponse.SelectedProps);
+
+	FClickContext ClickContext;
+	ClickContext.Flags = bRotateGizmoMode ? FClickContext::RotateGizmoMode : 0;
+	ClickContext.Flags |= bCtrlMultiSelect ? FClickContext::CtrlMultiSelect : 0;
+	ClickContext.Flags |= bShiftMultiSelect ? FClickContext::ShiftMultiSelect : 0;
 	
 	bool bHandled = false;
 	for (const auto& Handler : Handlers)
 	{
-		if (Handler->HandleClick(ControlledClickResponse, PlayerController, bRotateGizmoMode))
+		if (Handler->HandleClick(ControlledClickResponse, PlayerController, ClickContext))
 		{
 			bHandled = true;
 			break ;
 		}
 	}
 	
-	if (TempActor != ControlledClickResponse.TargetProp)
+	if (TempActor != FCommonUtil::SafeLast(ControlledClickResponse.SelectedProps))
 	{
 		OnControlledPropChanged.Broadcast();
 	}
@@ -58,9 +67,12 @@ void UClickHandlerManager::ResetControl()
 	{
 		ControlledGizmo->SetUnSelected();
 	}
-	if (APrimitiveProp* ControlledProp = ControlledClickResponse.TargetProp)
+	for (APrimitiveProp* SelectedProp : ControlledClickResponse.SelectedProps)
 	{
-		ControlledProp->SetUnSelected();
+		if (SelectedProp)
+		{
+			SelectedProp->SetUnSelected();
+		}
 	}
 	ControlledClickResponse = FClickResponse();
 	OnControlledPropChanged.Broadcast();
@@ -71,12 +83,14 @@ void UClickHandlerManager::BeginPlay()
 	Super::BeginPlay();
 
 	UClickHandlerInterface* PropSlotClickHandler = NewObject<UPropSlotClickHandler>();
+	UClickHandlerInterface* MultiSelectClickHandler = NewObject<UMultiSelectClickHandler>();
 	UClickHandlerInterface* RotateGizmoClickHandler = NewObject<URotateGizmoClickHandler>();
 	UClickHandlerInterface* GizmoClickHandler = NewObject<UGizmoClickHandler>();
 	UClickHandlerInterface* ActorClickHandler = NewObject<UActorClickHandler>();
 	UClickHandlerInterface* BackgroundClickHandler = NewObject<UBackgroundClickHandler>();
 
 	RegisterHandler(PropSlotClickHandler);
+	RegisterHandler(MultiSelectClickHandler);
 	RegisterHandler(RotateGizmoClickHandler);
 	RegisterHandler(GizmoClickHandler);
 	RegisterHandler(ActorClickHandler);
@@ -102,7 +116,8 @@ void UClickHandlerManager::OnWidgetDragLeave()
 {
 	bMouseEnterUI = false;
 	
-	ControlledClickResponse.TargetProp->SetActorHiddenInGame(false);
+	AActor* Actor = FCommonUtil::SafeLast(ControlledClickResponse.SelectedProps);
+	if (Actor) Actor->SetActorHiddenInGame(false);
 }
 
 void UClickHandlerManager::OnWidgetDragEnter()
@@ -120,7 +135,16 @@ void UClickHandlerManager::OnWidgetDragEnter()
 		HandleClick(PlayerController);
 	}
 
-	ControlledClickResponse.TargetProp->SetActorHiddenInGame(true);
+	AActor* Actor = FCommonUtil::SafeLast(ControlledClickResponse.SelectedProps);
+	if (Actor)
+	{
+		Actor->SetActorHiddenInGame(true);
+		AMapEditorState* GameState = GetWorld()->GetGameState<AMapEditorState>();
+		if (GameState)
+		{
+			GameState->GetWarningPropManager()->RegisterNecessaryProp(Cast<APrimitiveProp>(Actor));
+		}
+	}
 }
 
 void UClickHandlerManager::OnPropDragCancelled()
@@ -130,10 +154,21 @@ void UClickHandlerManager::OnPropDragCancelled()
 	
 	if (bMouseEnterUI)
 	{
-		ControlledClickResponse.TargetProp->Destroy();
+		APrimitiveProp* LastSelected = FCommonUtil::SafeLast(ControlledClickResponse.SelectedProps);
+		if (LastSelected)
+		{
+			AMapEditorState* GameState = GetWorld()->GetGameState<AMapEditorState>();
+			if (GameState)
+			{
+				GameState->GetWarningPropManager()->UnRegister(Cast<APrimitiveProp>(LastSelected));
+			}
+			LastSelected->Destroy();
+			OnPropDragCancelledDelegate.Execute();
+		}
 		ControlledClickResponse = FClickResponse();
 	}
 
 	ControlledClickResponse.Result = EClickHandlingResult::None;
 	ControlledClickResponse.ClickedPropByWidget = nullptr;
+	OnPropDragCancelledDelegate.Clear();
 }

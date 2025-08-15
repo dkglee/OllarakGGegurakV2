@@ -43,7 +43,9 @@ void UCategoryUI::NativeOnInitialized()
 	{
 		// Category 시스템을 가져옴.
 		CategorySystem = GameState->GetCategorySystem();
-		GameState->HttpManagerComponent->HttpHandlers[EMessageType::HttpMultipartRequest]->OnMessageReceived.AddUObject(this, &UCategoryUI::OnImageSearchResponse);
+		
+		// 더이상 통신 없음
+		// GameState->HttpManagerComponent->HttpHandlers[EMessageType::HttpMultipartRequest]->OnMessageReceived.AddUObject(this, &UCategoryUI::OnImageSearchResponse);
 	}
 
 	if (!CategorySystem)
@@ -66,7 +68,7 @@ void UCategoryUI::NativeOnInitialized()
 
 			MajorCategoryButtonUI->OnMajorButtonClicked.AddDynamic(this, &UCategoryUI::OnMajorCategoryButtonClicked);
 			
-			if (MajorCategory == EMajorCategoryType::Basic)
+			if (MajorCategory == EMajorCategoryType::Necessary)
 			{
 				SelectedMajorCategory = MajorCategoryButtonUI;
 			}
@@ -258,35 +260,35 @@ void UCategoryUI::OnSearchTextChanged(const FText& Text)
 	}), SearchDelay, false);
 }
 
-// TODO: OpenFileDialog를 사용하지 않게 해야 함.
+// fixed : AI 이미지 기능을 사용하지 않음
 void UCategoryUI::OnImageSearchButtonClicked()
 {
-	SearchText->SetText(FText::FromString(TEXT("")));
-	SearchText->SetHintText(FText::FromString(TEXT("이미지 검색 중 입니다...")));
-	SearchText->SetIsReadOnly(true);
-	GetWorld()->GetTimerManager().ClearTimer(SearchTimerHandle);
-
-	AMapEditorState* GameState = GetWorld()->GetGameState<AMapEditorState>();
-	if (!GameState)
-	{
-		FFastLogger::LogConsole(TEXT("GameState is null"));
-		SetTextToDefault();
-		SetGridToDefault();
-		return;
-	}
-
-	GameState->GetLoadMapComponent()->GetFileBrowserUI()->OnFileSelectedDelegate.Unbind();
-	GameState->GetLoadMapComponent()->GetFileBrowserUI()->OnFileSelectedDelegate.BindUObject(this, &UCategoryUI::OnImageSearchButtonResponse);
-	GameState->GetLoadMapComponent()->GetFileBrowserUI()->SetSuffixes({TEXT(".jpg"), TEXT(".png")});
-	GameState->GetLoadMapComponent()->GetFileBrowserUI()->SetInfoText(TEXT("검색할 이미지를 선택해 주세요.\nAI가 자동으로 해당 계절에 맞는 에셋을 추천해줍니다."));
-	
-	FString RelativeDir = FPaths::ProjectDir();
-
-	FString AbsoluteDir = FPaths::ConvertRelativePathToFull(RelativeDir);
-	FPaths::MakePlatformFilename(AbsoluteDir);
-	
-	GameState->GetLoadMapComponent()->GetFileBrowserUI()->SetVisibility(ESlateVisibility::Visible);
-	GameState->GetLoadMapComponent()->GetFileBrowserUI()->LoadDirectoryContents(AbsoluteDir);
+	// SearchText->SetText(FText::FromString(TEXT("")));
+	// SearchText->SetHintText(FText::FromString(TEXT("이미지 검색 중 입니다...")));
+	// SearchText->SetIsReadOnly(true);
+	// GetWorld()->GetTimerManager().ClearTimer(SearchTimerHandle);
+	//
+	// AMapEditorState* GameState = GetWorld()->GetGameState<AMapEditorState>();
+	// if (!GameState)
+	// {
+	// 	FFastLogger::LogConsole(TEXT("GameState is null"));
+	// 	SetTextToDefault();
+	// 	SetGridToDefault();
+	// 	return;
+	// }
+	//
+	// GameState->GetLoadMapComponent()->GetFileBrowserUI()->OnFileSelectedDelegate.Unbind();
+	// GameState->GetLoadMapComponent()->GetFileBrowserUI()->OnFileSelectedDelegate.BindUObject(this, &UCategoryUI::OnImageSearchButtonResponse);
+	// GameState->GetLoadMapComponent()->GetFileBrowserUI()->SetSuffixes({TEXT(".jpg"), TEXT(".png")});
+	// GameState->GetLoadMapComponent()->GetFileBrowserUI()->SetInfoText(TEXT("검색할 이미지를 선택해 주세요.\nAI가 자동으로 해당 계절에 맞는 에셋을 추천해줍니다."));
+	//
+	// FString RelativeDir = FPaths::ProjectDir();
+	//
+	// FString AbsoluteDir = FPaths::ConvertRelativePathToFull(RelativeDir);
+	// FPaths::MakePlatformFilename(AbsoluteDir);
+	//
+	// GameState->GetLoadMapComponent()->GetFileBrowserUI()->SetVisibility(ESlateVisibility::Visible);
+	// GameState->GetLoadMapComponent()->GetFileBrowserUI()->LoadDirectoryContents(AbsoluteDir);
 }
 
 bool UCategoryUI::OpenFileDialog(FString& OutFilePath)
@@ -471,7 +473,6 @@ void UCategoryUI::SetGridToDefault()
 
 void UCategoryUI::OnImageSearchButtonResponse(const FString& ImgPath, bool bSuccess)
 {
-	FFastLogger::LogScreen(FColor::Red, TEXT("OnImageSearchButtonResponse : %s"), *ImgPath);
 	if (!bSuccess)
 	{
 		SetTextToDefault();

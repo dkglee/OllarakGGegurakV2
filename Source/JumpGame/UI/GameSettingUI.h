@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "GamePlayerSettings.h"
 #include "Blueprint/UserWidget.h"
-#include "JumpGame/Characters/Frog.h"
 #include "GameSettingUI.generated.h"
 
 /**/
@@ -25,6 +24,7 @@ class JUMPGAME_API UGameSettingUI : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	UGameSettingUI(const FObjectInitializer& InObjectInitializer);
 	virtual void NativeOnInitialized() override;
 
 	// 세팅 저장
@@ -119,7 +119,7 @@ public:
 
 	// 밝기 (캐릭터가 가지고 있다)
 	UPROPERTY()
-	AFrog* Character;
+	class AFrog* Character;
 	UPROPERTY(meta = (BindWidget))
 	class USlider* Sd_Light;
 	
@@ -147,18 +147,39 @@ public:
 
 	// 뒤로가기
 	UPROPERTY(meta = (BindWidget))
-	class UButton* Btn_QuitGame;
+	class UButton* Btn_QuitGame; // 게임 종료 및 로비로 나가기
 	UPROPERTY(meta = (BindWidget))
-	class UButton* Btn_GoBack;
+	class UButton* Btn_GoBack; // 적용하기
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* Text_QuitGame;
+	UPROPERTY(meta = (BindWidget))
+	class UButton* Btn_X; // 창끄기
 
 	UFUNCTION()
 	void OnClickQuitGame();
 	UFUNCTION()
+	void MapKind();
+	UFUNCTION()
 	void OnClickGoBack();
+	UFUNCTION()
+	void OnClickX();
 
 	// 게임종료 UI 띄우기
 	UPROPERTY(editanywhere, BlueprintReadWrite)
 	TSubclassOf<class UGameQuitUI> GameQuitUIClass;
 	UPROPERTY(editanywhere, BlueprintReadWrite)
 	UGameQuitUI* GameQuitUI;
+
+	UPROPERTY(editanywhere, BlueprintReadWrite)
+	TSubclassOf<class ULevelTransfer> WidgetTransferUIClass;
+	UPROPERTY(editanywhere, BlueprintReadWrite)
+	ULevelTransfer* WidgetTransferUI;
+
+	UPROPERTY()
+	FTimerHandle TransitionTimer;
+	UPROPERTY()
+	float RadiusValue{};
+
+	UFUNCTION()
+	void TransitionAnimation();
 };

@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "JumpGame/Utils/CommonUtils.h"
 #include "MapEditingHUD.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDragEnterWidget);
@@ -29,9 +30,17 @@ public:
 	FOnDragEnterWidget OnDragEnterWidget;
 	UPROPERTY(BlueprintAssignable)
 	FOnDragLeaveWidget OnDragLeaveWidget;
+
+	GETTER(class UCategoryUI*, EditCategoryUI);
+	GETTER(class UWarningUI*, EditWarningUI);
+	
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget), meta = (AllowPrivateAccess = "true"), Category = "UI")
 	class UCategoryUI* EditCategoryUI;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget), meta = (AllowPrivateAccess = "true"), Category = "UI")
+	class UWarningUI* EditWarningUI;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget), meta = (AllowPrivateAccess = "true"), Category = "UI")
+	class UPlayStopUI* EditPlayStopUI;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidgetAnim), Transient, meta = (AllowPrivateAccess = "true"), Category = "UI")
 	class UWidgetAnimation* CategoryHideAnim;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget), meta = (AllowPrivateAccess = "true"), Category = "UI")

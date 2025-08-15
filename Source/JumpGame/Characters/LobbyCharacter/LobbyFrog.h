@@ -6,7 +6,15 @@
 #include "JumpGame/Characters/Frog.h"
 #include "LobbyFrog.generated.h"
 
+class UStageMapNodeComponent;
 class ULobbyCameraComp;
+
+UENUM(BlueprintType)
+enum class ELobbyCharacterState : uint8
+{
+	InLobby, // 로비 상태
+	OnStageMap // 스테이지 상태 (이동 허용)
+};
 
 UCLASS()
 class JUMPGAME_API ALobbyFrog : public AFrog
@@ -38,4 +46,21 @@ public:
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	ULobbyCameraComp* CameraComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UStageMapNodeComponent* StageMapNodeComponent;
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ELobbyCharacterState CurrentState;
+
+	UPROPERTY(EditAnywhere, Category="Animation")
+	TSubclassOf<class UAnimInstance> LobbyAnimBP;
+	UPROPERTY(EditAnywhere, Category="Animation")
+	TSubclassOf<class UAnimInstance> StageMapAnimBP;
+	void UpdateAnimation(ELobbyCharacterState NewState);
+
+	UFUNCTION()
+	void RestoreNodePosition(); // 들어갔던 노드로 복귀하자
 };
+

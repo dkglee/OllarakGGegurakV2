@@ -22,6 +22,7 @@
 #include "JumpGame/MapEditor/DragDropOperation/WidgetMapEditDragDropOperation.h"
 #include "JumpGame/MapEditor/PressedHandlers/PressedHandlerManager.h"
 #include "JumpGame/MapEditor/RotateHandlers/RotateHandlerManager.h"
+#include "JumpGame/MapEditor/WarningPropManager/WarningPropManager.h"
 #include "JumpGame/Props/PrimitiveProp/PrimitiveProp.h"
 #include "JumpGame/UI/MapEditing/MapEditingHUD.h"
 #include "JumpGame/Utils/CursorManager.h"
@@ -112,11 +113,22 @@ AMapEditingPawn::AMapEditingPawn()
 	{
 		IA_RotateGizmoMode = IA_ROTATE_GIZMO_MODE.Object;
 	}
+	static ConstructorHelpers::FObjectFinder<UInputAction> IA_MULTISELECT
+	(TEXT("/Game/MapEditor/Input/Actions/IA_MultiSelect.IA_MultiSelect"));
+	if (IA_MULTISELECT.Succeeded())
+	{
+		IA_MultiSelect = IA_MULTISELECT.Object;
+	}
+	static ConstructorHelpers::FObjectFinder<UInputAction> IA_COPY_MODE
+	(TEXT("/Game/MapEditor/Input/Actions/IA_CopyMode.IA_CopyMode"));
+	if (IA_COPY_MODE.Succeeded())
+	{
+		IA_CopyMode = IA_COPY_MODE.Object;
+	}
 
 	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionComponentMapEditing"));
 	CollisionComponent->InitSphereRadius(35.0f);
-	CollisionComponent->SetCollisionProfileName(TEXT("EditorPawn"));
-	CollisionComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	CollisionComponent->SetCollisionProfileName(TEXT("MapEditorPreset"));
 
 	CollisionComponent->CanCharacterStepUpOn = ECB_No;
 	CollisionComponent->SetShouldUpdatePhysicsVolume(true);
@@ -150,6 +162,9 @@ void AMapEditingPawn::BeginPlay()
 		}
 	}
 	UCursorManager::SetCursor(this, ECursorName::LeafCursor);
+
+	CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &AMapEditingPawn::OnCollisionBeginOverlap);
+	CollisionComponent->OnComponentEndOverlap.AddDynamic(this, &AMapEditingPawn::OnCollisionEndOverlap);
 }
 
 // Called every frame
@@ -188,6 +203,12 @@ void AMapEditingPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 		PlayerInput->BindAction(IA_MoveGizmoMode, ETriggerEvent::Started, this, &AMapEditingPawn::HandleChangeMoveGizmoMode);
 		PlayerInput->BindAction(IA_RotateGizmoMode, ETriggerEvent::Started, this, &AMapEditingPawn::HandleChangeRotateGizmoMode);
+
+		PlayerInput->BindAction(IA_MultiSelect, ETriggerEvent::Started, this, &AMapEditingPawn::HandleStartedMultiSelect);
+		PlayerInput->BindAction(IA_MultiSelect, ETriggerEvent::Completed, this, &AMapEditingPawn::HandleCompletedMultiSelect);
+
+		PlayerInput->BindAction(IA_CopyMode, ETriggerEvent::Started, this, &AMapEditingPawn::HandleStartedCopyMode);
+		PlayerInput->BindAction(IA_CopyMode, ETriggerEvent::Completed, this, &AMapEditingPawn::HandleCompletedCopyMode);
 	}
 }
 
@@ -327,37 +348,22 @@ void AMapEditingPawn::HandleScroll(const FInputActionValue& InputActionValue)
 void AMapEditingPawn::HandleTeleport(const FInputActionValue& InputActionValue)
 {
 	FClickResponse HandlingInfo = ClickHandlerManager->GetControlledClickResponse();
-	if (!HandlingInfo.TargetProp || !HandlingInfo.TargetProp->IsValidLowLevel())
+
+	APrimitiveProp* TargetProp = nullptr;
+	AMapEditorState* EditorState = Cast<AMapEditorState>(GetWorld()->GetGameState());
+	if (EditorState)
 	{
-		return;
+		TargetProp = EditorState->GetWarningPropManager()->GetTargetProp();
 	}
-	// Target Location을 가져옴
-	FVector TargetLocation = HandlingInfo.TargetProp->GetActorLocation() - FVector(0.f, 0.f, 50.f);
-	// Target Location에서 현재 카메라가 보고 있는 방향의 뒤로 Size + @ 만큼 이동
-	FVector Direction = Controller->GetControlRotation().Vector();
-	FVector Size = HandlingInfo.TargetProp->GetGridComp()->GetSize() * HandlingInfo.TargetProp->GetGridComp()->GetSnapSize();
-	float MaxOffset = Size.GetMax() + 200.f;
-	FVector NewLocation = TargetLocation - Direction * MaxOffset;
-
-	// Pawn을 이동
-	/** --- Latent action 설정 --- */
-	FLatentActionInfo LatentInfo;
-	LatentInfo.CallbackTarget   = this;          // 필수
-	LatentInfo.UUID             = __LINE__;      // 고유값(아무 숫자나 OK)
-	LatentInfo.Linkage          = 0;
-	LatentInfo.ExecutionFunction = FName(TEXT("OnMoveFinished"));;    // 이동 완료 시 호출 함수 이름(선택)
-
-	// 0.25초 동안 EaseIn‧EaseOut 보간
-	UKismetSystemLibrary::MoveComponentTo(
-		GetRootComponent(),          // Pawn 루트(전 Actor 이동)
-		NewLocation,                 // 최종 위치
-		GetActorRotation(),          // 회전 유지
-		true,                        // bEaseOut
-		true,                        // bEaseIn
-		0.25f,                       // Duration
-		false,                       // bForceShortestRotationPath
-		EMoveComponentAction::Move,  // 바로 이동
-		LatentInfo);
+	
+	APrimitiveProp* Temp = FCommonUtil::SafeLast(HandlingInfo.SelectedProps);
+	if (Temp && Temp->IsValidLowLevel())
+	{
+		TargetProp = Temp;
+		EditorState->GetWarningPropManager()->ResetIndex();
+	}
+	
+	TeleportToProp(TargetProp);
 }
 
 void AMapEditingPawn::HandleChangeMoveGizmoMode(const FInputActionValue& InputActionValue)
@@ -368,9 +374,9 @@ void AMapEditingPawn::HandleChangeMoveGizmoMode(const FInputActionValue& InputAc
 	ClickHandlerManager->SetbRotateGizmoMode(bRotateGizmoMode);
 
 	FClickResponse ControlledInfo = ClickHandlerManager->GetControlledClickResponse();
-	if (ControlledInfo.TargetProp && ControlledInfo.TargetProp->IsValidLowLevel())
+	if (FCommonUtil::SafeLast(ControlledInfo.SelectedProps) && FCommonUtil::SafeLast(ControlledInfo.SelectedProps)->IsValidLowLevel())
 	{
-		ControlledInfo.TargetProp->ShowMoveGizmo();
+		FCommonUtil::SafeLast(ControlledInfo.SelectedProps)->ShowMoveGizmo();
 	}
 	
 	if (!(ControlledInfo.TargetGizmo && ControlledInfo.TargetGizmo->IsValidLowLevel()))
@@ -392,9 +398,9 @@ void AMapEditingPawn::HandleChangeRotateGizmoMode(const FInputActionValue& Input
 
 	// 현재 클릭되고 있는 Gizmo가 있는지 확인
 	FClickResponse ControlledInfo = ClickHandlerManager->GetControlledClickResponse();
-	if (ControlledInfo.TargetProp && ControlledInfo.TargetProp->IsValidLowLevel())
+	if (FCommonUtil::SafeLast(ControlledInfo.SelectedProps) && FCommonUtil::SafeLast(ControlledInfo.SelectedProps)->IsValidLowLevel())
 	{
-		ControlledInfo.TargetProp->ShowRotateGizmo();
+		FCommonUtil::SafeLast(ControlledInfo.SelectedProps)->ShowRotateGizmo();
 	}
 	
 	if (!(ControlledInfo.TargetGizmo && ControlledInfo.TargetGizmo->IsValidLowLevel()))
@@ -405,6 +411,26 @@ void AMapEditingPawn::HandleChangeRotateGizmoMode(const FInputActionValue& Input
 	ControlledInfo.TargetGizmo->SetUnSelected();
 	ControlledInfo.TargetGizmo = nullptr;
 	ClickHandlerManager->SetControlledClickResponse(ControlledInfo);
+}
+
+void AMapEditingPawn::HandleStartedMultiSelect(const FInputActionValue& InputActionValue)
+{
+	ClickHandlerManager->SetbCtrlMultiSelect(true);
+}
+
+void AMapEditingPawn::HandleCompletedMultiSelect(const FInputActionValue& InputActionValue)
+{
+	ClickHandlerManager->SetbCtrlMultiSelect(false);
+}
+
+void AMapEditingPawn::HandleStartedCopyMode(const FInputActionValue& InputActionValue)
+{
+	PressedHandlerManager->SetbCopyMode(true);
+}
+
+void AMapEditingPawn::HandleCompletedCopyMode(const FInputActionValue& InputActionValue)
+{
+	PressedHandlerManager->SetbCopyMode(false);
 }
 
 void AMapEditingPawn::MoveForward(float Val)
@@ -444,4 +470,72 @@ void AMapEditingPawn::SetActive(bool bInActive)
 
 void AMapEditingPawn::OnMoveFinished()
 {
+}
+
+void AMapEditingPawn::TeleportToProp(APrimitiveProp* Prop)
+{
+	if (!Prop || !Prop->IsValidLowLevel())
+	{
+		return;
+	}
+	
+	// Target Location을 가져옴
+	FVector TargetLocation = Prop->GetActorLocation() - FVector(0.f, 0.f, 50.f);
+	// Target Location에서 현재 카메라가 보고 있는 방향의 뒤로 Size + @ 만큼 이동
+	FVector Direction = Controller->GetControlRotation().Vector();
+	FVector Size = Prop->GetGridComp()->GetSize() * Prop->GetGridComp()->GetSnapSize();
+	float MaxOffset = Size.GetMax() + 200.f;
+	FVector NewLocation = TargetLocation - Direction * MaxOffset;
+
+	// Pawn을 이동
+	/** --- Latent action 설정 --- */
+	FLatentActionInfo LatentInfo;
+	LatentInfo.CallbackTarget   = this;          // 필수
+	LatentInfo.UUID             = __LINE__;      // 고유값(아무 숫자나 OK)
+	LatentInfo.Linkage          = 0;
+	LatentInfo.ExecutionFunction = FName(TEXT("OnMoveFinished"));;    // 이동 완료 시 호출 함수 이름(선택)
+
+	// 0.25초 동안 EaseIn‧EaseOut 보간
+	UKismetSystemLibrary::MoveComponentTo(
+		GetRootComponent(),          // Pawn 루트(전 Actor 이동)
+		NewLocation,                 // 최종 위치
+		GetActorRotation(),          // 회전 유지
+		true,                        // bEaseOut
+		true,                        // bEaseIn
+		0.25f,                       // Duration
+		false,                       // bForceShortestRotationPath
+		EMoveComponentAction::Move,  // 바로 이동
+		LatentInfo);
+}
+
+void AMapEditingPawn::OnCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (!OtherActor || !OtherActor->IsValidLowLevel())
+	{
+		return ;
+	}
+	// 검출이 안되게 막는다
+	APrimitiveProp* OtherProp = Cast<APrimitiveProp>(OtherActor);
+	if (!OtherProp)
+	{
+		return ;
+	}
+	// OtherProp->SetCollision(false);
+}
+
+void AMapEditingPawn::OnCollisionEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (!OtherActor || !OtherActor->IsValidLowLevel())
+	{
+		return ;
+	}
+	// 검출이 되게 한다.
+	APrimitiveProp* OtherProp = Cast<APrimitiveProp>(OtherActor);
+	if (!OtherProp)
+	{
+		return ;
+	}
+	// OtherProp->SetCollision(true);
 }

@@ -38,8 +38,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetUnSelected();
 	UFUNCTION(BlueprintCallable)
-	void SetPrimitivePropCollision(bool bCond);
-	UFUNCTION(BlueprintCallable)
 	void SetGizmosCollision(bool bCond);
 	UFUNCTION(BlueprintCallable)
 	virtual void RotateAllGizmos();
@@ -57,6 +55,9 @@ public:
 
 	void ShowRotateGizmo();;
 	void ShowMoveGizmo();
+
+	void ActivateGizmos(bool bRotateGizmoMode);
+	void DeactivateGizmos();
 	
 protected:
 	UFUNCTION()
@@ -144,4 +145,7 @@ protected:
 	bool bCanClick = true;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CollisionEnable", meta = (AllowPrivateAccess = "true"))
 	bool bEnableCollision = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GizmoOffset", meta = (AllowPrivateAccess = "true"))
+	FVector GizmoOffset = FVector(50.0f, 50.0f, 50.0f); // Gizmo의 Offset 크기
 };

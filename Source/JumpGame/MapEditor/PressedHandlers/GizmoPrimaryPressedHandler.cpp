@@ -10,16 +10,16 @@
 #include "JumpGame/Props/PrimitiveProp/PrimitiveProp.h"
 
 
-FGizmoPrimaryPressedHandler::FGizmoPrimaryPressedHandler()
+UGizmoPrimaryPressedHandler::UGizmoPrimaryPressedHandler()
 {
 }
 
-FGizmoPrimaryPressedHandler::~FGizmoPrimaryPressedHandler()
+UGizmoPrimaryPressedHandler::~UGizmoPrimaryPressedHandler()
 {
 }
 
-bool FGizmoPrimaryPressedHandler::HandlePressed(FClickResponse& PressedResponse,
-	class AMapEditingPlayerController* PlayerController, const FGizmoPressedInfo& /*GizmoPressedInfo*/)
+bool UGizmoPrimaryPressedHandler::HandlePressed(FClickResponse& PressedResponse,
+	class AMapEditingPlayerController* PlayerController, FGizmoPressedInfo& /*GizmoPressedInfo*/)
 {
 	if (PressedResponse.Result != EClickHandlingResult::GizmoEditing)
 	{
@@ -30,20 +30,26 @@ bool FGizmoPrimaryPressedHandler::HandlePressed(FClickResponse& PressedResponse,
 	{
 		return false;
 	}
+
+	// Snap 기능은 한 개만 지원
+	if (PressedResponse.SelectedProps.Num() > 1)
+	{
+		return false;
+	}
 	
-	PressedResponse.TargetProp->SetGizmosCollision(false);
+	PressedResponse.SelectedProps.Last()->SetGizmosCollision(false);
 	
 	FHitResult HitResult;
 	bool bResult = PlayerController->OnPressedOperation(PressedType, HitResult);
 	
-	PressedResponse.TargetProp->SetGizmosCollision(true);
+	PressedResponse.SelectedProps.Last()->SetGizmosCollision(true);
 	
 	if (!bResult)
 	{
 		return false;
 	}
 	
-	TWeakObjectPtr<UGridComponent> GridComponent = PressedResponse.TargetProp->GetGridComp();
+	TWeakObjectPtr<UGridComponent> GridComponent = PressedResponse.SelectedProps.Last()->GetGridComp();
 	UGridComponent* Grid = GridComponent.Get();
 	if (!Grid)
 	{

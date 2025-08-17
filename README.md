@@ -12,7 +12,7 @@
 
 # 기능 소개
 
-#### 맵 에디팅 (스냅 이동)
+#### 맵 에디팅 (기즈모 이동)
 
 
 https://github.com/user-attachments/assets/e3d5cb73-1bfd-47b1-b317-c7572b8714d3

@@ -4,13 +4,10 @@
 <b><올라락! 깨구락!></b>은 <b>샌드박스 기능을 통한 유저 기반 무한 확장 컨텐츠(UGC)</b>를 제공하며, AI 컨텐츠 및 서비스가 접목된 3D 플랫폼 게임입니다.
 
 ### 대표 영상
-> 아래 이미지를 클릭하면 유튜브 플레이 영상을 확인할 수 있습니다.
 
-<div align="center">
+https://github.com/user-attachments/assets/ab9bfd88-c8a0-4c61-9e06-0d259c62a0cd
 
-[![올라락 깨구락 플레이 영상](http://img.youtube.com/vi/ora28k2jDWk/hqdefault.jpg)](https://youtu.be/ora28k2jDWk)
-
-</div>
+> [해당 링크를 클릭하면 유튜브에서 보실 수 있습니다.](https://youtu.be/ora28k2jDWk)
 
 ---
 
@@ -114,16 +111,22 @@ https://github.com/user-attachments/assets/b2e2e77c-2e14-4810-ac86-560e1fa940e5
 
 **시연 영상**
 
+https://github.com/user-attachments/assets/28ffb3af-2231-4e8f-8bcc-bcbd10f70ba9
+
 **소스 코드**
 
 ---
 
-## 기타
+## 게임
 
 ### 06. 로비 화면 캐릭터 마우스 따라가게 하기
 마우스를 따라서 캐릭터의 고개를 움직이게 하는 기능을 구현하였습니다.
 
 **시연 영상**
+
+
+https://github.com/user-attachments/assets/527edb62-70af-474a-8836-859c8c5a2d09
+
 
 **설명**
 다음의 순서로 문제를 해결하였습니다.
@@ -132,5 +135,21 @@ https://github.com/user-attachments/assets/b2e2e77c-2e14-4810-ac86-560e1fa940e5
 2. 마우스 좌표를 월드 좌표로 변환
 3. 해당 좌표를 카메라의 로컬 좌표계로 변환 (전치 행렬 사용)
 4. 화면 최소·최대 좌표 기준으로 마우스 위치의 비율을 구해 깨구락의 Pitch와 Roll 계산
+
+**소스 코드**
+
+---
+
+## 통신 모듈
+
+### 07. 통신 모듈
+시선 추적, 맵 제작 AI 에이전트, 이미지 검색, 음성 퀴즈 등 다양한 AI 서버와의 연동에 따라 복잡한 통신 스택이 요구되었고, 이를 통합적으로 대응하기 위한 통신 모듈을 개발하였습니다.
+
+**통신 아키텍쳐**
+<img width="354" height="230" alt="image" src="https://github.com/user-attachments/assets/b01ecc92-d926-4de5-a8e9-3708da6318f0" />
+
+**설명**
+- WebSocket, IPC, HTTPS를 아우르는 통신 인터페이스 구현
+- Union(공용체) 기반 바이너리 통신 처리를 도입하여 메모리 공유 시 형 변환에 따른 자동 파싱 설계
 
 **소스 코드**
